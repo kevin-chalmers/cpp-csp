@@ -3,8 +3,6 @@ project(cpp_csp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-add_executable(cpp_csp main.cpp)
-target_link_libraries(cpp_csp pthread)
 add_executable(commstime1 demos/commstime1.cpp)
 target_link_libraries(commstime1 pthread)
 add_executable(commstime2 demos/commstime2.cpp)

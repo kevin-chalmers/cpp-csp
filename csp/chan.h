@@ -9,6 +9,7 @@
 #include <limits>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 #include "poison_exception.h"
 #include "alt.h"
 #include "alting_barrier.h"
@@ -1191,8 +1192,8 @@ namespace csp
             {
                 // Lock the mutex
                 std::unique_lock<std::mutex> lock(_mut);
-                // Check if channel is already reading
-                if (_reading)
+                // Check if channel is reading
+                if (!_reading)
                     throw std::logic_error("Channel not in extended read");
                 // Set empty to true and reading to false
                 _hold.pop_back();
@@ -1342,6 +1343,151 @@ namespace csp
          * \brief Destroys the channel object.
          */
         ~basic_chan() { }
+    };
+
+    /*! \class busy_chan
+     * \brief A busy (spinning) implementation of a channel.
+     *
+     * \tparam T the type that the channel operates on.
+     * \tparam POISONABLE Flag to indicate if the channel can be poisoned.
+     *
+     * \author Kevin Chalmers
+     *
+     * \date 17/10/2016
+     */
+    template<typename T, bool POISONABLE = false>
+    class busy_chan : public chan<T, POISONABLE>
+    {
+        // Friend declarations
+        friend class one2one_chan<T, POISONABLE>;
+        friend class one2any_chan<T, POISONABLE>;
+        friend class any2one_chan<T, POISONABLE>;
+        friend class any2any_chan<T, POISONABLE>;
+    protected:
+        /*! \class busy_chan_internal
+         * \brief Internal representation of a busy channel.
+         *
+         * \author Kevin Chalmers
+         *
+         * \date 17/10/2016
+         */
+        class busy_chan_internal : public chan<T, POISONABLE>::chan_internal
+        {
+        private:
+
+            std::vector<T> _hold; //!< Current value on the channel.
+
+            atomic<bool> _reading = false; //!< Flag used to control and indicate state of reading process.
+
+            atomic<bool> _writing = false; //!< Flag used to control and indicate state of writing process.
+
+            alt _alt; //!< Alt used when channel is in a selection operation.
+
+            atomic<bool> _alting = false; //!< Flag used to indicate whether the channel is being used in a selection operation.
+
+            atomic<unsigned int> _strength = 0; //!< Strength of poison on channel.
+
+        protected:
+            /*!
+             * \brief Performs a write operation on the channel.
+             *
+             * \param[in] value The value to write to the channel.
+             */
+            void write(T value) noexcept(false) override final
+            {
+                // Store value
+                _hold.push_back(std::move(value));
+                // Set writing to true - will inform reading end if spinning.
+                _writing.store(true, std::memory_order_release);
+                // Now check if an alt has occurred at some point prior to now.
+                if (_alting.load())
+                    guard::guard_internal::schedule(_alt);
+                // Now spin waiting for reader to grab the date
+                while (!_reading.load(std::memory_order_acquire));
+                // At this point, we can check if we have been poisoned.  Poisoning will leave reading as true.  Therefore,
+                // if poisoning happened, it happened before now.
+                if (_strength.load() > 0)
+                    throw poison_exception(_strength.load());
+                // At this point, we know that the reader has the value.  It will at some point wait for us to signal
+                // we are finished (it may already be waiting for that).  Set writing to false to signal.
+                _writing.store(false, std::memory_order_release);
+                // Now we need to wait until the reader has seen that we are finished.
+                while (_reading.load(std::memory_order_acquire));
+                // We have now completed.  The state visible to each thread should be consistent enough to continue without
+                // a hazard.
+            }
+
+            /*!
+             * \brief Performs a read operation on the channel.
+             *
+             * \return The value read from the channel.
+             */
+            T read() noexcept(false) override final
+            {
+                // Spin for the writer.  Cannot progress until writer has started.
+                while (!_writing.load(std::memory_order_acquire));
+                // At this point, we can check if we have been poisoned.  Poisoning will leave writing as true.  Therefore,
+                // if poisoning happened, it happened before now.
+                if (_strength.load() > 0)
+                    throw poison_exception(_strength.load());
+                // At this point, we know the writer has at least stored the value in the hold.  So let's grab it.
+                auto to_return = std::move(_hold[0]);
+                _hold.pop_back();
+                // Now we need to inform the writer that we have grabbed the value.  It will at some point wait for us to
+                // signal we have done so (it may already be waiting for that).  Set reading to true to signal.
+                _reading.store(true, std::memory_order_release);
+                // Now we need to wait for the writer to signal that it has seen we have grabbed the value, and signal
+                // that it has effectively completed.
+                while (_writing.load(std::memory_order_acquire));
+                // The writer will at some point be waiting for us to signal that we have also completed.
+                _reading.store(false, std::memory_order_release);
+                // We have now completed.  The state visible to each thread should be consistent enough to continue without
+                // a hazard.
+                return std::move(to_return);
+            }
+
+            /*!
+             * \brief Starts an extended read operation.
+             *
+             * \return The value read from the channel.
+             */
+            T start_read() noexcept(false) override final
+            {
+                // Sanity check - make sure we are no reading.
+                if (_reading.load(std::memory_order_acquire))
+                    throw std::logic_error("Channel already in extended read");
+                // Spin for the writer.  Cannot progress until writer has started.
+                while (!_writing.load(std::memory_order_acquire));
+                // At this point, we can check if we have been poisoned.  Poisoning will leave writing as true.  Therefore,
+                // if poisoning happened, it happened before now.
+                if (_strength.load() > 0)
+                    throw poison_exception(_strength.load());
+                // At this point, we know the writer has at least stored the value in the hold.  So let's grab it.
+                auto to_return = std::move(_hold[0]);
+                _hold.pop_back();
+                // Now we need to inform the writer that we have grabbed the value.  It will at some point wait for us to
+                // signal we have done so (it may already be waiting for that).  Set reading to true to signal.
+                _reading.store(true, std::memory_order_release);
+                // Now we need to wait for the writer to signal that it has seen we have grabbed the value, and signal
+                // that it has effectively completed.
+                while (_writing.load(std::memory_order_acquire));
+                // In a normal read, we would now inform the writer.  However, we are extended.  Just return the value.
+                return std::move(to_return);
+            }
+
+            /*!
+             * \brief Completes extended read operation.
+             */
+            void end_read() noexcept(false) override final
+            {
+                // Ensure we are in an extended read.
+                if (!_reading.load())
+                    throw std::logic_error("Channel not in extended read");
+                // At this point, all we really need to do is set reading to false.  The writer is currently spinning
+                // waiting for this value (or at least will be if not already).
+                _reading.store(false, std::memory_order_release);
+            }
+        };
     };
 
     /*! \class bufferd_chan
