@@ -1487,7 +1487,147 @@ namespace csp
                 // waiting for this value (or at least will be if not already).
                 _reading.store(false, std::memory_order_release);
             }
+
+            /*!
+             * \brief Enable the channel with an alt
+             *
+             * \param[in] a The alt that is being used in the selection.
+             *
+             * \return True if the channel is ready, false otherwise.
+             */
+            bool enable(const alt &a) noexcept override final
+            {
+                // Set alt and alting
+                _alt = a;
+                _alting.store(true);
+                // Check if writing
+                auto local_writing = _writing.load();
+                // At this point we know one of the following:
+                // 1. local_writing is true, and the write has committed before seeing alting
+                // 2. local_writing is true, and the channel is poisoned
+                // 3. local_writing is true, and the write saw alting was true before committing
+                // 4. local_writing is false, and the write has not committed
+                // Deal with 2 first
+                // Check if poisoned
+                if (_strength.load() > 0)
+                    return true;
+                // 1 & 3 mean we are in a committed write.
+                // 4 will be dealt with by memory ordering.  The write will see alting as true and act accordingly.
+                // In both cases, local_writing contains the value to return.
+                return local_writing;
+            }
+
+            /*!
+             * \brief Disables the channel with an alt.
+             *
+             * \return True if the channel is ready, false otherwise.
+             */
+            bool disable() noexcept override final
+            {
+                // First set alting to false
+                _alting.store(false);
+                // Now get the value of writing
+                return _writing.load();
+                // At this point we know one of the following:
+                // 1. The write has not committed.
+                // 2. The write has committed, and previously saw alting as true.
+                // 3. The write has committed, but never saw alting as true.
+                // 1 will return false (the value of local_writing)
+                // 2 & 3 will return true.  The write has committed, so is ready.  This is the value of local_writing.
+                // In both cases we can return local_writing.
+            }
+
+            /*!
+             * \brief Checks if a message is pending on the channel.
+             *
+             * \return True if the channel is ready, false otherwise.
+             */
+            bool pending() const noexcept override final
+            {
+                // Just check if we are in a writing state.
+                return _writing.load();
+            }
+
+            /*!
+             * \brief Poisons the reading end of the channel.
+             *
+             * \param[in] strength The strength of the poison to apply to the channel.
+             */
+            void reader_poison(unsigned int strength) noexcept override final
+            {
+                // First set the poison value.
+                _strength.store(strength);
+                // And now set reading to true.  Will ensure any writing process will see the poison.
+                _reading.store(true);
+            }
+
+            /*!
+             * \brief Poisons the writer end of the channel
+             *
+             * \param[in] strength The strength of the poison to apply to the channel.
+             */
+            void writer_poison(unsigned int strength) noexcept override final
+            {
+                // First set the poison value.
+                _strength.store(strength);
+                // And now set writing to true.  Will ensure any reading process will see the poison.
+                _writing.store(true);
+                // Now we need to check alting.  We know one of the following has happened.
+                // 1. An enabling process has seen writing as true, and therefore sees the poison.
+                // 2. An enabling process has seen writing as false, but we see alting as true.  Therefore we can notify
+                // the enabling process.
+                // The enabling process cannot see writing as false when alting is false.  In this case, we know no
+                // enabling is occurring.
+                // Therefore, if alting, schedule.
+                if (_alting.load())
+                    guard::guard_internal::schedule(_alt);
+            }
         };
+    public:
+        /*!
+         * \brief Creates a new busy channel
+         */
+        busy_chan() noexcept
+                : chan<T, POISONABLE>(std::shared_ptr<busy_chan_internal>(new busy_chan_internal()))
+        {
+        }
+
+        /*!
+         * \brief Copy constructor.
+         *
+         * \param[in] other The channel object to copy.
+         */
+        busy_chan(const busy_chan<T, POISONABLE> &other) = default;
+
+        /*!
+         * \brief Move constructor.
+         *
+         * \param[in] rhs The channel object to copy.
+         */
+        busy_chan(busy_chan<T, POISONABLE> &&rhs) = default;
+
+        /*!
+         * \brief Copy assignment operator.
+         *
+         * \param[in] other The channel object to copy.
+         *
+         * \return A copy of the channel object.
+         */
+        busy_chan<T, POISONABLE>& operator=(const busy_chan<T, POISONABLE> &other) = default;
+
+        /*!
+         * \brief Move assignment operator.
+         *
+         * \param[in] rhs The channel object to copy.
+         *
+         * \return A copy of the channel object.
+         */
+        busy_chan<T, POISONABLE>& operator=(busy_chan<T, POISONABLE> &&rhs) = default;
+
+        /*!
+         * \brief Destroys the channel object.
+         */
+        ~busy_chan() { }
     };
 
     /*! \class bufferd_chan
