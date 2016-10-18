@@ -2,18 +2,20 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/demos/diningphil.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/demos/stressedalt.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/mandelbrot3.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/busy_commstime.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/commstime4.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/commstime3.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/demos/mandelbrot1.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/commstime5.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/commstime1.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/demos/montecarlopi.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/demos/commstime6.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/commstime2.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/stressedalt.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/commstime6.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/montecarlopi.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/demos/mandelbrot2.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/mandelbrot1.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/test_atomic_alt.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/demos/diningphil.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

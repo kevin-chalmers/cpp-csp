@@ -27,6 +27,8 @@ namespace csp
     template<typename T, bool POISONABLE>
     class one2one_chan;
     template<typename T, bool POISONABLE>
+    class busy_one2one_chan;
+    template<typename T, bool POISONABLE>
     class one2any_chan;
     template<typename T, bool POISONABLE>
     class any2one_chan;
@@ -536,6 +538,7 @@ namespace csp
     {
         // Friend declarations
         friend class one2one_chan<T, POISONABLE>;
+        friend class busy_one2one_chan<T, POISONABLE>;
         friend class any2one_chan<T, POISONABLE>;
     protected:
         /*! \class alting_chan_in_internal.
@@ -663,6 +666,7 @@ namespace csp
     {
         // Friend declarations
         friend class one2one_chan<T, POISONABLE>;
+        friend class busy_one2one_chan<T, POISONABLE>;
         friend class one2any_chan<T, POISONABLE>;
     protected:
         /*! \class chan_out_internal
@@ -1359,10 +1363,7 @@ namespace csp
     class busy_chan : public chan<T, POISONABLE>
     {
         // Friend declarations
-        friend class one2one_chan<T, POISONABLE>;
-        friend class one2any_chan<T, POISONABLE>;
-        friend class any2one_chan<T, POISONABLE>;
-        friend class any2any_chan<T, POISONABLE>;
+        friend class busy_one2one_chan<T, POISONABLE>;
     protected:
         /*! \class busy_chan_internal
          * \brief Internal representation of a busy channel.
@@ -1377,17 +1378,18 @@ namespace csp
 
             std::vector<T> _hold; //!< Current value on the channel.
 
-            atomic<bool> _reading = false; //!< Flag used to control and indicate state of reading process.
+            std::atomic<bool> _reading; //!< Flag used to control and indicate state of reading process.
 
-            atomic<bool> _writing = false; //!< Flag used to control and indicate state of writing process.
+            std::atomic<bool> _writing; //!< Flag used to control and indicate state of writing process.
 
             alt _alt; //!< Alt used when channel is in a selection operation.
 
-            atomic<bool> _alting = false; //!< Flag used to indicate whether the channel is being used in a selection operation.
+            std::atomic<bool> _alting; //!< Flag used to indicate whether the channel is being used in a selection operation.
 
-            atomic<unsigned int> _strength = 0; //!< Strength of poison on channel.
+            std::atomic<unsigned int> _strength; //!< Strength of poison on channel.
 
         protected:
+
             /*!
              * \brief Performs a write operation on the channel.
              *
@@ -1582,13 +1584,30 @@ namespace csp
                 if (_alting.load())
                     guard::guard_internal::schedule(_alt);
             }
+
+        public:
+            /*!
+             * \brief Creates a new channel object.
+             */
+            busy_chan_internal() noexcept
+            {
+                _reading.store(false);
+                _writing.store(false);
+                _alting.store(false);
+                _strength.store(0);
+            }
+
+            /*!
+             * \brief Destroys the channel
+             */
+            ~busy_chan_internal() noexcept { }
         };
     public:
         /*!
          * \brief Creates a new busy channel
          */
         busy_chan() noexcept
-                : chan<T, POISONABLE>(std::shared_ptr<busy_chan_internal>(new busy_chan_internal()))
+        : chan<T, POISONABLE>(std::shared_ptr<busy_chan_internal>(new busy_chan_internal()))
         {
         }
 
@@ -1965,6 +1984,108 @@ namespace csp
          * \param[in] immunity The poison immunity level that the channel has.
          */
         one2one_chan(chan_data_store<T> &buffer, unsigned int immunity = 0) noexcept
+        : _chan(buffered_chan<T, POISONABLE>(buffer)),
+          _in(std::shared_ptr<INPUT_IMPL>(new INPUT_IMPL(_chan, immunity))),
+          _out(std::shared_ptr<OUTPUT_IMPL>(new OUTPUT_IMPL(_chan, immunity)))
+        {
+        }
+
+        /*!
+         * \brief Gets the input end of the one2one channel.
+         *
+         * \return The input end of the channel.
+         */
+        alting_chan_in<T, POISONABLE> in() const noexcept { return _in; }
+
+        /*!
+         * \brief Gets the output end of the one2one channel.
+         *
+         * \return The output end of the channel.
+         */
+        chan_out<T, POISONABLE> out() const noexcept { return _out; }
+
+        /*!
+         * \brief Conversion operator.  Implicitly gets input end.
+         *
+         * \return The input end of the channel.
+         */
+        operator alting_chan_in<T, POISONABLE>() const noexcept { return _in; }
+
+        /*!
+         * \brief Conversion operator.  Implicitly gets output end.
+         *
+         * \return The output end of the channel.
+         */
+        operator chan_out<T, POISONABLE>() const noexcept { return _out; }
+
+        /*!
+         * \brief Performs a read on the channel.
+         *
+         * \return Value read from the channel.
+         */
+        T operator()() const noexcept
+        {
+            return _in.read();
+        }
+
+        /*!
+         * \brief Performs a write on the channel.
+         *
+         * \param[in] value Value to write to the channel.
+         */
+        void operator()(T value) const noexcept
+        {
+            _out.write(value);
+        }
+    };
+
+    /*!
+     * \class busy_one2one_chan
+     * \brief A one2one channel that uses busy semantics.
+     *
+     * \tparam T The type that the channel operates on.
+     * \tparam POISONABLE Flag to indicate if the channel can be poisoned.
+     *
+     * \author Kevin Chalmers
+     *
+     * \date 18/10/2016
+     */
+    template<typename T, bool POISONABLE = false>
+    class busy_one2one_chan
+    {
+    private:
+        // Type declarations used by channel.
+        using INPUT = alting_chan_in<T, POISONABLE>;
+        using INPUT_IMPL = typename INPUT::alting_chan_in_internal;
+        using OUTPUT = chan_out<T, POISONABLE>;
+        using OUTPUT_IMPL = typename OUTPUT::chan_out_internal;
+
+        chan<T, POISONABLE> _chan; //<! Internal channel implementation.
+
+        INPUT _in; //<! The input end of the channel.
+
+        OUTPUT _out; //<! The output end of the channel.
+
+    public:
+        /*!
+         * \brief Creates a new busy one2one channel
+         *
+         * \param[in] immunity The poison immunity level that the channel has.
+         */
+        busy_one2one_chan(unsigned int immunity = 0) noexcept
+        : _chan(busy_chan<T, POISONABLE>()),
+          _in(std::shared_ptr<INPUT_IMPL>(new INPUT_IMPL(_chan, immunity))),
+          _out(std::shared_ptr<OUTPUT_IMPL>(new OUTPUT_IMPL(_chan, immunity)))
+        {
+        }
+
+        /*!
+         * \brief Creates a new buffered busy one2one channel
+         *
+         * \param[in] buffer The buffer to use with the channel.
+         * \param[in] immunity The poison immunity level that the channel has.
+         */
+        busy_one2one_chan(chan_data_store<T> &buffer, unsigned int immunity = 0) noexcept
         : _chan(buffered_chan<T, POISONABLE>(buffer)),
           _in(std::shared_ptr<INPUT_IMPL>(new INPUT_IMPL(_chan, immunity))),
           _out(std::shared_ptr<OUTPUT_IMPL>(new OUTPUT_IMPL(_chan, immunity)))
