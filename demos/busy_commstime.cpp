@@ -42,7 +42,7 @@ public:
             auto end = system_clock::now();
             auto total = duration_cast<nanoseconds>(end - start).count();
             results[count] = total;
-            cout << "." << endl;
+            cout << count << endl;
         }
 
         ofstream result_file("busycommstime.csv");

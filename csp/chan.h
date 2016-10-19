@@ -31,9 +31,15 @@ namespace csp
     template<typename T, bool POISONABLE>
     class one2any_chan;
     template<typename T, bool POISONABLE>
+    class busy_one2any_chan;
+    template<typename T, bool POISONABLE>
     class any2one_chan;
     template<typename T, bool POISONABLE>
+    class busy_any2one_chan;
+    template<typename T, bool POISONABLE>
     class any2any_chan;
+    template<typename T, bool POISONABLE>
+    class busy_any2any_chan;
 
     /*! \class chan
      * \brief A channel object.
@@ -521,6 +527,102 @@ namespace csp
          * \return A copy of the shared channel input.
          */
         shared_chan_in& operator=(shared_chan_in<T, POISONABLE> &&rhs) noexcept = default;
+    };
+
+    /*! \class busy_shared_chan_in
+     * \brief A shared input end using an atomic flag to create a busy wait.
+     *
+     * \tparam T The type that the channel operates on.
+     * \tparam POISONABLE Flag used to indicate if the channel is poisonable.
+     *
+     * \author Kevin Chalmers
+     *
+     * \date 18/10/2016
+     */
+    template<typename T, bool POISONABLE = false>
+    class busy_shared_chan_in : public shared_chan_in<T, POISONABLE>
+    {
+        // Friend declarations.
+        friend class busy_one2any_chan<T, POISONABLE>;
+        friend class busy_any2any_chan<T, POISONABLE>;
+    protected:
+        /*! \class busy_shared_chan_in_internal
+         * \brief Internal implementation of busy shared_chan_in.
+         *
+         * \author Kevin Chalmers
+         *
+         * \date 18/10/2016
+         */
+        class busy_shared_chan_in_internal : public shared_chan_in<T, POISONABLE>::shared_chan_in_internal
+        {
+        public:
+            mutable std::atomic_flag _flag = ATOMIC_FLAG_INIT;
+
+            /*!
+             * \brief Creates a new internal busy shared chan in.
+             *
+             * \param[in] chan Pointer to the actual channel.
+             * \param[in] immunity The poison immunity level.
+             */
+            busy_shared_chan_in_internal(chan<T, POISONABLE> chan, unsigned int immunity) noexcept
+            : shared_chan_in<T, POISONABLE>::shared_chan_in_internal(chan, immunity)
+            {
+            }
+
+            /*!
+             * \brief Reads a value from the channel.
+             *
+             * \return Value read from the channel.
+             */
+            T read() const noexcept(false) override
+            {
+                // Spin trying to claim the flag.
+                while (!_flag.test_and_set(std::memory_order_acquire));
+                // Get the value by performing the actual read.
+                auto val = chan_in<T, POISONABLE>::chan_in_internal::read();
+                // Clear the flag, allowing next reader to proceed.
+                _flag.clear(std::memory_order_release);
+            }
+
+            /*!
+             * \brief Starts an extended read on the channel.
+             *
+             * \return Value read from the channel.
+             */
+            T start_read() const noexcept(false) override
+            {
+                // Spin trying to claim the flag.
+                while (!_flag.test_and_set(std::memory_order_acquire));
+                // Just return the read value - we don't clear the flag here.
+                return chan_in<T, POISONABLE>::chan_in_internal::start_read();
+            }
+
+            /*!
+             * \brief Completed an extended read on the channel.
+             */
+            void end_read() const noexcept(false) override
+            {
+                // End the read.
+                chan_in<T, POISONABLE>::chan_in_internal::end_read();
+                // And clear the flag
+                _flag.clear(std::memory_order_release);
+            }
+
+            /*!
+             * \brief Poisons the channel.
+             *
+             * \param[in] strength The strength of the poison to apply to the channel.
+             */
+            void poison(unsigned int strength) const noexcept override
+            {
+                // Spin trying to claim the flag.
+                while (!_flag.test_and_set(std::memory_order_acquire));
+                // Call poison on the channel.
+                chan_in<T, POISONABLE>::chan_in_internal::poison(strength);
+                // Clear the flag
+                _flag.clear(std::memory_order_release);
+            }
+        };
     };
 
     /*! \class alting_chan_in
@@ -1402,14 +1504,14 @@ namespace csp
                 // Set writing to true - will inform reading end if spinning.
                 _writing.store(true, std::memory_order_release);
                 // Now check if an alt has occurred at some point prior to now.
-                if (_alting.load())
+                if (_alting.load(std::memory_order_acquire))
                     guard::guard_internal::schedule(_alt);
                 // Now spin waiting for reader to grab the date
                 while (!_reading.load(std::memory_order_acquire));
                 // At this point, we can check if we have been poisoned.  Poisoning will leave reading as true.  Therefore,
                 // if poisoning happened, it happened before now.
-                if (_strength.load() > 0)
-                    throw poison_exception(_strength.load());
+                if (_strength.load(std::memory_order_relaxed) > 0)
+                    throw poison_exception(_strength.load(std::memory_order_relaxed));
                 // At this point, we know that the reader has the value.  It will at some point wait for us to signal
                 // we are finished (it may already be waiting for that).  Set writing to false to signal.
                 _writing.store(false, std::memory_order_release);
@@ -1430,8 +1532,8 @@ namespace csp
                 while (!_writing.load(std::memory_order_acquire));
                 // At this point, we can check if we have been poisoned.  Poisoning will leave writing as true.  Therefore,
                 // if poisoning happened, it happened before now.
-                if (_strength.load() > 0)
-                    throw poison_exception(_strength.load());
+                if (_strength.load(std::memory_order_relaxed) > 0)
+                    throw poison_exception(_strength.load(std::memory_order_relaxed));
                 // At this point, we know the writer has at least stored the value in the hold.  So let's grab it.
                 auto to_return = std::move(_hold[0]);
                 _hold.pop_back();
@@ -1462,8 +1564,8 @@ namespace csp
                 while (!_writing.load(std::memory_order_acquire));
                 // At this point, we can check if we have been poisoned.  Poisoning will leave writing as true.  Therefore,
                 // if poisoning happened, it happened before now.
-                if (_strength.load() > 0)
-                    throw poison_exception(_strength.load());
+                if (_strength.load(std::memory_order_relaxed) > 0)
+                    throw poison_exception(_strength.load(std::memory_order_relaxed));
                 // At this point, we know the writer has at least stored the value in the hold.  So let's grab it.
                 auto to_return = std::move(_hold[0]);
                 _hold.pop_back();
@@ -1483,7 +1585,7 @@ namespace csp
             void end_read() noexcept(false) override final
             {
                 // Ensure we are in an extended read.
-                if (!_reading.load())
+                if (!_reading.load(std::memory_order_acquire))
                     throw std::logic_error("Channel not in extended read");
                 // At this point, all we really need to do is set reading to false.  The writer is currently spinning
                 // waiting for this value (or at least will be if not already).
@@ -1501,9 +1603,9 @@ namespace csp
             {
                 // Set alt and alting
                 _alt = a;
-                _alting.store(true);
+                _alting.store(true, std::memory_order_release);
                 // Check if writing
-                auto local_writing = _writing.load();
+                auto local_writing = _writing.load(std::memory_order_acquire);
                 // At this point we know one of the following:
                 // 1. local_writing is true, and the write has committed before seeing alting
                 // 2. local_writing is true, and the channel is poisoned
@@ -1511,7 +1613,7 @@ namespace csp
                 // 4. local_writing is false, and the write has not committed
                 // Deal with 2 first
                 // Check if poisoned
-                if (_strength.load() > 0)
+                if (_strength.load(std::memory_order_relaxed) > 0)
                     return true;
                 // 1 & 3 mean we are in a committed write.
                 // 4 will be dealt with by memory ordering.  The write will see alting as true and act accordingly.
@@ -1527,9 +1629,9 @@ namespace csp
             bool disable() noexcept override final
             {
                 // First set alting to false
-                _alting.store(false);
+                _alting.store(false, std::memory_order_release);
                 // Now get the value of writing
-                return _writing.load();
+                return _writing.load(std::memory_order_acquire);
                 // At this point we know one of the following:
                 // 1. The write has not committed.
                 // 2. The write has committed, and previously saw alting as true.
@@ -1547,7 +1649,7 @@ namespace csp
             bool pending() const noexcept override final
             {
                 // Just check if we are in a writing state.
-                return _writing.load();
+                return _writing.load(std::memory_order_acquire);
             }
 
             /*!
@@ -1558,9 +1660,9 @@ namespace csp
             void reader_poison(unsigned int strength) noexcept override final
             {
                 // First set the poison value.
-                _strength.store(strength);
+                _strength.store(strength, std::memory_order_relaxed);
                 // And now set reading to true.  Will ensure any writing process will see the poison.
-                _reading.store(true);
+                _reading.store(true, std::memory_order_release);
             }
 
             /*!
@@ -1571,9 +1673,9 @@ namespace csp
             void writer_poison(unsigned int strength) noexcept override final
             {
                 // First set the poison value.
-                _strength.store(strength);
+                _strength.store(strength, std::memory_order_relaxed);
                 // And now set writing to true.  Will ensure any reading process will see the poison.
-                _writing.store(true);
+                _writing.store(true, std::memory_order_release);
                 // Now we need to check alting.  We know one of the following has happened.
                 // 1. An enabling process has seen writing as true, and therefore sees the poison.
                 // 2. An enabling process has seen writing as false, but we see alting as true.  Therefore we can notify
@@ -1581,7 +1683,7 @@ namespace csp
                 // The enabling process cannot see writing as false when alting is false.  In this case, we know no
                 // enabling is occurring.
                 // Therefore, if alting, schedule.
-                if (_alting.load())
+                if (_alting.load(std::memory_order_acquire))
                     guard::guard_internal::schedule(_alt);
             }
 
