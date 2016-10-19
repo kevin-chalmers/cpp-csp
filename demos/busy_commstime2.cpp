@@ -62,8 +62,8 @@ int main(int argc, char **argv)
     par
     {
         prefix<unsigned long long>(0, c, a),
-        delta<unsigned long long>(a, {b, d}),
-        successor<unsigned long long, true>(b, c),
+        delta<unsigned long long, true>(a, {b, d}),
+        successor<unsigned long long>(b, c),
         consumer(d)
     }();
 

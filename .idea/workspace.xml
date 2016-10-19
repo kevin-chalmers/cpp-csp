@@ -26,12 +26,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab987832-174a-4888-b3a5-702132979c1a" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/demos/busy_commstime2.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/csp/chan.h" afterPath="$PROJECT_DIR$/csp/chan.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demos/busy_commstime.cpp" afterPath="$PROJECT_DIR$/demos/busy_commstime.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demos/commstime1.cpp" afterPath="$PROJECT_DIR$/demos/commstime1.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demos/commstime2.cpp" afterPath="$PROJECT_DIR$/demos/commstime2.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/demos/busy_commstime2.cpp" afterPath="$PROJECT_DIR$/demos/busy_commstime2.cpp" />
     </list>
     <ignored path="cpp-csp.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -99,8 +94,8 @@
       <file leaf-file-name="busy_commstime.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/demos/busy_commstime.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="33" column="29" selection-start-line="0" selection-start-column="0" selection-end-line="70" selection-end-column="1" />
+            <state relative-caret-position="-301">
+              <caret line="35" column="39" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
               <folding>
                 <element signature="e#40#59#0" expanded="true" />
               </folding>
@@ -108,11 +103,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="busy_commstime2.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="busy_commstime2.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/demos/busy_commstime2.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="582">
-              <caret line="64" column="13" selection-start-line="64" selection-start-column="13" selection-end-line="64" selection-end-column="13" />
+            <state relative-caret-position="186">
+              <caret line="57" column="34" selection-start-line="57" selection-start-column="34" selection-end-line="57" selection-end-column="34" />
               <folding>
                 <element signature="e#40#59#0" expanded="true" />
               </folding>
@@ -130,11 +125,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="commstime2.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="commstime2.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/demos/commstime2.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="41" column="12" selection-start-line="41" selection-start-column="12" selection-end-line="41" selection-end-column="12" />
+            <state relative-caret-position="288">
+              <caret line="65" column="39" selection-start-line="65" selection-start-column="39" selection-end-line="65" selection-end-column="39" />
               <folding />
             </state>
           </provider>
@@ -164,8 +159,8 @@
         <option value="$PROJECT_DIR$/csp/chan.h" />
         <option value="$PROJECT_DIR$/demos/commstime1.cpp" />
         <option value="$PROJECT_DIR$/demos/busy_commstime.cpp" />
-        <option value="$PROJECT_DIR$/demos/busy_commstime2.cpp" />
         <option value="$PROJECT_DIR$/demos/commstime2.cpp" />
+        <option value="$PROJECT_DIR$/demos/busy_commstime2.cpp" />
       </list>
     </option>
   </component>
@@ -542,12 +537,12 @@
       <workItem from="1474707052825" duration="992000" />
       <workItem from="1476699234635" duration="4202000" />
       <workItem from="1476739350491" duration="2091000" />
-      <workItem from="1476814742506" duration="8587000" />
+      <workItem from="1476814742506" duration="8753000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17568000" />
+    <option name="totallyTimeSpent" value="17734000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-1" width="1366" height="741" extended-state="6" />
@@ -762,10 +757,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/demos/commstime2.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="65" column="39" selection-start-line="65" selection-start-column="39" selection-end-line="65" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/demos/busy_commstime.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="33" column="29" selection-start-line="0" selection-start-column="0" selection-end-line="70" selection-end-column="1" />
+        <state relative-caret-position="-301">
+          <caret line="35" column="39" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
           <folding>
             <element signature="e#40#59#0" expanded="true" />
           </folding>
@@ -774,19 +777,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/demos/busy_commstime2.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="582">
-          <caret line="64" column="13" selection-start-line="64" selection-start-column="13" selection-end-line="64" selection-end-column="13" />
+        <state relative-caret-position="186">
+          <caret line="57" column="34" selection-start-line="57" selection-start-column="34" selection-end-line="57" selection-end-column="34" />
           <folding>
             <element signature="e#40#59#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/demos/commstime2.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="41" column="12" selection-start-line="41" selection-start-column="12" selection-end-line="41" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
