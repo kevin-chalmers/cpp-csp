@@ -12,6 +12,8 @@ namespace csp
 {
     namespace skeletons
     {
+
+
         /* \class block
          * \brief Base building block for a skeleton application.
          *
@@ -35,13 +37,82 @@ namespace csp
              */
             class block_internal
             {
+            public:
 
+                virtual void run() noexcept = 0;
             };
 
             std::shared_ptr<block_internal> _internal = nullptr; //<! Pointer to internal representation.
 
         public:
-            template<typename OTHER_IN, typename OTHER_OUT>
+
+        };
+
+        template<typename OUT>
+        class source : public block<void, OUT>
+        {
+        protected:
+            class source_internal : public block<void, OUT>::block_internal
+            {
+
+
+            public:
+
+            };
+        };
+
+        template<typename IN>
+        class sink : public block<IN, void>
+        {
+
+        };
+
+        template<typename IN, typename OUT>
+        class wrapper : public block<IN, OUT>
+        {
+        protected:
+            class wrapper_internal : block<IN, OUT>::block_internal
+            {
+            public:
+
+                std::function<IN, OUT> _fun;
+            };
+        };
+
+        template<typename IN, typename OUT>
+        class functional : public block<IN, OUT>
+        {
+
+        };
+
+        template<typename IN, typename OUT>
+        class par_block : public functional<IN, OUT>
+        {
+
+        };
+
+        template<typename IN, typename OUT>
+        class par_n_block : public functional<IN, OUT>
+        {
+
+        };
+
+        template<typename IN, typename OUT>
+        class pipeline : public functional<IN, OUT>
+        {
+
+        };
+
+        template<typename IN, typename OUT>
+        class spread : public functional<IN, OUT>
+        {
+
+        };
+
+        template<typename IN, typename OUT>
+        class reduce : public functional<IN, OUT>
+        {
+
         };
     }
 }
