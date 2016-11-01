@@ -689,6 +689,7 @@ namespace csp
         friend class one2one_chan<T, POISONABLE>;
         friend class busy_one2one_chan<T, POISONABLE>;
         friend class any2one_chan<T, POISONABLE>;
+        friend class busy_any2one_chan<T, POISONABLE>;
     protected:
         /*! \class alting_chan_in_internal.
          * \brief Creates a new internal alting channel input.
@@ -1149,7 +1150,7 @@ namespace csp
             /*!
              * \brief Writes a value to the channel.
              */
-            void write(T value) const noexcept(false) override
+            void write(T value) const noexcept override
             {
                 // Spin trying to claim the flag.
                 while (!_flag.test_and_set(std::memory_order_acquire));
