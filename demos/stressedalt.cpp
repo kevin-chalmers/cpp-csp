@@ -8,8 +8,8 @@ using namespace std;
 using namespace std::chrono;
 using namespace csp;
 
-unsigned int CHANNELS = 8;
-unsigned int WRITERS_PER_CHANNEL = 8;
+unsigned int CHANNELS = 1;
+unsigned int WRITERS_PER_CHANNEL = 2;
 
 struct stressed_packet
 {

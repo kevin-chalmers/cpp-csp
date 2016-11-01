@@ -1319,11 +1319,6 @@ namespace csp
     template<typename T, bool POISONABLE = false>
     class basic_chan : public chan<T, POISONABLE>
     {
-        // Friend declarations
-        friend class one2one_chan<T, POISONABLE>;
-        friend class one2any_chan<T, POISONABLE>;
-        friend class any2one_chan<T, POISONABLE>;
-        friend class any2any_chan<T, POISONABLE>;
     protected:
         /*! \class basic_chan_internal
          * \brief Internal representation of a basic channel.
@@ -1627,8 +1622,6 @@ namespace csp
     template<typename T, bool POISONABLE = false>
     class busy_chan : public chan<T, POISONABLE>
     {
-        // Friend declarations
-        friend class busy_one2one_chan<T, POISONABLE>;
     protected:
         /*! \class busy_chan_internal
          * \brief Internal representation of a busy channel.
