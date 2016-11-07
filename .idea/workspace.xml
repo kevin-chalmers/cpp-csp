@@ -24,9 +24,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f5feb5b3-54c9-466a-91d2-420fb5ae8a93" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/csp/skeletons/connector.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/csp/skeletons/block.h" afterPath="$PROJECT_DIR$/csp/skeletons/block.h" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/csp/skeletons/block.h" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/csp/skeletons/connector.h" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/cpp-csp.iml" afterPath="$PROJECT_DIR$/.idea/cpp-csp.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/csp/skeletons/skeletons.h" afterPath="$PROJECT_DIR$/csp/skeletons/skeletons.h" />
     </list>
     <ignored path="cpp-csp.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -45,61 +47,37 @@
     <favorites_list name="cpp-csp" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="block.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/csp/skeletons/block.h">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="skeletons.h" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/csp/skeletons/skeletons.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+            <state relative-caret-position="235">
+              <caret line="372" column="27" selection-start-line="372" selection-start-column="27" selection-end-line="372" selection-end-column="27" />
               <folding>
-                <element signature="e#1090#1104#0" expanded="true" />
-                <element signature="e#1337#1350#0" expanded="true" />
-                <element signature="e#1434#1461#0" expanded="true" />
-                <element signature="e#1728#1755#0" expanded="true" />
-                <element signature="e#1844#1871#0" expanded="true" />
-                <element signature="e#1964#1991#0" expanded="true" />
-                <element signature="e#2086#2113#0" expanded="true" />
-                <element signature="e#2205#2232#0" expanded="true" />
-                <element signature="e#2322#2349#0" expanded="true" />
+                <element signature="e#214#226#0" expanded="true" />
+                <element signature="e#271#283#0" expanded="true" />
+                <element signature="e#8435#8478#0" expanded="true" />
+                <element signature="e#8592#8606#0" expanded="true" />
+                <element signature="e#8839#8852#0" expanded="true" />
+                <element signature="e#9703#9730#0" expanded="true" />
+                <element signature="e#9819#9846#0" expanded="true" />
+                <element signature="e#9939#9966#0" expanded="true" />
+                <element signature="e#10061#10088#0" expanded="true" />
+                <element signature="e#10180#10207#0" expanded="true" />
+                <element signature="e#10297#10324#0" expanded="true" />
+                <element signature="e#10414#10441#0" expanded="true" />
+                <element signature="e#10541#10553#0" expanded="true" />
+                <element signature="e#10666#10678#0" expanded="true" />
+                <element signature="e#10901#10928#0" expanded="true" />
+                <element signature="e#11028#11055#0" expanded="true" />
+                <element signature="e#11155#11182#0" expanded="true" />
+                <element signature="e#11283#11310#0" expanded="true" />
+                <element signature="e#11431#11458#0" expanded="true" />
+                <element signature="e#11582#11609#0" expanded="true" />
+                <element signature="e#11710#11737#0" expanded="true" />
+                <element signature="e#11861#11888#0" expanded="true" />
+                <element signature="e#12010#12037#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="connector.h" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="32" column="9" selection-start-line="32" selection-start-column="9" selection-end-line="32" selection-end-column="9" />
-              <folding>
-                <element signature="e#137#157#0" expanded="true" />
-                <element signature="e#240#253#0" expanded="true" />
-                <element signature="e#320#334#0" expanded="true" />
-                <element signature="e#402#429#0" expanded="true" />
-                <element signature="e#971#998#0" expanded="true" />
-                <element signature="e#1098#1125#0" expanded="true" />
-                <element signature="e#1247#1274#0" expanded="true" />
-                <element signature="e#1374#1401#0" expanded="true" />
-                <element signature="e#1527#1554#0" expanded="true" />
-                <element signature="e#1654#1681#0" expanded="true" />
-                <element signature="e#1781#1808#0" expanded="true" />
-                <element signature="e#1909#1936#0" expanded="true" />
-                <element signature="e#2057#2084#0" expanded="true" />
-                <element signature="e#2208#2235#0" expanded="true" />
-                <element signature="e#2336#2363#0" expanded="true" />
-                <element signature="e#2487#2514#0" expanded="true" />
-                <element signature="e#2636#2663#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="chan.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/csp/chan.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-35556">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -115,6 +93,7 @@
         <option value="$PROJECT_DIR$/csp/skeletons/connector.cpp" />
         <option value="$PROJECT_DIR$/csp/skeletons/block.h" />
         <option value="$PROJECT_DIR$/csp/skeletons/connector.h" />
+        <option value="$PROJECT_DIR$/csp/skeletons/skeletons.h" />
       </list>
     </option>
   </component>
@@ -274,6 +253,12 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
@@ -475,32 +460,35 @@
       <option name="presentableId" value="Default" />
       <updated>1477392563313</updated>
       <workItem from="1477392565515" duration="5094000" />
+      <workItem from="1477995205564" duration="1960000" />
+      <workItem from="1478077058794" duration="910000" />
+      <workItem from="1478509619964" duration="5485000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5094000" />
+    <option name="totallyTimeSpent" value="13449000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-1" width="1366" height="741" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24963397" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1669107" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -521,35 +509,65 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.cpp">
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/block.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="24" column="81" selection-start-line="0" selection-start-column="0" selection-end-line="47" selection-end-column="1" />
+        <state relative-caret-position="234">
+          <caret line="13" column="5" selection-start-line="13" selection-start-column="5" selection-end-line="13" selection-end-column="5" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/csp/skeletons/block.h">
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+        <state relative-caret-position="360">
+          <caret line="20" column="9" selection-start-line="20" selection-start-column="9" selection-end-line="20" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/skeletons.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="882">
+          <caret line="49" column="52" selection-start-line="49" selection-start-column="52" selection-end-line="49" selection-end-column="52" />
           <folding>
-            <element signature="e#1090#1104#0" expanded="true" />
-            <element signature="e#1337#1350#0" expanded="true" />
-            <element signature="e#1434#1461#0" expanded="true" />
-            <element signature="e#1728#1755#0" expanded="true" />
-            <element signature="e#1844#1871#0" expanded="true" />
-            <element signature="e#1964#1991#0" expanded="true" />
-            <element signature="e#2086#2113#0" expanded="true" />
-            <element signature="e#2205#2232#0" expanded="true" />
-            <element signature="e#2322#2349#0" expanded="true" />
+            <element signature="e#214#226#0" expanded="true" />
+            <element signature="e#271#283#0" expanded="true" />
+            <element signature="e#8435#8478#0" expanded="true" />
+            <element signature="e#8592#8606#0" expanded="true" />
+            <element signature="e#8839#8852#0" expanded="true" />
+            <element signature="e#9703#9730#0" expanded="true" />
+            <element signature="e#9819#9846#0" expanded="true" />
+            <element signature="e#9939#9966#0" expanded="true" />
+            <element signature="e#10061#10088#0" expanded="true" />
+            <element signature="e#10180#10207#0" expanded="true" />
+            <element signature="e#10297#10324#0" expanded="true" />
+            <element signature="e#10414#10441#0" expanded="true" />
+            <element signature="e#10541#10553#0" expanded="true" />
+            <element signature="e#10666#10678#0" expanded="true" />
+            <element signature="e#10901#10928#0" expanded="true" />
+            <element signature="e#11028#11055#0" expanded="true" />
+            <element signature="e#11155#11182#0" expanded="true" />
+            <element signature="e#11283#11310#0" expanded="true" />
+            <element signature="e#11431#11458#0" expanded="true" />
+            <element signature="e#11582#11609#0" expanded="true" />
+            <element signature="e#11710#11737#0" expanded="true" />
+            <element signature="e#11861#11888#0" expanded="true" />
+            <element signature="e#12010#12037#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/csp/chan.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-35556">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/block.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
@@ -557,26 +575,89 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.h">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/block.h">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
-          <caret line="32" column="9" selection-start-line="32" selection-start-column="9" selection-end-line="32" selection-end-column="9" />
+          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/chan.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.cpp" />
+    <entry file="file://$PROJECT_DIR$/csp/chan.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-23112">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/connector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" column="8" selection-start-line="18" selection-start-column="8" selection-end-line="18" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/block.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="15" column="8" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/csp/skeletons/skeletons.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="235">
+          <caret line="372" column="27" selection-start-line="372" selection-start-column="27" selection-end-line="372" selection-end-column="27" />
           <folding>
-            <element signature="e#137#157#0" expanded="true" />
-            <element signature="e#240#253#0" expanded="true" />
-            <element signature="e#320#334#0" expanded="true" />
-            <element signature="e#402#429#0" expanded="true" />
-            <element signature="e#971#998#0" expanded="true" />
-            <element signature="e#1098#1125#0" expanded="true" />
-            <element signature="e#1247#1274#0" expanded="true" />
-            <element signature="e#1374#1401#0" expanded="true" />
-            <element signature="e#1527#1554#0" expanded="true" />
-            <element signature="e#1654#1681#0" expanded="true" />
-            <element signature="e#1781#1808#0" expanded="true" />
-            <element signature="e#1909#1936#0" expanded="true" />
-            <element signature="e#2057#2084#0" expanded="true" />
-            <element signature="e#2208#2235#0" expanded="true" />
-            <element signature="e#2336#2363#0" expanded="true" />
-            <element signature="e#2487#2514#0" expanded="true" />
-            <element signature="e#2636#2663#0" expanded="true" />
+            <element signature="e#214#226#0" expanded="true" />
+            <element signature="e#271#283#0" expanded="true" />
+            <element signature="e#8435#8478#0" expanded="true" />
+            <element signature="e#8592#8606#0" expanded="true" />
+            <element signature="e#8839#8852#0" expanded="true" />
+            <element signature="e#9703#9730#0" expanded="true" />
+            <element signature="e#9819#9846#0" expanded="true" />
+            <element signature="e#9939#9966#0" expanded="true" />
+            <element signature="e#10061#10088#0" expanded="true" />
+            <element signature="e#10180#10207#0" expanded="true" />
+            <element signature="e#10297#10324#0" expanded="true" />
+            <element signature="e#10414#10441#0" expanded="true" />
+            <element signature="e#10541#10553#0" expanded="true" />
+            <element signature="e#10666#10678#0" expanded="true" />
+            <element signature="e#10901#10928#0" expanded="true" />
+            <element signature="e#11028#11055#0" expanded="true" />
+            <element signature="e#11155#11182#0" expanded="true" />
+            <element signature="e#11283#11310#0" expanded="true" />
+            <element signature="e#11431#11458#0" expanded="true" />
+            <element signature="e#11582#11609#0" expanded="true" />
+            <element signature="e#11710#11737#0" expanded="true" />
+            <element signature="e#11861#11888#0" expanded="true" />
+            <element signature="e#12010#12037#0" expanded="true" />
           </folding>
         </state>
       </provider>
