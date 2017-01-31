@@ -15,106 +15,203 @@ namespace csp
 {
     namespace skeletons
     {
-        /*! \class block
-         * \brief Base building block for a skeleton application.
-         *
-         * \author Kevin Chalmers
-         *
-         * \date 12/08/2016
-         */
-        class block : public process
+        template<typename IN_POLICY, typename OUT_POLICY>
+        class block : private IN_POLICY, private OUT_POLICY, private process
         {
         protected:
-            block() noexcept { }
+            class block_internal : public IN_POLICY::internal, public OUT_POLICY::internal
+            {
+            public:
+                virtual ~block_internal() noexcept { }
+                virtual void run() noexcept = 0;
+            };
 
-        public:
-            virtual ~block() noexcept { }
-        };
+            std::shared_ptr<block_internal> _internal = nullptr;
 
-        /*!
-         *
-         */
-        template<typename IN>
-        class in_block : public block
-        {
-        protected:
-            chan_in<IN> recv = one2one_chan<IN>();
-
-            in_block() noexcept
-            : block()
+            block(std::shared_ptr<block_internal> internal) noexcept
+            : IN_POLICY(), OUT_POLICY(), _internal(internal)
             {
             }
-
         public:
-            ~in_block() noexcept { }
+            virtual ~block() noexcept { }
 
-            void set_recv(chan_in<IN> c) noexcept { recv = c; }
+            void run() noexcept override final { _internal->run(); }
+        };
 
-            virtual void run() noexcept = 0;
+        struct empty_in
+        {
+        protected:
+            class internal
+            {
+            };
+
+            ~empty_in() noexcept { }
+        };
+
+        struct empty_out
+        {
+        protected:
+            class internal
+            {
+            };
+
+            ~empty_out() noexcept { }
         };
 
         template<typename T>
-        class sink : public in_block<T>
+        struct single_in
         {
         protected:
-            sink() noexcept
-            : in_block<T>()
+            class internal
+            {
+            public:
+                chan_in<T> recv = one2one_chan<T>();
+            };
+
+            std::shared_ptr<single_in> _internal = nullptr;
+
+            ~single_in() noexcept { }
+        public:
+            void set_recv(chan_in<T> c) noexcept { _internal->recv = c; }
+        };
+
+        template<typename T>
+        struct single_out
+        {
+        protected:
+            class internal
+            {
+            public:
+                chan_out<T> send = one2one_chan<T>();
+            };
+
+            std::shared_ptr<single_out> _internal = nullptr;
+
+            ~single_out() noexcept { }
+        public:
+            void set_send(chan_out<T> c) noexcept { _internal->send = c; }
+        };
+
+        struct empty_run
+        {
+        protected:
+            class internal
+            {
+            };
+
+            ~empty_run() { }
+        };
+
+        template<typename T>
+        class sink : public block<single_in<T>, empty_out>
+        {
+        protected:
+            class sink_internal : public block<single_in<T>, empty_out>::block_internal
+            {
+                using single_in<T>::recv;
+            private:
+                std::function<void(chan_in<T>)> fun;
+            public:
+                sink_internal(std::function<void(chan_in<T>)> fun) noexcept
+                : fun(fun)
+                {
+                }
+
+                void run() noexcept override final
+                {
+                    fun(recv);
+                }
+            };
+        public:
+            sink(std::function<void(chan_in<T>)> fun) noexcept
+            : block<single_in<T>, empty_out>(std::shared_ptr<sink_internal>(new sink_internal(fun)))
             {
             }
-        public:
+
             ~sink() noexcept { }
         };
 
-        template<typename OUT>
-        class out_block : public block
-        {
-        protected:
-            chan_out<OUT> send = one2one_chan<OUT>();
-
-            out_block() noexcept
-            : block()
-            {
-            }
-        public:
-            ~out_block() noexcept { }
-
-            void set_send(chan_out<OUT> c) noexcept { send = c; }
-
-            virtual void run() noexcept = 0;
-        };
-
         template<typename T>
-        class source : public out_block<T>
+        class source : public block<empty_in, single_out<T>>
         {
         protected:
-            source() noexcept
+            class source_internal : public block<empty_in, single_out<T>>::block_internal
+            {
+            private:
+                std::function<void(chan_out<T>)> fun;
+                std::reference_wrapper<chan_out<T>> chan;
+            public:
+                source_internal(std::function<void(chan_out<T>)> fun, chan_out<T> &chan) noexcept
+                : fun(fun), chan(chan)
+                {
+                }
+
+                void run() noexcept override final
+                {
+                    fun(chan);
+                }
+            };
+        public:
+            source(std::function<void(chan_out<T>)> fun) noexcept
+            : block<empty_in, single_out<T>>(std::shared_ptr<source_internal>(new source_internal(fun, this->send)))
             {
             }
 
-        public:
             ~source() noexcept { }
         };
 
-        template<typename IN, typename OUT>
-        class in_out_block : public in_block<IN>, public out_block<OUT>
+        template<typename IN, typename INTERNAL_OUT, typename INTERNAL_IN, typename OUT>
+        class union_block : public block<IN, OUT>
         {
         protected:
-            in_out_block() noexcept
-            : in_block<IN>(), out_block<OUT>()
+            class union_block_internal : public block<IN, OUT>::block_internal
+            {
+            private:
+                block<IN, INTERNAL_OUT> lhs_block;
+                block<INTERNAL_IN, OUT> rhs_block;
+            public:
+                union_block_internal(block<IN, INTERNAL_OUT> lhs_block, block<INTERNAL_IN, OUT> rhs_block) noexcept
+                : lhs_block(lhs_block), rhs_block(rhs_block)
+                {
+                }
+
+                void run() noexcept override final
+                {
+                    par
+                    {
+                        lhs_block,
+                        rhs_block
+                    }();
+                }
+            };
+
+        public:
+            union_block(block<IN, INTERNAL_OUT> &lhs, block<INTERNAL_IN, OUT> &rhs) noexcept
+            : block<IN, OUT>(std::shared_ptr<union_block_internal>(new union_block_internal(lhs, rhs)))
             {
             }
-        public:
-            ~in_out_block() noexcept { }
         };
 
-        template<typename IN, typename OUT>
-        class wrapper : public in_out_block<IN, OUT>
+        template<typename LHS_TYPE, typename INTERNAL_TYPE_OUT, typename INTERNAL_TYPE_IN, typename RHS_TYPE>
+        block<LHS_TYPE, RHS_TYPE> operator+(block<LHS_TYPE, INTERNAL_TYPE_OUT> lhs, block<INTERNAL_TYPE_IN, RHS_TYPE> rhs) noexcept;
+
+        template<typename T>
+        block<empty_in, empty_out> operator+(source<T> lhs, sink<T> rhs) noexcept
+        {
+            one2one_chan<T> c;
+            lhs.set_send(c);
+            rhs.set_recv(c);
+            return union_block<empty_in, single_out<T>, single_in<T>, empty_out>(lhs, rhs);
+        }
+
+        /*template<typename IN, typename OUT>
+        class wrapper : public block<single_in<IN>, single_out<OUT>, runnable>
         {
         private:
             std::function<OUT(IN)> fun;
         public:
             wrapper(std::function<OUT(IN)> fun) noexcept
-            : fun(fun), in_out_block<IN, OUT>()
+            : fun(fun), block<single_in<IN>, single_out<OUT>, runnable>()
             {
             }
 
@@ -130,6 +227,30 @@ namespace csp
                 }
             }
         };
+
+
+
+        */
+
+        /*template<typename IN, typename OUT>
+        class pipeline : public block<IN, OUT>
+        {
+        private:
+            std::vector<block
+
+        public:
+            template<typename ...args>
+            pipeline(args blocks) noexcept
+            : block<IN, OUT>()
+            {
+            }
+
+            void run() noexcept override final
+            {
+                _block();
+            }
+        };*/
+
 
 //        template<typename IN, typename OUT, size_t N>
 //        class combinator_out : public block<IN, OUT>
@@ -339,26 +460,7 @@ namespace csp
 //            }
 //        };
 //
-//        template<typename IN, typename OUT>
-//        class pipeline : public block<IN, OUT>
-//        {
-//        private:
-//            block<IN, OUT> _block;  //<! Constructed block form processes pipelined.
 //
-//
-//
-//        public:
-//            template<typename ...args>
-//            pipeline(args blocks) noexcept
-//            : block<IN, OUT>()
-//            {
-//            }
-//
-//            void run() noexcept override final
-//            {
-//                _block();
-//            }
-//        };
 //
 //        template<typename T, size_t N, size_t k>
 //        class spread : public combinator_out<T, T, N>

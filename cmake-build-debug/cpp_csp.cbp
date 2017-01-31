@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="cpp_csp"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mandelbrot3">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/mandelbrot3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 mandelbrot3"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mandelbrot3/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/mandelbrot3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 mandelbrot3/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mandelbrot2">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/mandelbrot2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 mandelbrot2"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mandelbrot2/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/mandelbrot2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 mandelbrot2/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="cpp_csp">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/cpp_csp" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 cpp_csp"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="cpp_csp/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/cpp_csp" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 cpp_csp/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="stressed_alt">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/stressed_alt" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 stressed_alt"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="stressed_alt/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/stressed_alt" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 stressed_alt/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="diningphil">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/diningphil" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 diningphil"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="diningphil/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/diningphil" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 diningphil/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime1">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime1" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime1"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime1/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime1" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime1/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime2">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime2"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime2/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime2/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="monte_carlo_pi">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/monte_carlo_pi" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 monte_carlo_pi"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="monte_carlo_pi/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/monte_carlo_pi" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 monte_carlo_pi/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime3">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime3"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime3/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime3/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime4">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime4" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime4"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime4/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime4" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime4/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime5">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime5" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime5"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime5/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime5" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime5/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="test_skeletons">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/test_skeletons" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 test_skeletons"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="test_skeletons/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/test_skeletons" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 test_skeletons/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime6">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime6" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime6"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="commstime6/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/commstime6" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 commstime6/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mandelbrot1">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/mandelbrot1" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 mandelbrot1"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="mandelbrot1/fast">
+				<Option output="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/mandelbrot1" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 mandelbrot1/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/commstime1.cpp">
+			<Option target="commstime1"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/commstime2.cpp">
+			<Option target="commstime2"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/commstime3.cpp">
+			<Option target="commstime3"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/commstime4.cpp">
+			<Option target="commstime4"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/commstime5.cpp">
+			<Option target="commstime5"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/commstime6.cpp">
+			<Option target="commstime6"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/diningphil.cpp">
+			<Option target="diningphil"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/mandelbrot1.cpp">
+			<Option target="mandelbrot1"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/mandelbrot2.cpp">
+			<Option target="mandelbrot2"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/mandelbrot3.cpp">
+			<Option target="mandelbrot3"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/montecarlopi.cpp">
+			<Option target="monte_carlo_pi"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/stressedalt.cpp">
+			<Option target="stressed_alt"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/demos/test_skeletons.cpp">
+			<Option target="test_skeletons"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/main.cpp">
+			<Option target="cpp_csp"/>
+		</Unit>
+		<Unit filename="/home/kevin/usb-encrypted/cpp-csp/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

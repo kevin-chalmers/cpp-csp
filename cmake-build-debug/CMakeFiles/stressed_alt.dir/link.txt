@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/stressed_alt.dir/demos/stressedalt.cpp.o  -o stressed_alt -lpthread 

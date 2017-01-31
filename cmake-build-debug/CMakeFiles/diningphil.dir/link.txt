@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/diningphil.dir/demos/diningphil.cpp.o  -o diningphil -lpthread 

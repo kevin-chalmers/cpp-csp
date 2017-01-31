@@ -1,0 +1,16 @@
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/mandelbrot3.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/mandelbrot2.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/cpp_csp.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/stressed_alt.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/diningphil.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/commstime1.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/commstime2.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/monte_carlo_pi.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/commstime3.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/commstime4.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/commstime5.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/test_skeletons.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/commstime6.dir
+/home/kevin/usb-encrypted/cpp-csp/cmake-build-debug/CMakeFiles/mandelbrot1.dir

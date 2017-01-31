@@ -9,54 +9,26 @@ using namespace std;
 using namespace csp;
 using namespace csp::skeletons;
 
-class my_source : public source<int>
+void sourcer(chan_out<int> send) noexcept
 {
-public:
-    my_source() noexcept
-    : source<int>()
-    {
-    }
+    for (int i = 0; i < 10; ++i)
+        send(i);
+}
 
-    void run() noexcept override final
-    {
-        for (int i = 0; i < 10; ++i)
-            send(i);
-    }
-};
-
-class my_sink : public sink<int>
+void sinker(chan_in<int> recv) noexcept
 {
-public:
-    my_sink() noexcept
-    : sink<int>()
-    {
-    }
-
-    void run() noexcept override final
-    {
-        for (int i = 0; i < 10; ++i)
-            cout << recv() << endl;
-    }
-};
+    for (int i = 0; i < 10; ++i)
+        cout << recv() << endl;
+}
 
 int sqr(int n) noexcept { return n * n; }
 
 int main(int argc, char **argv)
 {
-    one2one_chan<int> c[2];
-    my_source source;
-    my_sink sink;
-    wrapper<int, int> wrap(sqr);
-    source.set_send(c[0]);
-    wrap.set_recv(c[0]);
-    wrap.set_send(c[1]);
-    sink.set_recv(c[1]);
-    par
-    {
-        make_proc(source),
-        make_proc(wrap),
-        make_proc(sink)
-    }();
+    source<int> source(sourcer);
+    sink<int> sink(sinker);
+    auto block = source + sink;
+    block();
 
     return 0;
 }

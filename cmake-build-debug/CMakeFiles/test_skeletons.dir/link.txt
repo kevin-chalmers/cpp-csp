@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/test_skeletons.dir/demos/test_skeletons.cpp.o  -o test_skeletons -lpthread 

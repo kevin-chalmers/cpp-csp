@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/commstime2.dir/demos/commstime2.cpp.o  -o commstime2 -lpthread 

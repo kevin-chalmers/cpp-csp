@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/monte_carlo_pi.dir/demos/montecarlopi.cpp.o  -o monte_carlo_pi -lpthread 

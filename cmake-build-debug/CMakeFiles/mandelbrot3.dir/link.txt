@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -g   CMakeFiles/mandelbrot3.dir/demos/mandelbrot3.cpp.o  -o mandelbrot3 -lpthread 
