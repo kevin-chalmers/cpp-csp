@@ -1152,12 +1152,16 @@ namespace csp
              */
             void write(T value) const noexcept override
             {
+				static std::atomic<int> count = 0;
                 // Spin trying to claim the flag.
                 while (!_flag.test_and_set(std::memory_order_acquire));
+				count++;
+				std::cout << count.load() << std::endl;
                 // Write the value by performing the actual read.
                 chan_out<T, POISONABLE>::chan_out_internal::write(std::move(value));
                 // Clear the flag, allowing next writer to proceed.
                 _flag.clear(std::memory_order_release);
+				count--;
             }
 
             /*!

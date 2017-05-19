@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
     par
     {
-            par(procs),
-            make_proc(stressed_reader, vector<alting_chan_in<stressed_packet>>(c.begin(), c.end()), WRITERS_PER_CHANNEL)
+        par(procs),
+        make_proc(stressed_reader, vector<alting_chan_in<stressed_packet>>(c.begin(), c.end()), WRITERS_PER_CHANNEL)
     }();
 }
