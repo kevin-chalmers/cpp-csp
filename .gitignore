@@ -3,3 +3,5 @@
 \.vs/cpp-csp/v15/
 
 \.vs/
+
+cmake-build-debug/

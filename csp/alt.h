@@ -783,67 +783,62 @@ namespace csp
     void alt::alt_internal::disable_guards() noexcept(false)
     {
         // First check if there is anything to disable
-        if (_selected != _next)
-        {
-            // Set the start index to start disabling
-            int start_index = (_selected == NONE_SELECTED ? _next - 1 : _selected - 1);
-            // Iterate through the guards and disable them
-            if (_selected < _next)
-            {
-                // Disable guards
-                for (auto i = start_index; i >= 0; --i)
-                {
-                    // Disable guard and check if ready
-                    if (_guards[i].disable())
-                    {
-                        // Set selected guard
-                        _selected = i;
-                        // Check if it is a barrier that has triggered
-                        if (_barrier_trigger)
-                        {
-                            // Sanity check
-                            if (_barrier_selected != NONE_SELECTED)
-                                throw std::runtime_error("Second alting barrier completed in alt sequence: "
-                                                         + std::to_string(_barrier_selected) + std::string(" and ") +
-                                                         std::to_string(i));
-                            // Set barrier selected
-                            _barrier_selected = _selected;
-                            _barrier_trigger = false;
+        do {
+            if (_selected != _next) {
+                // Set the start index to start disabling
+                int start_index = (_selected == NONE_SELECTED ? _next - 1 : _selected - 1);
+                // Iterate through the guards and disable them
+                if (_selected < _next) {
+                    // Disable guards
+                    for (auto i = start_index; i >= 0; --i) {
+                        // Disable guard and check if ready
+                        if (_guards[i].disable()) {
+                            // Set selected guard
+                            _selected = i;
+                            // Check if it is a barrier that has triggered
+                            if (_barrier_trigger) {
+                                // Sanity check
+                                if (_barrier_selected != NONE_SELECTED)
+                                    throw std::runtime_error("Second alting barrier completed in alt sequence: "
+                                                             + std::to_string(_barrier_selected) +
+                                                             std::string(" and ") +
+                                                             std::to_string(i));
+                                // Set barrier selected
+                                _barrier_selected = _selected;
+                                _barrier_trigger = false;
+                            }
                         }
                     }
+                    start_index = int(_guards.size()) - 1;
                 }
-                start_index = int(_guards.size()) - 1;
-            }
-            for (auto i = start_index; i >= _next; --i)
-            {
-                // Disable guards
-                for (auto i = start_index; i >= 0; --i)
-                {
-                    // Disable guard and check if ready
-                    if (_guards[i].disable())
-                    {
-                        // Set selected guard
-                        _selected = i;
-                        // Check if it is a barrier that has triggered
-                        if (_barrier_trigger)
-                        {
-                            // Sanity check
-                            if (_barrier_selected != NONE_SELECTED)
-                                throw std::runtime_error("Second alting barrier completed in alt sequence: "
-                                                         + std::to_string(_barrier_selected) + std::string(" and ") +
-                                                         std::to_string(i));
-                            // Set barrier selected
-                            _barrier_selected = _selected;
-                            _barrier_trigger = false;
+                for (auto i = start_index; i >= _next; --i) {
+                    // Disable guards
+                    for (auto i = start_index; i >= 0; --i) {
+                        // Disable guard and check if ready
+                        if (_guards[i].disable()) {
+                            // Set selected guard
+                            _selected = i;
+                            // Check if it is a barrier that has triggered
+                            if (_barrier_trigger) {
+                                // Sanity check
+                                if (_barrier_selected != NONE_SELECTED)
+                                    throw std::runtime_error("Second alting barrier completed in alt sequence: "
+                                                             + std::to_string(_barrier_selected) +
+                                                             std::string(" and ") +
+                                                             std::to_string(i));
+                                // Set barrier selected
+                                _barrier_selected = _selected;
+                                _barrier_trigger = false;
+                            }
                         }
                     }
+                    start_index = int(_guards.size()) - 1;
                 }
-                start_index = int(_guards.size()) - 1;
+                // Check if guard is selected.  If not, this implies that the timer fired
+                if (_selected == NONE_SELECTED)
+                    _selected = _timer_index;
             }
-            // Check if guard is selected.  If not, this implies that the timer fired
-            if (_selected == NONE_SELECTED)
-                _selected = _timer_index;
-        }
+        } while (_selected == NONE_SELECTED);
 
         // Check for barrier sync to ensure that this is selected
         if (_barrier_selected != NONE_SELECTED)
@@ -856,71 +851,65 @@ namespace csp
     void alt::alt_internal::disable_guards(const std::vector<bool> &pre_conditions) noexcept(false)
     {
         // First check if there is anything to disable
-        if (_selected != _next)
-        {
-            // Set the start index to start disabling
-            int start_index = (_selected == NONE_SELECTED ? _next - 1 : _selected - 1);
-            // Iterate through the guards and disable them
-            if (_selected < _next)
-            {
-                // Disable guards
-                for (auto i = start_index; i >= 0; --i)
-                {
-                    // Disable guard and check if ready
-                    if (pre_conditions[i] && _guards[i].disable())
-                    {
-                        // Set selected guard
-                        _selected = i;
-                        // Check if it is a barrier that has triggered
-                        if (_barrier_trigger)
-                        {
-                            // Sanity check
-                            if (_barrier_selected != NONE_SELECTED)
-                                throw std::runtime_error("Second alting barrier completed in alt sequence: "
-                                                         + std::to_string(_barrier_selected) + std::string(" and ") +
-                                                         std::to_string(i));
-                            // Set barrier selected
-                            _barrier_selected = _selected;
-                            _barrier_trigger = false;
+        do {
+            if (_selected != _next) {
+                // Set the start index to start disabling
+                int start_index = (_selected == NONE_SELECTED ? _next - 1 : _selected - 1);
+                // Iterate through the guards and disable them
+                if (_selected < _next) {
+                    // Disable guards
+                    for (auto i = start_index; i >= 0; --i) {
+                        // Disable guard and check if ready
+                        if (pre_conditions[i] && _guards[i].disable()) {
+                            // Set selected guard
+                            _selected = i;
+                            // Check if it is a barrier that has triggered
+                            if (_barrier_trigger) {
+                                // Sanity check
+                                if (_barrier_selected != NONE_SELECTED)
+                                    throw std::runtime_error("Second alting barrier completed in alt sequence: "
+                                                             + std::to_string(_barrier_selected) +
+                                                             std::string(" and ") +
+                                                             std::to_string(i));
+                                // Set barrier selected
+                                _barrier_selected = _selected;
+                                _barrier_trigger = false;
+                            }
                         }
                     }
+                    start_index = int(_guards.size()) - 1;
                 }
-                start_index = int(_guards.size()) - 1;
-            }
-            for (auto i = start_index; i >= _next; --i)
-            {
-                // Disable guards
-                for (auto i = start_index; i >= 0; --i)
-                {
-                    // Disable guard and check if ready
-                    if (pre_conditions[i] && _guards[i].disable())
-                    {
-                        // Set selected guard
-                        _selected = i;
-                        // Check if it is a barrier that has triggered
-                        if (_barrier_trigger)
-                        {
-                            // Sanity check
-                            if (_barrier_selected != NONE_SELECTED)
-                                throw std::runtime_error("Second alting barrier completed in alt sequence: "
-                                                         + std::to_string(_barrier_selected) + std::string(" and ") +
-                                                         std::to_string(i));
-                            // Set barrier selected
-                            _barrier_selected = _selected;
-                            _barrier_trigger = false;
+                for (auto i = start_index; i >= _next; --i) {
+                    // Disable guards
+                    for (auto i = start_index; i >= 0; --i) {
+                        // Disable guard and check if ready
+                        if (pre_conditions[i] && _guards[i].disable()) {
+                            // Set selected guard
+                            _selected = i;
+                            // Check if it is a barrier that has triggered
+                            if (_barrier_trigger) {
+                                // Sanity check
+                                if (_barrier_selected != NONE_SELECTED)
+                                    throw std::runtime_error("Second alting barrier completed in alt sequence: "
+                                                             + std::to_string(_barrier_selected) +
+                                                             std::string(" and ") +
+                                                             std::to_string(i));
+                                // Set barrier selected
+                                _barrier_selected = _selected;
+                                _barrier_trigger = false;
+                            }
                         }
                     }
+                    start_index = int(_guards.size()) - 1;
                 }
-                start_index = int(_guards.size()) - 1;
+                // Check if guard is selected.  If not, this implies that the timer fired
+                if (_selected == NONE_SELECTED)
+                    _selected = _timer_index;
             }
-            // Check if guard is selected.  If not, this implies that the timer fired
-            if (_selected == NONE_SELECTED)
-                _selected = _timer_index;
-        }
+        } while (_selected == NONE_SELECTED);
 
         // Check for barrier sync to ensure that this is selected
-        if (_barrier_selected != NONE_SELECTED)
-        {
+        if (_barrier_selected != NONE_SELECTED) {
             _selected = _barrier_selected;
             alting_barrier_coordinate::finish_enable();
         }

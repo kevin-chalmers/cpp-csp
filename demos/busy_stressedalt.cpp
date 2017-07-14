@@ -59,7 +59,7 @@ void stressed_reader(vector<alting_chan_in<stressed_packet>> c, unsigned int wri
     auto stop = system_clock::now();
     array<unsigned long long, 1000> results;
     ofstream res("stressedalt_" + to_string(CHANNELS) + "_" + to_string(WRITERS_PER_CHANNEL) + ".csv");
-    while (tock < 1000)
+    while (tock < 100000)
     {
         if (counter == 0)
         {

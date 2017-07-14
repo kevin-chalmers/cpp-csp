@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 project(cpp_csp)
 
-IF(${MSVC})
+IF(MSVC)
 	set(LIB_FILES "")
 ENDIF()
 
-IF(NOT ${MSVC})
+IF(NOT MSVC)
 	set(LIB_FILES "pthread")
 ENDIF()
 

@@ -1152,16 +1152,12 @@ namespace csp
              */
             void write(T value) const noexcept override
             {
-				static std::atomic<int> count = 0;
                 // Spin trying to claim the flag.
-                while (!_flag.test_and_set(std::memory_order_acquire));
-				count++;
-				std::cout << count.load() << std::endl;
+                while (!_flag.test_and_set());
                 // Write the value by performing the actual read.
                 chan_out<T, POISONABLE>::chan_out_internal::write(std::move(value));
                 // Clear the flag, allowing next writer to proceed.
-                _flag.clear(std::memory_order_release);
-				count--;
+                _flag.clear();
             }
 
             /*!
@@ -1172,11 +1168,11 @@ namespace csp
             void poison(unsigned int strength) const noexcept override
             {
                 // Spin trying to claim the flag.
-                while (!_flag.test_and_set(std::memory_order_acquire));
+                while (!_flag.test_and_set());
                 // Call poison on the channel.
                 chan_out<T, POISONABLE>::chan_out_internal::poison(strength);
                 // Clear the flag
-                _flag.clear(std::memory_order_release);
+                _flag.clear();
             }
         };
 
@@ -1638,7 +1634,7 @@ namespace csp
         {
         private:
 
-            std::vector<T> _hold; //!< Current value on the channel.
+            std::atomic<T> _hold; //!< Current value on the channel.
 
             std::atomic<bool> _reading; //!< Flag used to control and indicate state of reading process.
 
@@ -1660,7 +1656,7 @@ namespace csp
             void write(T value) noexcept(false) override final
             {
                 // Store value
-                _hold.push_back(std::move(value));
+                _hold.store(value, std::memory_order_relaxed);
                 // Set writing to true - will inform reading end if spinning.
                 _writing.store(true, std::memory_order_release);
                 // Now check if an alt has occurred at some point prior to now.
@@ -1695,8 +1691,7 @@ namespace csp
                 if (_strength.load(std::memory_order_relaxed) > 0)
                     throw poison_exception(_strength.load(std::memory_order_relaxed));
                 // At this point, we know the writer has at least stored the value in the hold.  So let's grab it.
-                auto to_return = std::move(_hold[0]);
-                _hold.pop_back();
+                auto to_return = _hold.load(std::memory_order_relaxed);
                 // Now we need to inform the writer that we have grabbed the value.  It will at some point wait for us to
                 // signal we have done so (it may already be waiting for that).  Set reading to true to signal.
                 _reading.store(true, std::memory_order_release);
@@ -1707,7 +1702,7 @@ namespace csp
                 _reading.store(false, std::memory_order_release);
                 // We have now completed.  The state visible to each thread should be consistent enough to continue without
                 // a hazard.
-                return std::move(to_return);
+                return to_return;
             }
 
             /*!
@@ -1727,8 +1722,7 @@ namespace csp
                 if (_strength.load(std::memory_order_relaxed) > 0)
                     throw poison_exception(_strength.load(std::memory_order_relaxed));
                 // At this point, we know the writer has at least stored the value in the hold.  So let's grab it.
-                auto to_return = std::move(_hold[0]);
-                _hold.pop_back();
+                auto to_return = _hold.load(std::memory_order_relaxed);
                 // Now we need to inform the writer that we have grabbed the value.  It will at some point wait for us to
                 // signal we have done so (it may already be waiting for that).  Set reading to true to signal.
                 _reading.store(true, std::memory_order_release);
@@ -1736,7 +1730,7 @@ namespace csp
                 // that it has effectively completed.
                 while (_writing.load(std::memory_order_acquire));
                 // In a normal read, we would now inform the writer.  However, we are extended.  Just return the value.
-                return std::move(to_return);
+                return to_return;
             }
 
             /*!
@@ -1835,7 +1829,7 @@ namespace csp
                 // First set the poison value.
                 _strength.store(strength, std::memory_order_relaxed);
                 // And now set writing to true.  Will ensure any reading process will see the poison.
-                _writing.store(true, std::memory_order_release);
+                _writing.store(true);
                 // Now we need to check alting.  We know one of the following has happened.
                 // 1. An enabling process has seen writing as true, and therefore sees the poison.
                 // 2. An enabling process has seen writing as false, but we see alting as true.  Therefore we can notify
