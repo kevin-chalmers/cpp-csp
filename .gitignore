@@ -5,3 +5,7 @@
 \.vs/
 
 cmake-build-debug/
+
+debug/
+
+release/
