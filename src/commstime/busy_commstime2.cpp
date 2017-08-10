@@ -5,8 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include "../csp/csp.h"
-#include "../csp/plugnplay/plugnplay.h"
+#include <csp/csp.h>
+#include <csp/plugnplay/plugnplay.h>
 
 using namespace std;
 using namespace std::chrono;

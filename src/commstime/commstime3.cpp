@@ -7,7 +7,7 @@
 #include <fstream>
 #include <array>
 #include <chrono>
-#include "../csp/csp.h"
+#include <csp/csp.h>
 
 using namespace std;
 using namespace std::chrono;

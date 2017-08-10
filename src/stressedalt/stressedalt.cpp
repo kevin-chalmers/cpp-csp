@@ -1,12 +1,8 @@
-//
-// Created by kevin on 01/11/16.
-//
-
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <array>
-#include "../csp/csp.h"
+#include <csp/csp.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -57,9 +53,9 @@ void stressed_reader(vector<alting_chan_in<stressed_packet>> c, unsigned int wri
     unsigned int counter = 10000, tock = 0;
     auto start = system_clock::now();
     auto stop = system_clock::now();
-    array<unsigned long long, 100> results;
-    ofstream res("busystressedalt_" + to_string(CHANNELS) + "_" + to_string(WRITERS_PER_CHANNEL) + ".csv");
-    while (tock < 100)
+    array<unsigned long long, 1000> results;
+    ofstream res("stressedalt_" + to_string(CHANNELS) + "_" + to_string(WRITERS_PER_CHANNEL) + ".csv");
+    while (tock < 1000)
     {
         if (counter == 0)
         {
@@ -76,7 +72,7 @@ void stressed_reader(vector<alting_chan_in<stressed_packet>> c, unsigned int wri
         auto pckt = c[idx]();
         n[idx][pckt.writer] = pckt.n;
     }
-    for (unsigned int i = 0; i < 100; ++i)
+    for (unsigned int i = 0; i < 1000; ++i)
         res << results[i] << ",";
     res.close();
 }
@@ -90,7 +86,7 @@ int main(int argc, char** argv)
     }
     cout << CHANNELS << " : " << WRITERS_PER_CHANNEL << endl;
 
-    vector<busy_any2one_chan<stressed_packet>> c(CHANNELS);
+    vector<any2one_chan<stressed_packet>> c(CHANNELS);
     vector<function<void()>> procs;
     for (unsigned int i = 0; i < CHANNELS; ++i)
         for (unsigned int j = 0; j < WRITERS_PER_CHANNEL; ++j)

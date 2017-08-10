@@ -1,11 +1,46 @@
-.idea/
+# Prerequisites
+*.d
 
-\.vs/cpp-csp/v15/
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-\.vs/
+# Precompiled Headers
+*.gch
+*.pch
 
-cmake-build-debug/
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
 
-debug/
+# Fortran module files
+*.mod
+*.smod
 
-release/
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+bin/
+build/
+lib/

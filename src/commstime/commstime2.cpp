@@ -1,12 +1,12 @@
 //
-// Created by kevin on 18/10/16.
+// Created by kevin on 29/07/16.
 //
 
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include "../csp/csp.h"
-#include "../csp/plugnplay/plugnplay.h"
+#include <csp/csp.h>
+#include <csp/plugnplay/plugnplay.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -16,6 +16,7 @@ using namespace csp::plugnplay;
 class consumer : public process
 {
 private:
+
     chan_in<unsigned long long> _in;
 
 public:
@@ -45,7 +46,7 @@ public:
             cout << count << endl;
         }
 
-        ofstream result_file("busycommstime.csv");
+        ofstream result_file("commstime2.csv");
         for (size_t count = 0; count < 1000; ++count)
             result_file << results[count] << ",";
         result_file << endl;
@@ -54,18 +55,16 @@ public:
 
 int main(int argc, char **argv)
 {
-    busy_one2one_chan<unsigned long long> a;
-    busy_one2one_chan<unsigned long long> b;
-    busy_one2one_chan<unsigned long long> c;
-    busy_one2one_chan<unsigned long long> d;
+    one2one_chan<unsigned long long> a;
+    one2one_chan<unsigned long long> b;
+    one2one_chan<unsigned long long> c;
+    one2one_chan<unsigned long long> d;
 
     par
     {
-       prefix<unsigned long long>(0, c, a),
-       delta<unsigned long long>(a, {b, d}),
-       successor<unsigned long long>(b, c),
-       consumer(d)
+        prefix<unsigned long long>(0, c, a),
+        delta<unsigned long long, true>(a, {b, d}),
+        successor<unsigned long long>(b, c),
+        consumer(d)
     }();
-
-    return 0;
 }

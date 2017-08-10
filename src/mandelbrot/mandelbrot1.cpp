@@ -9,7 +9,7 @@
 #include <chrono>
 #include <fstream>
 #include <cmath>
-#include "../csp/csp.h"
+#include <csp/csp.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -65,7 +65,7 @@ void mandelbrot(chan_in<int> in, chan_out<mandelbrot_packet> out) noexcept
             packet.data[x_coord] = val;
             x += integral_x;
         }
-        out(move(packet));
+        out(packet);
         line = in();
     }
 }
@@ -117,10 +117,9 @@ int main(int argc, char **argv)
         res[i] = duration_cast<nanoseconds>(stop - start).count();
         cout << i << ": " << res[i] << endl;
     }
-    ofstream results("mandelbrot_move_" + to_string(NUM_WORKERS) + "_" + to_string(DIM) + ".csv");
+    ofstream results("mandelbrot_" + to_string(NUM_WORKERS) + "_" + to_string(DIM) + ".csv");
     for (unsigned int i = 0; i < 100; ++i)
         results << res[i] << ",";
     results.close();
     return 0;
 }
-

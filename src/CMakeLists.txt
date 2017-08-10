@@ -1,0 +1,5 @@
+add_subdirectory(commstime)
+add_subdirectory(stressedalt)
+add_subdirectory(classic)
+add_subdirectory(mandelbrot)
+add_subdirectory(parallel_benchmarks)

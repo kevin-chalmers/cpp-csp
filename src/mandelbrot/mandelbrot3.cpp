@@ -9,7 +9,7 @@
 #include <chrono>
 #include <fstream>
 #include <cmath>
-#include "../csp/csp.h"
+#include <csp/csp.h>
 
 using namespace std;
 using namespace std::chrono;
