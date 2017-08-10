@@ -63,6 +63,13 @@ namespace csp
             virtual T get() noexcept(false) = 0;
 
             /*!
+             * \brief Peeks at the first value on the buffer, but does not remove.  Used in extended read.
+             *
+             * \return The value retriedved from the channel data store.
+             */
+            virtual T peek() noexcept(false) = 0;
+
+            /*!
              * \brief Clears all values from the channel.
              */
             virtual void clear() noexcept = 0;
@@ -145,6 +152,13 @@ namespace csp
         T get() const noexcept { return _internal->get(); }
 
         /*!
+         * \brief Peeks at the first value from the channel data store.  Used in extended read operation.
+         *
+         * \return Value retrieved from the channel data store.
+         */
+        T peek() const noexcept { return _internal->peek(); }
+
+        /*!
          * \brief Clears all values from the channel data store.
          */
         void clear() const noexcept { _internal->clear(); }
@@ -216,6 +230,16 @@ namespace csp
                 T to_return = _buffer.front();
                 _buffer.pop_front();
                 return to_return;
+            }
+
+            /*!
+             * \brief Gets a value from the buffer without removing it.
+             *
+             * \return The value retrieved from the buffer.
+             */
+            T peek() noexcept override final
+            {
+                return _buffer.front();
             }
 
             /*!
@@ -303,6 +327,16 @@ namespace csp
                 T to_return = _buffer.front();
                 _buffer.pop_front();
                 return to_return;
+            }
+
+            /*!
+             * \brief Gets a value from the buffer without removing it.
+             *
+             * \return Value retrieved from the buffer.
+             */
+            T peek() noexcept override final
+            {
+                return _buffer.front();
             }
 
             /*!
@@ -396,6 +430,16 @@ namespace csp
                 T to_return = _buffer.front();
                 _buffer.pop_front();
                 return to_return;
+            }
+
+            /*!
+             * \brief Gets a value from the buffer without removing it.
+             *
+             * \return Value retrieved from the buffer.
+             */
+            T peek() noexcept override final
+            {
+                return _buffer.front();
             }
 
             /*!
@@ -493,6 +537,16 @@ namespace csp
             }
 
             /*!
+             * \brief Gets a value from the buffer without removing it.
+             *
+             * \return Value retrieved from the buffer.
+             */
+            T peek() noexcept override final
+            {
+                return _buffer.front();
+            }
+
+            /*!
              * \brief Clears all values from the buffer.
              */
             void clear() noexcept override final
@@ -586,6 +640,16 @@ namespace csp
                 T to_return = _buffer.front();
                 _buffer.pop_back();
                 return to_return;
+            }
+
+            /*!
+             * \brief Gets a value from the buffer without removing it.
+             *
+             * \return Value retrieved from the buffer.
+             */
+            T peek() noexcept override final
+            {
+                return _buffer.front();
             }
 
             /*!

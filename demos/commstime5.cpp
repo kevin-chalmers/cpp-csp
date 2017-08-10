@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
 #include <fstream>
 #include <chrono>
 #include "../csp/csp.h"
