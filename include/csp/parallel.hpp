@@ -154,7 +154,7 @@ namespace csp
 					}
 					else
 					{
-						for (size_t i = _internal->threads.size() - 1; i = > _internal->processes.size() - 1; --i)
+						for (size_t i = _internal->threads.size() - 1; i >= _internal->processes.size() - 1; --i)
 						{
 							_internal->threads[i]->_running = false;
 							_internal->threads[i]->release();
