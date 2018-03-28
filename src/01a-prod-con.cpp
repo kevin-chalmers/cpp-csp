@@ -8,13 +8,13 @@ using namespace csp;
 
 void producer(channel<int> c)
 {
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 10000000; ++i)
 		c.write(i);
 }
 
 void consumer(channel<int> c)
 {
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 10000000; ++i)
 	{
 		auto n = c.read();
 		if (n != i)
