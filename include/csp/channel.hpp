@@ -30,7 +30,7 @@ namespace csp
 			_internal->hold.resize(0);
 		}
 
-		void write(T &&value)
+		void write(T value)
 		{
 			std::unique_lock<std::mutex> lock(_internal->mut);
 			if (_internal->strength > 0)
