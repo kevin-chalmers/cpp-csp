@@ -58,6 +58,10 @@ namespace csp
 		friend class par_thread;
 	private:
 
+		static std::set<std::shared_ptr<std::thread>> _all_threads;
+
+		static std::unique_ptr<std::mutex> _all_threads_lock;
+
 		struct par_data
 		{
 			std::mutex mut;
@@ -66,6 +70,8 @@ namespace csp
 			barrier bar = barrier(0);
 			bool processes_changed = true;
 		};
+
+		std::shared_ptr<par_data> _internal = nullptr;
 
 		void release_all_threads() noexcept
 		{
@@ -125,4 +131,8 @@ namespace csp
 		par::add_to_all_threads(_thread);
 		_running = true;
 	}
+
+	std::set<std::shared_ptr<std::thread>> par::_all_threads = std::set<std::shared_ptr<std::thread>>();
+
+	std::unique_ptr<std::mutex> par::_all_threads_lock = std::make_unique<std::mutex>();
 }
