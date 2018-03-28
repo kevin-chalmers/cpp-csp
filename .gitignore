@@ -47,3 +47,6 @@ lib/
 extern/
 
 .vs/
+docs/html/
+
+docs/latex/

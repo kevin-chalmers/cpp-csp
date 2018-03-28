@@ -7,21 +7,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-IF(MSVC)
-	set(LIB_FILES "")
-ENDIF()
-
-IF(NOT MSVC)
-	set(LIB_FILES "pthread")
-ENDIF()
+find_package(Threads)
+link_libraries(${CMAKE_THREAD_LIBS_INIT})
 
 include_directories(include)
 
 add_subdirectory(src)
 
 option(BUILD_DOC "Build Documentation" ON)
-
-
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
