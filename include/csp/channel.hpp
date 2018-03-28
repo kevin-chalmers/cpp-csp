@@ -52,9 +52,9 @@ namespace csp
 
 		T read()
 		{
-			std::unique_lock<std::mutex> lock(_mut);
+			std::unique_lock<std::mutex> lock(_internal->mut);
 			if (_internal->strength > 0)
-				throw poison_exception(_strength);
+				throw poison_exception(_internal->strength);
 			if (_internal->empty)
 			{
 				_internal->empty = false;
