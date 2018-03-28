@@ -25,8 +25,10 @@ namespace csp
 		}
 
 		barrier(size_t size)
-			: barrier(), _internal->enrolled(size), _internal->count_down(size)
+			: _internal(std::make_shared<barrier_data>())
 		{
+			_internal->enrolled = size;
+			_internal->count_down = size;
 		}
 
 		void sync() const noexcept
