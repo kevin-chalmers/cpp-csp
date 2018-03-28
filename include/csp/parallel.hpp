@@ -104,17 +104,21 @@ namespace csp
 
 	public:
 		par(std::initializer_list<std::function<void()>> &&procs)
+			: _internal(std::make_shared<par_data>()), _internal->processes(std::forward<std:initializer_list<std:function<void()>>(procs))
 		{
 		}
 
 		par(std::vector<std::function<void()>> &procs)
+			: _internal(std::make_shared<par_data>()), _internal->processes(procs)
 		{
 		}
 
 		template<typename RanIt>
 		par(RanIt begin, RanIt end)
+			: _internal(std::make_shared<par_data>())
 		{
-
+			static_assert(std::iterator_traits<RanIt>::value_type == typeid(std::function<void()>), "par only takes collections of void function objects");
+			_internal->processes = std::vector<std::function<void()>>(begin, end);
 		}
 
 		~par()
@@ -123,7 +127,6 @@ namespace csp
 
 		void run() noexcept final
 		{
-
 		}
 	};
 
