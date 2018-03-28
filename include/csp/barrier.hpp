@@ -31,6 +31,15 @@ namespace csp
 
 		void sync() const noexcept
 		{
+			std::unique_lock<std::mutex> lock(_internal->mut);
+			--_internal->count_down;
+			if (_internal->count_down > 0)
+				_internal->cond.wait(lock);
+			else
+			{
+				_internal->count_down = _internal->enrolled;
+				_internal->cond.notify_all();
+			}
 		}
 
 		void enroll() const noexcept
