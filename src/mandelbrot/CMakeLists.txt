@@ -1,6 +1,0 @@
-add_executable(mandelbrot1 mandelbrot1.cpp)
-target_link_libraries(mandelbrot1 ${LIB_FILES})
-add_executable(mandelbrot2 mandelbrot2.cpp)
-target_link_libraries(mandelbrot2 ${LIB_FILES})
-add_executable(mandelbrot3 mandelbrot3.cpp)
-target_link_libraries(mandelbrot3 ${LIB_FILES})
