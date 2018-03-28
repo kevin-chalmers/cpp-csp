@@ -2,10 +2,48 @@
 
 #include <functional>
 #include <thread>
+#include "barrier.hpp"
 #include "process.hpp"
 
 namespace csp
 {
+	class par_thread
+	{
+	public:
+		par_thread()
+		{
+		}
+
+		par_thread(std::function<void()> &proc, barrier &bar)
+		{
+		}
+
+		~par_thread()
+		{
+
+		}
+
+		void reset(std::function<void()> proc, barrier &bar) noexcept
+		{
+		}
+
+		void terminate() noexcept
+		{
+		}
+
+		void release() noexcept
+		{
+		}
+
+		void run() noexcept
+		{
+		}
+
+		void start() noexcept
+		{
+		}
+	};
+
 	class par : public process
 	{
 	private:
