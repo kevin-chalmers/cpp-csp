@@ -44,5 +44,6 @@ CTestTestfile.cmake
 bin/
 build/
 lib/
-
 extern/
+
+.vs/
