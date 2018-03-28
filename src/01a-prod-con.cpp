@@ -44,9 +44,7 @@ int main(int argc, char **argv) noexcept
 {
 	channel<int> c;
 
-	thread prod(producer, c);
-	thread con(consumer, c);
-	prod.join();
-	con.join();
+	par p{ producer(c), consumer(c) };
+
 	return 0;
 }
