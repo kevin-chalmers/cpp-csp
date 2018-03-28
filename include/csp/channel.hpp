@@ -15,7 +15,7 @@ namespace csp
 		{
 			std::mutex mut;
 			std::condition_variable cond;
-			std::vector<T> hold;
+			std::vector<T> hold = std::vector<T>(0);
 			bool reading = false;
 			bool empty = true;
 			size_t strength = 0;
@@ -27,8 +27,13 @@ namespace csp
 		channel()
 			: _internal(std::make_shared<channel_data>())
 		{
-			_internal->hold.resize(0);
 		}
+
+		channel(const channel<T>&) = default;
+
+		channel(channel<T>&&) = default;
+
+		~channel() = default;
 
 		void write(T value)
 		{
