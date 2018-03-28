@@ -46,7 +46,7 @@ namespace csp
 
 		void enroll() const noexcept
 		{
-			std::lock<std::mutex> lock(_internal->mut);
+			std::lock_guard<std::mutex> lock(_internal->mut);
 			++_internal->enrolled;
 			++_internal->count_down;
 		}
