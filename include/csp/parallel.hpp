@@ -12,13 +12,13 @@ namespace csp
 {
 	class par_thread
 	{
-	private:
+	public:
 		std::function<void()> _process;
 		std::shared_ptr<std::thread> _thread = nullptr;
 		barrier _bar;
 		barrier _park = barrier(2);
 		bool _running = true;
-	public:
+
 		par_thread()
 		{
 		}
@@ -69,13 +69,26 @@ namespace csp
 			std::vector<std::shared_ptr<par_thread>> threads;
 			barrier bar = barrier(0);
 			bool processes_changed = true;
+
+			~par_data()
+			{
+				release_all_threads();
+			}
+
+			void release_all_threads() noexcept
+			{
+				std::lock_guard<std::mutex> lock(mut);
+				for (auto &t : threads)
+				{
+					t->terminate();
+					t->_thread->join();
+				}
+				processes_changed = true;
+				threads.clear();
+			}
 		};
 
 		std::shared_ptr<par_data> _internal = nullptr;
-
-		void release_all_threads() noexcept
-		{
-		}
 
 		static void add_to_all_threads(std::shared_ptr<std::thread> thread) noexcept
 		{
