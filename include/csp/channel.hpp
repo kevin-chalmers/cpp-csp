@@ -1,11 +1,34 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+#include <mutex>
+#include <condition_variable>
+
 namespace csp
 {
 	template<typename T>
 	class channel
 	{
+	private:
+		struct channel_data
+		{
+			std::mutex mut;
+			std::condition_variable cond;
+			std::vector<T> hold(1);
+			bool reading = false;
+			bool empty = true;
+			size_t strength = 0;
+		};
+
+		std::shared_ptr<channel_data> _internal = nullptr;
+
 	public:
+		channel()
+			: _internal(std::make_shared<channel_data>())
+		{
+		}
+
 		void write(T value)
 		{
 
