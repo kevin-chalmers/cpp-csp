@@ -3,6 +3,7 @@
 #include <csp/csp.hpp>
 
 using namespace std;
+using namespace csp;
 
 void producer()
 {
@@ -16,6 +17,8 @@ void consumer()
 
 int main(int argc, char **argv) noexcept
 {
+	channel<int> c;
+
 	thread prod(producer);
 	thread con(consumer);
 	prod.join();
