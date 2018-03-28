@@ -104,13 +104,15 @@ namespace csp
 
 	public:
 		par(std::initializer_list<std::function<void()>> &&procs)
-			: _internal(std::make_shared<par_data>()), _internal->processes(std::forward<std:initializer_list<std:function<void()>>(procs))
+			: _internal(std::make_shared<par_data>())
 		{
+			_internal->processes = std::vector<std::function<void()>>(std::forward<std:initializer_list<std::function<void()>>(procs));
 		}
 
 		par(std::vector<std::function<void()>> &procs)
-			: _internal(std::make_shared<par_data>()), _internal->processes(procs)
+			: _internal(std::make_shared<par_data>())
 		{
+			std::swap(_internal->processes, procs);
 		}
 
 		template<typename RanIt>
