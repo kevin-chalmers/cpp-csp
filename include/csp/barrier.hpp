@@ -59,7 +59,7 @@ namespace csp
 			if (_internal->count_down == 0)
 			{
 				_internal->count_down = _internal->enrolled;
-				_internal->cond.notify_all()
+				_internal->cond.notify_all();
 			}
 		}
 
