@@ -30,7 +30,7 @@ namespace csp
 			_internal->hold.resize(0);
 		}
 
-		void write(T &&value) throw(poison_exception)
+		void write(T &&value)
 		{
 			std::unique_lock<std::mutex> lock(_internal->mut);
 			if (_internal->strength > 0)
@@ -50,7 +50,7 @@ namespace csp
 				throw poison_exception(_strength);
 		}
 
-		T read() throw(poison_exception)
+		T read()
 		{
 			std::unique_lock<std::mutex> lock(_mut);
 			if (_internal->strength > 0)
