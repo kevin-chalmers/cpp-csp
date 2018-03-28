@@ -9,6 +9,12 @@ namespace csp
 {
 	class par_thread
 	{
+	private:
+		std::function<void()> _process;
+		std::shared_ptr<std::thread> _thread = nullptr;
+		barrier _terminate;
+		barrier _park = barrier(2);
+		bool _running = true;
 	public:
 		par_thread()
 		{
