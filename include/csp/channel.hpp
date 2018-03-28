@@ -29,12 +29,27 @@ namespace csp
 		{
 		}
 
-		void write(T value)
+		void write(T &&value) throw(poison_exception)
 		{
-
+			std::unique_lock<std::mutex> lock(_internal->mut);
+			if (_internal->_strength > 0)
+				throw poison_exception(_strength);
+			_hold.push_back(std::move(value));
+			if (_internal->_empty)
+			{
+				_internal->empty = false;
+			}
+			else
+			{
+				_internal->empty = true;
+				_internal->cond.notify_one();
+			}
+			_internal->cond.wait(lock);
+			if (_internal->strength > 0)
+				throw poison_exception(_strength);
 		}
 
-		T read()
+		T read() throw(poison_exception)
 		{
 			return T();
 		}
