@@ -35,7 +35,7 @@ namespace csp
 
 		~channel() = default;
 
-		void write(T value)
+		void write(T value) const
 		{
 			std::unique_lock<std::mutex> lock(_internal->mut);
 			if (_internal->strength > 0)
@@ -55,7 +55,7 @@ namespace csp
 				throw poison_exception(_internal->strength);
 		}
 
-		T read()
+		T read() const
 		{
 			std::unique_lock<std::mutex> lock(_internal->mut);
 			if (_internal->strength > 0)
@@ -75,22 +75,22 @@ namespace csp
 			return std::move(to_return);
 		}
 
-		T start_read()
+		T start_read() const
 		{
 			return T();
 		}
 
-		void end_read()
+		void end_read() const
 		{
 
 		}
 
-		bool enable() noexcept
+		bool enable() const noexcept
 		{
 			return false;
 		}
 
-		bool disable() noexcept
+		bool disable() const noexcept
 		{
 			return false;
 		}
@@ -100,12 +100,12 @@ namespace csp
 			return false;
 		}
 
-		void reader_poison(size_t strength) noexcept
+		void reader_poison(size_t strength) const noexcept
 		{
 
 		}
 
-		void writer_poison(size_t strength) noexcept
+		void writer_poison(size_t strength) const noexcept
 		{
 
 		}
@@ -114,12 +114,12 @@ namespace csp
 
 		channel<T>& operator=(channel<T>&&) noexcept = default;
 
-		void operator()(T value)
+		void operator()(T value) const
 		{
 			write(value);
 		}
 
-		T operator()()
+		T operator()() const
 		{
 			return std::move(read());
 		}
