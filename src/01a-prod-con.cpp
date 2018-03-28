@@ -6,21 +6,39 @@
 using namespace std;
 using namespace csp;
 
-void producer(channel<int> c)
+class producer : public process
 {
-	for (int i = 0; i < 10000000; ++i)
-		c.write(i);
-}
-
-void consumer(channel<int> c)
-{
-	for (int i = 0; i < 10000000; ++i)
+private:
+	channel<int> c;
+public:
+	producer(channel<int> c)
+		: c(c)
 	{
-		auto n = c.read();
-		if (n != i)
-			throw runtime_error("Error in the write");
 	}
-}
+
+	void run() noexcept final
+	{
+		for (int i = 0; i < 100000; ++i)
+			c.write(i);
+	}
+};
+
+class consumer : public process
+{
+private:
+	channel<int> c;
+public:
+	consumer(channel<int> c)
+		: c(c)
+	{
+	}
+
+	void run() noexcept final
+	{
+		for (int i = 0; i < 100000; ++i)
+			cout << c.read() << endl;
+	}
+};
 
 int main(int argc, char **argv) noexcept
 {
