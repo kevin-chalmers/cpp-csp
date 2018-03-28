@@ -32,7 +32,7 @@ namespace csp
 		void write(T &&value) throw(poison_exception)
 		{
 			std::unique_lock<std::mutex> lock(_internal->mut);
-			if (_internal->_strength > 0)
+			if (_internal->strength > 0)
 				throw poison_exception(_strength);
 			_hold.push_back(std::move(value));
 			if (_internal->_empty)
@@ -51,7 +51,22 @@ namespace csp
 
 		T read() throw(poison_exception)
 		{
-			return T();
+			std::unique_lock<std::mutex> lock(_mut);
+			if (_internal->strength > 0)
+				throw poison_exception(_strength);
+			if (_internal->empty)
+			{
+				_internal->empty = false;
+				_internal->cond.wait(lock);
+			}
+			else
+				_internal->empty = true;
+			auto to_return = std::move(_internal->hold[0]);
+			_internal->hold.pop_back();
+			_internal->cond.notify_one();
+			if (_internal->strength > 0)
+				throw poison_exception(_internal->strength);
+			return std::move(to_return);
 		}
 
 		T start_read()
