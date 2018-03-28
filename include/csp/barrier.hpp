@@ -51,6 +51,14 @@ namespace csp
 
 		void resign() const noexcept
 		{
+			std::lock_guard<std::mutex> lock(_internal->mut);
+			--_internal->enrolled;
+			--_internal->count_down;
+			if (_internal->count_down == 0)
+			{
+				_internal->count_down = _internal->enrolled;
+				_internal->cond.notify_all()
+			}
 		}
 
 		void reset(size_t enrolled) const noexcept
