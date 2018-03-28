@@ -109,5 +109,19 @@ namespace csp
 		{
 
 		}
+
+		channel<T>& operator=(const channel<T>&) noexcept = default;
+
+		channel<T>& operator=(channel<T>&&) noexcept = default;
+
+		void operator()(T value)
+		{
+			write(value);
+		}
+
+		T operator()()
+		{
+			return std::move(read());
+		}
 	};
 }
