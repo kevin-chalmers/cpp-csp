@@ -1,18 +1,25 @@
 #include <iostream>
 #include <thread>
 #include <csp/csp.hpp>
+#include <exception>
 
 using namespace std;
 using namespace csp;
 
-void producer()
+void producer(channel<int> c)
 {
-	cout << "Producer started" << endl;
+	for (int i = 0; i < 100; ++i)
+		c.write(i);
 }
 
-void consumer()
+void consumer(channel<int> c)
 {
-	cout << "Consumer started" << endl;
+	for (int i = 0; i < 100; ++i)
+	{
+		auto n = c.read();
+		if (n != i)
+			throw runtime_error("Error in the write");
+	}
 }
 
 int main(int argc, char **argv) noexcept
