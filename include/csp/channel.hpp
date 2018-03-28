@@ -34,9 +34,9 @@ namespace csp
 		{
 			std::unique_lock<std::mutex> lock(_internal->mut);
 			if (_internal->strength > 0)
-				throw poison_exception(_strength);
-			_hold.push_back(std::move(value));
-			if (_internal->_empty)
+				throw poison_exception(_internal->strength);
+			_internal->hold.push_back(std::move(value));
+			if (_internal->empty)
 			{
 				_internal->empty = false;
 			}
@@ -47,7 +47,7 @@ namespace csp
 			}
 			_internal->cond.wait(lock);
 			if (_internal->strength > 0)
-				throw poison_exception(_strength);
+				throw poison_exception(_internal->strength);
 		}
 
 		T read()
