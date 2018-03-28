@@ -92,10 +92,14 @@ namespace csp
 
 		static void add_to_all_threads(std::shared_ptr<std::thread> thread) noexcept
 		{
+			std::lock_guard<std::mutex> lock(*_all_threads_lock);
+			_all_threads.emplace(thread);
 		}
 
 		static void remove_from_all_threads(std::shared_ptr<std::thread> thread) noexcept
 		{
+			std::lock_guard<std::mutex> lock(*_all_threads_lock);
+			_all_threads.erase(thread);
 		}
 
 	public:
