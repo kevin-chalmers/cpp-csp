@@ -63,6 +63,9 @@ namespace csp
 
 		void reset(size_t enrolled) const noexcept
 		{
+			std::lock_guard<std::mutex> lock(_internal->mut);
+			_internal->enrolled = enrolled;
+			_internal->count_down = enrolled;
 		}
 	};
 }
