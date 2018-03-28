@@ -45,6 +45,7 @@ int main(int argc, char **argv) noexcept
 	channel<int> c;
 
 	par p{ producer(c), consumer(c) };
+	p.run();
 
 	return 0;
 }
