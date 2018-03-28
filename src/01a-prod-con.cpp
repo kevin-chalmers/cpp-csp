@@ -26,8 +26,8 @@ int main(int argc, char **argv) noexcept
 {
 	channel<int> c;
 
-	thread prod(producer);
-	thread con(consumer);
+	thread prod(producer, c);
+	thread con(consumer, c);
 	prod.join();
 	con.join();
 	return 0;
