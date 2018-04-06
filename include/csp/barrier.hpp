@@ -17,5 +17,20 @@ namespace csp
 			: IMPLEMENTATION(size)
 		{
 		}
+
+		barrier(const barrier<IMPLEMENTATION>&) = default;
+
+		barrier(barrier<IMPLEMENTATION>&&) = default;
+
+		~barrier() = default;
+
+		barrier<IMPLEMENTATION>& operator=(const barrier<IMPLEMENTATION>&) = default;
+
+		barrier<IMPLEMENTATION>& operator=(barrier<IMPLEMENTATION>&&) = default;
+
+		void operator()() const noexcept
+		{
+			sync();
+		}
 	};
 }
