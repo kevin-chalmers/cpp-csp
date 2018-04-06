@@ -8,24 +8,23 @@
 namespace csp
 {
 	template<typename T>
-	struct channel_data
-	{
-		std::mutex mut;
-		std::condition_variable cond;
-		std::vector<T> hold = std::vector<T>(0);
-		bool reading = false;
-		bool empty = true;
-		size_t strength = 0;
-	};
-
-	template<typename T>
 	class channel_type
 	{
 	private:
-		std::shared_ptr<channel_data<T>> _internal = nullptr;
+		struct channel_data
+		{
+			std::mutex mut;
+			std::condition_variable cond;
+			std::vector<T> hold = std::vector<T>(0);
+			bool reading = false;
+			bool empty = true;
+			size_t strength = 0;
+		};
+
+		std::shared_ptr<channel_data> _internal = nullptr;
 	public:
 		channel_type()
-			: _internal(std::make_shared<channel_data<T>>())
+			: _internal(std::make_shared<channel_data>())
 		{
 		}
 
@@ -105,10 +104,77 @@ namespace csp
 		}
 	};
 
+	class barrier_type
+	{
+	private:
+		struct barrier_data
+		{
+			size_t enrolled = 0;
+			size_t count_down = 0;
+			std::mutex mut;
+			std::condition_variable cond;
+		};
+
+		std::shared_ptr<barrier_data> _internal = nullptr;
+	public:
+		barrier_type()
+			: _internal(std::make_shared<barrier_data>())
+		{
+		}
+
+		explicit barrier_type(size_t size)
+			: _internal(std::make_shared<barrier_data>())
+		{
+			_internal->enrolled = size;
+			_internal->count_down = size;
+		}
+
+		void sync() const noexcept
+		{
+			std::unique_lock<std::mutex> lock(_internal->mut);
+			--_internal->count_down;
+			if (_internal->count_down > 0)
+				_internal->cond.wait(lock);
+			else
+			{
+				_internal->count_down = _internal->enrolled;
+				_internal->cond.notify_all();
+			}
+		}
+
+		void enroll() const noexcept
+		{
+			std::lock_guard<std::mutex> lock(_internal->mut);
+			++_internal->enrolled;
+			++_internal->count_down;
+		}
+
+		void resign() const noexcept
+		{
+			std::lock_guard<std::mutex> lock(_internal->mut);
+			--_internal->enrolled;
+			--_internal->count_down;
+			if (_internal->count_down == 0)
+			{
+				_internal->count_down = _internal->enrolled;
+				_internal->cond.notify_all();
+			}
+		}
+
+		void reset(size_t enrolled) const noexcept
+		{
+			std::lock_guard<std::mutex> lock(_internal->mut);
+			_internal->enrolled = enrolled;
+			_internal->count_down = enrolled;
+		}
+	};
+
 	struct thread_model
 	{
 		template<typename T>
 		using channel = channel_type<T>;
+
+		using barrier = barrier_type;
 
 		using process_data = nullptr_t;
 		using channel_data = nullptr_t;

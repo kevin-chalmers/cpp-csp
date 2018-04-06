@@ -15,22 +15,22 @@ namespace csp
 	public:
 		std::function<void()> _process;
 		std::shared_ptr<std::thread> _thread = nullptr;
-		barrier _bar;
-		barrier _park = barrier(2);
+		barrier<> _bar;
+		barrier<> _park = barrier<>(2);
 		bool _running = true;
 
 		par_thread()
 		{
 		}
 
-		par_thread(std::function<void()> &proc, barrier &bar)
+		par_thread(std::function<void()> &proc, barrier<> &bar)
 			: _process(proc), _bar(bar)
 		{
 		}
 
 		~par_thread();
 
-		void reset(std::function<void()> proc, barrier &bar) noexcept
+		void reset(std::function<void()> proc, barrier<> &bar) noexcept
 		{
 			_process = proc;
 			_bar = bar;
@@ -67,7 +67,7 @@ namespace csp
 			std::mutex mut;
 			std::vector<std::function<void()>> processes;
 			std::vector<std::shared_ptr<par_thread>> threads;
-			barrier bar = barrier(0);
+			barrier<> bar = barrier<>(0);
 			bool processes_changed = true;
 
 			~par_data()
