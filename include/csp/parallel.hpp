@@ -29,9 +29,8 @@ namespace csp
 	template<typename IMPLEMENTATION = thread_implementation,
 			 typename PARALLEL = IMPLEMENTATION::parallel,
 			 typename THREAD = IMPLEMENTATION::thread>
-	class par : public process<thread_implementation>, public PARALLEL
+	class par : public process<IMPLEMENTATION>, public PARALLEL
 	{
-	
 	public:
 		par(std::initializer_list<std::function<void()>> &&procs)
 			: PARALLEL(std::forward<std::initializer_list<std::function<void()>>>(procs))
