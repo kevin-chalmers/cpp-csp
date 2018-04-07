@@ -131,6 +131,27 @@ namespace csp
 			}
 		};
 
+		struct mutex_guard
+		{
+		private:
+			std::shared_ptr<std::mutex> mut = nullptr;
+		public:
+			mutex_guard()
+				: mut(std::make_shared<std::mutex>())
+			{
+			}
+
+			inline void lock() const noexcept
+			{
+				mut->lock();
+			}
+
+			inline void unlock() const noexcept
+			{
+				mut->unlock();
+			}
+		};
+
 		class barrier_type
 		{
 		private:
