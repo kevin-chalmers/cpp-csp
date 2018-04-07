@@ -4,9 +4,8 @@
 
 namespace csp
 {
-	template<typename IMPLEMENTATION = thread_implementation, 
-			 typename PROCESS = IMPLEMENTATION::process_type>
-	class process : public PROCESS
+	template<typename IMPLEMENTATION = thread_implementation>
+	class process
 	{
 	public:
 		virtual ~process() = default;
