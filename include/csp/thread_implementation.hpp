@@ -389,8 +389,10 @@ namespace csp
 		using channel = csp::thread::channel_type<T>;
 		template<typename T>
 		using atomic_channel = nullptr_t;
+		using shared = csp::thread::mutex_guard;
+		using atomic_shared = nullptr_t;
 		using barrier = csp::thread::barrier_type;
-		using thread = csp::thread::thread_type;
+		using thread = csp::thread::thread_type;  
 		using parallel = csp::thread::parallel_type;
 	};
 }

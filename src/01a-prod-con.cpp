@@ -26,9 +26,9 @@ public:
 class consumer : public process<>
 {
 private:
-	channel<int> c;
+	channel_input<int> c;
 public:
-	consumer(channel<int> c)
+	consumer(channel_input<int> c)
 		: c(c)
 	{
 	}
@@ -36,13 +36,14 @@ public:
 	void run() noexcept final
 	{
 		for (int i = 0; i < 100000; ++i)
-			cout << c() << endl;
+			cout << c.read() << endl;
 	}
 };
 
 int main(int argc, char **argv) noexcept
 {
 	channel<int> c;
+	channel_input<int> input(c);
 
 	par<> p{ producer(c), consumer(c) };
 	p.run();
