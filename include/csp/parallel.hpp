@@ -1,72 +1,41 @@
 #pragma once
 
 #include <memory>
-#include <functional>
-#include <thread>
 #include <vector>
 #include <set>
 #include "barrier.hpp"
 #include "process.hpp"
+#include "thread_implementation.hpp"
 
 namespace csp
 {
-	class par_thread
+	template<typename IMPLEMENTATION = thread_implementation,
+			 typename THREAD = IMPLEMENTATION::thread>
+	class par_thread : public THREAD
 	{
 	public:
-		std::function<void()> _process;
-		std::shared_ptr<std::thread> _thread = nullptr;
-		barrier<> _bar;
-		barrier<> _park = barrier<>(2);
-		bool _running = true;
-
 		par_thread()
 		{
 		}
 
 		par_thread(std::function<void()> &proc, barrier<> &bar)
-			: _process(proc), _bar(bar)
 		{
+			reset(proc, bar);
 		}
 
-		~par_thread();
-
-		void reset(std::function<void()> proc, barrier<> &bar) noexcept
-		{
-			_process = proc;
-			_bar = bar;
-			_running = true;
-		}
-
-		void terminate() noexcept
-		{
-			_running = false;
-			_park.sync();
-		}
-
-		void release() noexcept
-		{
-			_park.sync();
-		}
-
-		void run() noexcept;
-
-		void start() noexcept;
+		~par_thread() = default;
 	};
 
-	class par : public process
+	template<typename IMPLEMENTATION = thread_implementation,
+			 typename THREAD = IMPLEMENTATION::thread>
+	class par : public process<thread_implementation>
 	{
-		friend class par_thread;
 	private:
-
-		static std::set<std::shared_ptr<std::thread>> _all_threads;
-
-		static std::unique_ptr<std::mutex> _all_threads_lock;
-
 		struct par_data
 		{
 			std::mutex mut;
 			std::vector<std::function<void()>> processes;
-			std::vector<std::shared_ptr<par_thread>> threads;
+			std::vector<std::shared_ptr<THREAD>> threads;
 			barrier<> bar = barrier<>(0);
 			bool processes_changed = true;
 
@@ -89,19 +58,6 @@ namespace csp
 		};
 
 		std::shared_ptr<par_data> _internal = nullptr;
-
-		static void add_to_all_threads(std::shared_ptr<std::thread> thread) noexcept
-		{
-			std::lock_guard<std::mutex> lock(*_all_threads_lock);
-			_all_threads.emplace(thread);
-		}
-
-		static void remove_from_all_threads(std::shared_ptr<std::thread> thread) noexcept
-		{
-			std::lock_guard<std::mutex> lock(*_all_threads_lock);
-			_all_threads.erase(thread);
-		}
-
 	public:
 		par(std::initializer_list<std::function<void()>> &&procs)
 			: _internal(std::make_shared<par_data>())
@@ -148,7 +104,7 @@ namespace csp
 						}
 						for (size_t i = _internal->threads.size(); i < _internal->processes.size() - 1; ++i)
 						{
-							_internal->threads.push_back(std::make_shared<par_thread>(_internal->processes[i], _internal->bar));
+							_internal->threads.push_back(std::make_shared<par_thread<IMPLEMENTATION>>(_internal->processes[i], _internal->bar));
 							_internal->threads[i]->start();
 						}
 					}
@@ -181,30 +137,4 @@ namespace csp
 			}
 		}
 	};
-
-	par_thread::~par_thread()
-	{
-		par::remove_from_all_threads(_thread);
-	}
-
-	void par_thread::run() noexcept
-	{
-		while (_running)
-		{
-			_process();
-			_bar.sync();
-			_park.sync();
-		}
-	}
-
-	void par_thread::start() noexcept
-	{
-		_thread = std::make_shared<std::thread>(&par_thread::run, this);
-		par::add_to_all_threads(_thread);
-		_running = true;
-	}
-
-	std::set<std::shared_ptr<std::thread>> par::_all_threads = std::set<std::shared_ptr<std::thread>>();
-
-	std::unique_ptr<std::mutex> par::_all_threads_lock = std::make_unique<std::mutex>();
 }

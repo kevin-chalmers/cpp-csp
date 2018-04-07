@@ -2,10 +2,11 @@
 
 #include <mutex>
 #include <condition_variable>
+#include "thread_implementation.hpp"
 
 namespace csp
 {
-	template<typename IMPLEMENTATION = thread_model::barrier>
+	template<typename IMPLEMENTATION = thread_implementation::barrier>
 	class barrier : public IMPLEMENTATION
 	{
 	public:

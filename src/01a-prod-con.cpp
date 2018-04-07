@@ -6,7 +6,7 @@
 using namespace std;
 using namespace csp;
 
-class producer : public process
+class producer : public process<>
 {
 private:
 	channel<int> c;
@@ -23,7 +23,7 @@ public:
 	}
 };
 
-class consumer : public process
+class consumer : public process<>
 {
 private:
 	channel<int> c;
@@ -44,7 +44,7 @@ int main(int argc, char **argv) noexcept
 {
 	channel<int> c;
 
-	par p{ producer(c), consumer(c) };
+	par<> p{ producer(c), consumer(c) };
 	p.run();
 
 	return 0;

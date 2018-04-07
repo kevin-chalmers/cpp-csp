@@ -4,11 +4,11 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include "thread_implementationl.hpp"
+#include "thread_implementation.hpp"
 
 namespace csp
 {
-	template<typename T, typename IMPLEMENTATION = thread_model::channel<T>>
+	template<typename T, typename IMPLEMENTATION = thread_implementation::channel<T>>
 	class channel : public IMPLEMENTATION
 	{
 	public:
