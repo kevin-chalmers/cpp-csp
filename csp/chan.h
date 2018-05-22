@@ -10,6 +10,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
+#include <boost/fiber/all.hpp>
 #include "poison_exception.h"
 #include "alt.h"
 #include "alting_barrier.h"
@@ -27,17 +28,25 @@ namespace csp
     template<typename T, bool POISONABLE>
     class one2one_chan;
     template<typename T, bool POISONABLE>
+    class fiber_one2one_chan;
+    template<typename T, bool POISONABLE>
     class busy_one2one_chan;
     template<typename T, bool POISONABLE>
     class one2any_chan;
+    template<typename T, bool POISONABLE>
+    class fiber_one2any_chan;
     template<typename T, bool POISONABLE>
     class busy_one2any_chan;
     template<typename T, bool POISONABLE>
     class any2one_chan;
     template<typename T, bool POISONABLE>
+    class fiber_any2one_chan;
+    template<typename T, bool POISONABLE>
     class busy_any2one_chan;
     template<typename T, bool POISONABLE>
     class any2any_chan;
+    template<typename T, bool POISONABLE>
+    class fiber_any2any_chan;
     template<typename T, bool POISONABLE>
     class busy_any2any_chan;
 
@@ -529,6 +538,58 @@ namespace csp
         shared_chan_in& operator=(shared_chan_in<T, POISONABLE> &&rhs) noexcept = default;
     };
 
+    template<typename T, bool POISONABLE=false>
+    class fiber_shared_chan_in : public shared_chan_in<T, POISONABLE>
+    {
+        friend class fiber_one2any_chan<T, POISONABLE>;
+        friend class fiber_any2any_chan<T, POISONABLE>;
+    protected:
+        class fiber_shared_chan_in_internal : public shared_chan_in<T, POISONABLE>::internal
+        {
+        public:
+            mutable boost::fibers::mutex _mut;
+
+            fiber_shared_chan_in_internal(chan<T, POISONABLE> chan, unsigned int immunity) noexcept
+            : shared_chan_in<T, POISONABLE>::shared_chan_in_internal(chan, immunity)
+            {
+            }
+
+            T read() const final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                return chan_in<T, POISONABLE>::chan_in_internal::read();
+            }
+
+            T start_read() const final
+            {
+                _mut.lock();
+                return chan_in<T, POISONABLE>::chan_in_internal::start_read();
+            }
+
+            void end_read() const final
+            {
+                chan_in<T, POISONABLE>::chan_in_internal::end_read();
+                _mut.unlock();
+            }
+        };
+
+        std::shared_ptr<fiber_shared_chan_in_internal> _internal = nullptr;
+
+        fiber_shared_chan_in(std::shared_ptr<fiber_shared_chan_in_internal> internal) noexcept
+        : shared_chan_in<T, POISONABLE>(internal), _internal(internal)
+        {
+        }
+
+    public:
+        fiber_shared_chan_in(const fiber_shared_chan_in<T, POISONABLE>&) = default;
+
+        fiber_shared_chan_in(fiber_shared_chan_in<T, POISONABLE>&&) = default;
+
+        fiber_shared_chan_in& operator=(const fiber_shared_chan_in<T, POISONABLE>&) = default;
+
+        fiber_shared_chan_in& operator=(fiber_shared_chan_in<T, POISONABLE>&&) = default;
+    };
+
     /*! \class busy_shared_chan_in
      * \brief A shared input end using an atomic flag to create a busy wait.
      *
@@ -688,6 +749,7 @@ namespace csp
         // Friend declarations
         friend class one2one_chan<T, POISONABLE>;
         friend class busy_one2one_chan<T, POISONABLE>;
+        friend class fiber_one2one_chan<T, POISONABLE>;
         friend class any2one_chan<T, POISONABLE>;
         friend class busy_any2one_chan<T, POISONABLE>;
     protected:
@@ -816,6 +878,7 @@ namespace csp
     {
         // Friend declarations
         friend class one2one_chan<T, POISONABLE>;
+        friend class fiber_one2one_chan<T, POISONABLE>;
         friend class busy_one2one_chan<T, POISONABLE>;
         friend class one2any_chan<T, POISONABLE>;
     protected:
@@ -1105,6 +1168,52 @@ namespace csp
          * \return A copy of the shared_chan_out.
          */
         shared_chan_out<T, POISONABLE>& operator=(shared_chan_out &&rhs) noexcept = default;
+    };
+
+    template<typename T, bool POISONABLE = false>
+    class fiber_shared_chan_out : public shared_chan_out<T, POISONABLE>
+    {
+        friend class fiber_any2one_chan<T, POISONABLE>;
+        friend class fiber_any2any_chan<T, POISONABLE>;
+    protected:
+        class fiber_shared_chan_out_internal : public shared_chan_out<T, POISONABLE>::internal
+        {
+        public:
+            mutable boost::fibers::mutex _mut;
+
+            fiber_shared_chan_out_internal(chan<T, POISONABLE> chan, unsigned int immunity)
+            : shared_chan_out<T, POISONABLE>::shared_chan_out_internal(chan, immunity)
+            {
+            }
+
+            void write(T value) const noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                chan_out<T, POISONABLE>::chan_out_internal::write(std::move(value));
+            }
+
+            void poison(unsigned int strength) const noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                chan_out<T, POISONABLE>::chan_out_internal::poison(strength);
+            }
+        };
+
+        std::shared_ptr<fiber_shared_chan_out_internal> _internal = nullptr;
+
+        fiber_shared_chan_out(std::shared_ptr<fiber_shared_chan_out_internal> internal)
+        : shared_chan_out<T, POISONABLE>(internal), _internal(internal)
+        {
+        }
+
+    public:
+        fiber_shared_chan_out(const fiber_shared_chan_out<T, POISONABLE>&) = default;
+
+        fiber_shared_chan_out(fiber_shared_chan_out<T, POISONABLE>&&) = default;
+
+        fiber_shared_chan_out& operator=(const fiber_shared_chan_out<T, POISONABLE>&) = default;
+
+        fiber_shared_chan_out& operator=(fiber_shared_chan_out<T, POISONABLE>&&) = default;
     };
 
     /*! \class busy_shared_chan_out
@@ -1607,6 +1716,170 @@ namespace csp
          * \brief Destroys the channel object.
          */
         ~basic_chan() { }
+    };
+
+    template<typename T, bool POISONABLE = false>
+    class fiber_chan : public chan<T, POISONABLE>
+    {
+    protected:
+        class fiber_chan_internal : public chan<T, POISONABLE>::chan_internal
+        {
+        private:
+            mutable boost::fibers::mutex _mut;
+
+            boost::fibers::condition_variable _cond;
+
+            std::vector<T> _hold;
+
+            bool _reading = false;
+
+            bool _empty = true;
+
+            alt _alt;
+
+            bool _alting = false;
+
+            unsigned int _strength = 0;
+
+        protected:
+            void write(T value) final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                _hold.push_back(std::move(value));
+                if (_empty)
+                {
+                    _empty = false;
+                    if (_alting)
+                        guard::guard_internal::schedule(_alt);
+                }
+                else
+                {
+                    _empty = true;
+                    _cond.notify_one();
+                }
+                _cond.wait(lock);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+            }
+
+            T read() final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                if (_empty)
+                {
+                    _empty = false;
+                    _cond.wait(lock);
+                }
+                else
+                    _empty = true;
+                auto to_return = std::move(_hold[0]);
+                _hold.pop_back();
+                _cond.notify_one();
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                return std::move(to_return);
+            }
+
+            T start_read() final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                if (_reading)
+                    throw std::logic_error("Channel already in extended read");
+                if (_empty)
+                {
+                    _empty = false;
+                    _cond.wait(lock);
+                }
+                else
+                    _empty =true;
+                _reading = true;
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                return std::move(_hold[0]);
+            }
+
+            void end_read() final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (!_reading)
+                    throw std::logic_error("Channel not in extended read");
+                _hold.pop_back();
+                _empty = true;
+                _reading = false;
+                _cond.notify_one();
+            }
+
+            bool enable(const alt &a) noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    return true;
+                if (_empty)
+                {
+                    _alt = a;
+                    _alting = true;
+                    return false;
+                }
+                else
+                    return true;
+            }
+
+            bool disable() noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _alting = false;
+                return !_empty || (_strength > 0);
+            }
+
+            bool pending() const noexcept final
+            {
+                return !_empty || (_strength > 0);
+            }
+
+            void reader_poison(unsigned int strength) noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _strength = strength;
+                _cond.notify_all();
+            }
+
+            void writer_poison(unsigned int strength) noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _strength = strength;
+                _cond.notify_all();
+                if (_alting)
+                    guard::guard_internal::schedule(_alt);
+            }
+
+        public:
+            fiber_chan_internal() noexcept { }
+
+            ~fiber_chan_internal() noexcept { }
+        };
+
+    public:
+        fiber_chan()
+        : chan<T, POISONABLE>(std::shared_ptr<fiber_chan_internal>(new fiber_chan_internal()))
+        {
+        }
+
+        fiber_chan(const fiber_chan<T, POISONABLE>&) = default;
+
+        fiber_chan(fiber_chan<T, POISONABLE>&&) = default;
+
+        fiber_chan& operator=(const fiber_chan<T, POISONABLE>&) = default;
+
+        fiber_chan& operator=(fiber_chan<T, POISONABLE>&&) = default;
+
+        ~fiber_chan() { }
     };
 
     /*! \class busy_chan
@@ -2193,6 +2466,155 @@ namespace csp
         ~buffered_chan() { }
     };
 
+    template<typename T, bool POISONABLE = false>
+    class fiber_buffered_chan : public chan<T, POISONABLE>
+    {
+        friend class fiber_one2one_chan<T, POISONABLE>;
+        friend class fiber_one2any_chan<T, POISONABLE>;
+        friend class fiber_any2one_chan<T, POISONABLE>;
+        friend class fiber_any2any_chan<T, POISONABLE>;
+    protected:
+        class fiber_buffered_chan_internal : public chan<T, POISONABLE>::internal
+        {
+        private:
+            chan_data_store<T> _buffer;
+
+            mutable boost::fibers::mutex _mut;
+
+            boost::fibers::condition_variable _cond;
+
+            bool _reading = false;
+
+            alt _alt;
+
+            bool _alting = false;
+
+            unsigned int _strength = 0;
+
+        protected:
+            void write(T value) final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                _buffer.put(std::move(value));
+                if (_alting)
+                    guard::guard_internal::schedule(_alt);
+                else
+                    _cond.notify_one();
+                if (_buffer.get_state() == DATA_STORE_STATE::FULL)
+                    _cond.wait(lock);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+            }
+
+            T read() final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                if (_buffer.get_state() == DATA_STORE_STATE::EMPTY)
+                    _cond.wait(lock);
+                _cond.notify_one();
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                return std::move(_buffer.get());
+            }
+
+            T start_read() final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                if (_reading)
+                    throw std::logic_error("Channel already in extended read state");
+                if (_buffer.get_state() == DATA_STORE_STATE::EMPTY)
+                    _cond.wait(lock);
+                _reading = true;
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                return std::move(_buffer.get());
+            }
+
+            void end_read() final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_reading)
+                    throw std::logic_error("Channel not in extended read");
+                _cond.notify_one();
+                _reading = false;
+            }
+
+            bool enable(const alt &a) noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    return true;
+                if (_buffer.get_state() == DATA_STORE_STATE::EMPTY)
+                {
+                    _alting = true;
+                    _alt = a;
+                    return false;
+                }
+                else
+                    return true;
+            }
+
+            bool disable() noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _alting = false;
+                return _buffer.get_state() != DATA_STORE_STATE::EMPTY || _strength > 0;
+            }
+
+            bool pending() const noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                return _buffer.get_state() != DATA_STORE_STATE::EMPTY || _strength > 0;
+            }
+
+            void reader_poison(unsigned int strength) noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _strength = strength;
+                _cond.notify_all();
+            }
+
+            void writer_poison(unsigned int strength) noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _strength = strength;
+                _cond.notify_all();
+                if (_alting)
+                    guard::guard_internal::schedule(_alt);
+            }
+
+        public:
+            fiber_buffered_chan_internal(chan_data_store<T> &buffer)
+            : _buffer(buffer)
+            {
+            }
+
+            ~fiber_buffered_chan_internal() noexcept { }
+        };
+
+    public:
+        fiber_buffered_chan(chan_data_store<T> &buffer)
+        : chan<T, POISONABLE>(std::shared_ptr<fiber_buffered_chan_internal>(new fiber_buffered_chan_internal(buffer)))
+        {
+        }
+
+        fiber_buffered_chan(const fiber_buffered_chan<T, POISONABLE>&) = default;
+
+        fiber_buffered_chan(fiber_buffered_chan<T, POISONABLE>&&) = default;
+
+        fiber_buffered_chan<T, POISONABLE>& operator=(const fiber_buffered_chan<T, POISONABLE>&) = default;
+
+        fiber_buffered_chan<T, POISONABLE>& operator=(fiber_buffered_chan<T, POISONABLE>&&) = default;
+
+        ~fiber_buffered_chan() { }
+    };
+
     /*! \class busy_bufferd_chan
      * \brief Buffered implementation of a busy channel.
      *
@@ -2562,6 +2984,55 @@ namespace csp
         }
     };
 
+    template<typename T, bool POISONABLE = false>
+    class fiber_one2one_chan
+    {
+    private:
+        using INPUT = alting_chan_in<T, POISONABLE>;
+        using INPUT_IMPL = typename INPUT::alting_chan_in_internal;
+        using OUTPUT = chan_out<T, POISONABLE>;
+        using OUTPUT_IMPL = typename OUTPUT::chan_out_internal;
+
+        chan<T, POISONABLE> _chan;
+
+        INPUT _in;
+
+        OUTPUT _out;
+
+    public:
+        fiber_one2one_chan(unsigned int immunity = 0)
+        : _chan(fiber_chan<T, POISONABLE>()),
+          _in(std::shared_ptr<INPUT_IMPL>(new INPUT_IMPL(_chan, immunity))),
+          _out(std::shared_ptr<OUTPUT_IMPL>(new OUTPUT_IMPL(_chan, immunity)))
+        {
+        }
+
+        fiber_one2one_chan(chan_data_store<T> &buffer, unsigned int immunity = 0)
+        : _chan(fiber_buffered_chan<T, POISONABLE>()),
+          _in(std::shared_ptr<INPUT_IMPL>(new INPUT_IMPL(_chan, immunity))),
+          _out(std::shared_ptr<OUTPUT_IMPL>(new OUTPUT_IMPL(_chan, immunity)))
+        {
+        }
+
+        alting_chan_in<T, POISONABLE> in() const noexcept { return _in; };
+
+        chan_out<T, POISONABLE> out() const noexcept { return _out; };
+
+        operator alting_chan_in<T, POISONABLE>() const noexcept { return _in; };
+
+        operator chan_out<T, POISONABLE>() const noexcept { return _out; };
+
+        T operator()() const noexcept
+        {
+            return _in.read();
+        }
+
+        void operator()(T value) const noexcept
+        {
+            _out.write(value);
+        }
+    };
+
     /*!
      * \class busy_one2one_chan
      * \brief A one2one channel that uses busy semantics.
@@ -2609,7 +3080,7 @@ namespace csp
          * \param[in] immunity The poison immunity level that the channel has.
          */
         busy_one2one_chan(chan_data_store<T> &buffer, unsigned int immunity = 0) noexcept
-        : _chan(buffered_chan<T, POISONABLE>(buffer)),
+        : _chan(busy_buffered_chan<T, POISONABLE>(buffer)),
           _in(std::shared_ptr<INPUT_IMPL>(new INPUT_IMPL(_chan, immunity))),
           _out(std::shared_ptr<OUTPUT_IMPL>(new OUTPUT_IMPL(_chan, immunity)))
         {

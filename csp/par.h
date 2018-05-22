@@ -11,6 +11,7 @@
 #include <functional>
 #include <thread>
 #include <mutex>
+#include <boost/fiber/all.hpp>
 #include <set>
 #include "process.h"
 #include "barrier.h"
@@ -258,9 +259,9 @@ namespace csp
                                 // Release thread to allow it to continue
                                 _threads[i]->release();
                             }
-                            // Set processes changed flag
-                            _process_changed = false;
                         }
+                        // Set processes changed flag
+                        _process_changed = false;
                     }
                     else
                     {
@@ -431,6 +432,233 @@ namespace csp
         // Add to all threads
         par_internal::add_to_all_threads(_thread);
         // Set running to true
+        _running = true;
+    }
+
+    class fiber_par : public process
+    {
+    private:
+        class par_fiber
+        {
+        public:
+            std::function<void()> _process;
+
+            std::shared_ptr<boost::fibers::fiber> _fiber = nullptr;
+
+            fiber_barrier _bar;
+
+            fiber_barrier _park = fiber_barrier(2);
+
+            bool _running = true;
+
+            par_fiber() { }
+
+            par_fiber(std::function<void()> &proc, fiber_barrier &bar)
+            : _process(proc), _bar(bar)
+            {
+            }
+
+            ~par_fiber();
+
+            par_fiber(const par_fiber&) = delete;
+            par_fiber(par_fiber&&) = delete;
+
+            void reset(std::function<void()> proc, fiber_barrier bar) noexcept
+            {
+                _process = proc;
+                _bar = bar;
+                _running = true;
+            }
+
+            void terminate() noexcept
+            {
+                _running = false;
+                _park();
+            }
+
+            void release() noexcept
+            {
+                _park();
+            }
+
+            void run() noexcept;
+
+            void start() noexcept;
+
+            void operator()() noexcept { run(); }
+        };
+
+        class fiber_par_internal
+        {
+        public:
+            thread_local static std::set<std::shared_ptr<boost::fibers::fiber>> _all_fibers;
+
+            thread_local static std::shared_ptr<boost::fibers::mutex> _all_fibers_lock;
+
+            boost::fibers::mutex _mut;
+
+            std::vector<std::function<void()>> _processes;
+
+            std::vector<std::shared_ptr<par_fiber>> _fibers;
+
+            fiber_barrier _barrier = fiber_barrier(0);
+
+            bool _process_changed = true;
+
+            fiber_par_internal() { }
+
+            fiber_par_internal(std::initializer_list<std::function<void()>> &&procs)
+            : _processes(std::forward<std::initializer_list<std::function<void()>>>(procs))
+            {
+            }
+
+            fiber_par_internal(std::vector<std::function<void()>> &procs)
+            : _processes(procs)
+            {
+            }
+
+            ~fiber_par_internal()
+            {
+                release_all_fibers();
+            }
+
+            void release_all_fibers() noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                for (auto &f : _fibers)
+                {
+                    f->terminate();
+                    f->_fiber->join();
+                }
+                _process_changed = true;
+                _fibers.clear();
+            }
+
+            void run() noexcept
+            {
+                bool empty_run = true;
+                std::function<void()> my_process;
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_processes.size() > 0)
+                {
+                    empty_run = false;
+                    my_process = _processes[_processes.size() - 1];
+                    if (_process_changed)
+                    {
+                        _barrier.reset(static_cast<unsigned int>(_processes.size()));
+                        if (_fibers.size() < _processes.size() - 1)
+                        {
+                            for (unsigned int i = 0; i < _fibers.size(); ++i)
+                            {
+                                _fibers[i]->reset(_processes[i], _barrier);
+                                _fibers[i]->release();
+                            }
+                            for (unsigned int i = static_cast<unsigned int>(_fibers.size()); i < _processes.size() - 1; ++i)
+                            {
+                                _fibers.push_back(std::shared_ptr<par_fiber>(new par_fiber(_processes[i], _barrier)));
+                                _fibers[i]->start();
+                            }
+                        }
+                        else
+                        {
+                            _fibers.resize(_processes.size() - 1);
+                            for (unsigned int i = 0; i < _processes.size() - 1; ++i)
+                            {
+                                _fibers[i]->reset(_processes[i], _barrier);
+                                _fibers[i]->release();
+                            }
+                        }
+                        _process_changed = false;
+                    }
+                    else
+                    {
+                        for (unsigned int i = 0; i < _processes.size() - 1; ++i)
+                            _fibers[i]->release();
+                    }
+                }
+                if (!empty_run)
+                {
+                    my_process();
+                    _barrier();
+                }
+            }
+
+            static void add_to_all_fibers(std::shared_ptr<boost::fibers::fiber> fiber) noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(*_all_fibers_lock);
+                _all_fibers.emplace(fiber);
+            }
+
+            static void remove_from_all_fibers(std::shared_ptr<boost::fibers::fiber> fiber) noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(*_all_fibers_lock);
+                _all_fibers.erase(fiber);
+            }
+        };
+
+        std::shared_ptr<fiber_par_internal> _internal = nullptr;
+
+    public:
+        fiber_par()
+        : _internal(std::shared_ptr<fiber_par_internal>(new fiber_par_internal()))
+        {
+        }
+
+        fiber_par(std::initializer_list<std::function<void()>> &&procs)
+        : _internal(std::shared_ptr<fiber_par_internal>(new fiber_par_internal(std::forward<std::initializer_list<std::function<void()>>>(procs))))
+        {
+        }
+
+        fiber_par(std::vector<std::function<void()>> &procs)
+        : _internal(std::shared_ptr<fiber_par_internal>(new fiber_par_internal(procs)))
+        {
+        }
+
+        template<typename RanIt>
+        fiber_par(RanIt begin, RanIt end)
+        {
+            static_assert(std::iterator_traits<RanIt>::value_type == typeid(std::function<void()>), "par can only take collection of functions");
+            auto procs = std::vector<std::function<void()>>(begin, end);
+            _internal = std::shared_ptr<fiber_par_internal>(new fiber_par_internal(procs));
+        }
+
+        fiber_par(const fiber_par&) = default;
+
+        fiber_par(fiber_par&&) = default;
+
+        ~fiber_par() = default;
+
+        fiber_par& operator=(const fiber_par&) noexcept = default;
+
+        fiber_par& operator=(fiber_par &&) noexcept = default;
+
+        void run() noexcept final { _internal->run(); }
+    };
+
+    thread_local std::set<std::shared_ptr<boost::fibers::fiber>> fiber_par::fiber_par_internal::_all_fibers = std::set<std::shared_ptr<boost::fibers::fiber>>();
+
+    thread_local std::shared_ptr<boost::fibers::mutex> fiber_par::fiber_par_internal::_all_fibers_lock = std::make_shared<boost::fibers::mutex>();
+
+    fiber_par::par_fiber::~par_fiber()
+    {
+        fiber_par_internal::remove_from_all_fibers(_fiber);
+    }
+
+    void fiber_par::par_fiber::run() noexcept
+    {
+        while (_running)
+        {
+            _process();
+            _bar();
+            _park();
+        }
+        fiber_par_internal::remove_from_all_fibers(_fiber);
+    }
+
+    void fiber_par::par_fiber::start() noexcept
+    {
+        _fiber = std::make_shared<boost::fibers::fiber>(&par_fiber::run, this);
+        fiber_par_internal::add_to_all_fibers(_fiber);
         _running = true;
     }
 }

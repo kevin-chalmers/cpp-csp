@@ -1,5 +1,5 @@
 //
-// Created by kevin on 29/07/16.
+// Created by kevin on 22/05/18.
 //
 
 #include <iostream>
@@ -21,7 +21,7 @@ private:
 
 public:
     consumer(chan_in<unsigned long long> in) noexcept
-    : _in(in)
+            : _in(in)
     {
     }
 
@@ -46,29 +46,27 @@ public:
             cout << count << endl;
         }
 
-        ofstream result_file("commstime1.csv");
+        ofstream result_file("fibercommstime1.csv");
         for (size_t count = 0; count < 1000; ++count)
-        {
-            cout << "..." << count << endl;
             result_file << results[count] << ",";
-        }
         result_file << endl;
-        cout << "Done" << endl;
     }
 };
 
 int main(int argc, char **argv)
 {
-    one2one_chan<unsigned long long> a;
-    one2one_chan<unsigned long long> b;
-    one2one_chan<unsigned long long> c;
-    one2one_chan<unsigned long long> d;
+    fiber_one2one_chan<unsigned long long> a;
+    fiber_one2one_chan<unsigned long long> b;
+    fiber_one2one_chan<unsigned long long> c;
+    fiber_one2one_chan<unsigned long long> d;
 
-    par
+    fiber_par
     {
         prefix<unsigned long long>(0, c, a),
-        delta<unsigned long long>(a, {b, d}),
+        delta<unsigned long long, true>(a, {b, d}),
         successor<unsigned long long>(b, c),
         consumer(d)
     }();
+
+    return 0;
 }

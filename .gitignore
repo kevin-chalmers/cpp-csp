@@ -9,3 +9,7 @@ cmake-build-debug/
 debug/
 
 release/
+
+build/
+
+cmake-build-release/

@@ -10,6 +10,7 @@
 #include <condition_variable>
 #include <vector>
 #include <initializer_list>
+#include <functional>
 #include <chrono>
 #include <type_traits>
 #include <cassert>

@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include <memory>
 #include <atomic>
+#include <boost/fiber/all.hpp>
 
 namespace csp
 {
@@ -186,6 +187,89 @@ namespace csp
         void reset(unsigned int enrolled) const noexcept { _internal->reset(enrolled); }
     };
 
+    class fiber_barrier : public barrier
+    {
+    protected:
+        class fiber_barrier_internal : public barrier::barrier_internal
+        {
+        private:
+            unsigned int _enrolled = 0;
+
+            unsigned int _count_down = 0;
+
+            boost::fibers::mutex _mut;
+
+            boost::fibers::condition_variable _cond;
+
+        public:
+            fiber_barrier_internal() { }
+
+            fiber_barrier_internal(unsigned int enrolled)
+            : _enrolled(enrolled), _count_down(enrolled)
+            {
+            }
+
+            ~fiber_barrier_internal() = default;
+
+            void sync() noexcept final
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                --_count_down;
+                if (_count_down > 0)
+                    _cond.wait(lock);
+                else
+                {
+                    _count_down = _enrolled;
+                    _cond.notify_all();
+                }
+            }
+
+            void enroll() final
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                ++_enrolled;
+                ++_count_down;
+            }
+
+            void resign() final
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                --_enrolled;
+                --_count_down;
+                if (_count_down == 0)
+                {
+                    _count_down = _enrolled;
+                    _cond.notify_all();
+                }
+            }
+
+            void reset(unsigned int enrolled) noexcept final
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                _enrolled = enrolled;
+                _count_down = enrolled;
+            }
+        };
+
+        std::shared_ptr<fiber_barrier_internal> _internal = nullptr;
+
+        fiber_barrier(std::shared_ptr<fiber_barrier_internal> internal)
+        : _internal(internal), barrier(internal)
+        {
+        }
+
+    public:
+        fiber_barrier()
+        : _internal(std::shared_ptr<fiber_barrier_internal>(new fiber_barrier_internal()))
+        {
+        }
+
+        fiber_barrier(unsigned int size)
+        : _internal(std::shared_ptr<fiber_barrier_internal>(new fiber_barrier_internal(size)))
+        {
+        }
+    };
+
     /*! \class busy_barrier
      * \brief Allows synchronization between a set of processes.  Uses atomics for busy semantics.
      *
@@ -324,33 +408,6 @@ namespace csp
         {
             barrier::_internal = _internal;
         }
-
-        /*!
-         * \brief Syncs a process with the barrier.
-         */
-        void sync() const noexcept { _internal->sync(); }
-
-        /*!
-         * \brief Operator overload - calls sync on the barrier.
-         */
-        void operator()() const noexcept { _internal->sync(); }
-
-        /*!
-         * \brief Enrolls another process with the barrier.
-         */
-        void enroll() const noexcept { _internal->enroll(); }
-
-        /*!
-         * \brief Resigns a process from the barrier.
-         */
-        void resign() const noexcept { _internal->resign(); }
-
-        /*!
-         * \brief Resets the number of processes enrolled.
-         *
-         * \param[in] enrolled The number of processes to be enrolled with the barrier.
-         */
-        void reset(unsigned int enrolled) const noexcept { _internal->reset(enrolled); }
     };
 }
 
