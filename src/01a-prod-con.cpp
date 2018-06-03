@@ -6,14 +6,14 @@
 using namespace std;
 using namespace csp;
 
-/*
-class producer : public process<>
+
+class producer final : public process
 {
 private:
 	channel<int> c;
 public:
-	producer(channel<int> c)
-		: c(c)
+	explicit producer(channel<int> c)
+		: c(std::move(c))
 	{
 	}
 
@@ -24,13 +24,13 @@ public:
 	}
 };
 
-class consumer : public process<>
+class consumer final : public process
 {
 private:
-	channel_input<int> c;
+	channel<int> c;
 public:
-	consumer(channel_input<int> c)
-		: c(c)
+	explicit consumer(channel<int> c)
+		: c(std::move(c))
 	{
 	}
 
@@ -40,29 +40,19 @@ public:
 			cout << c.read() << endl;
 	}
 };
-*/
-
-void producer(channel<int> c)
-{
-    for (int i = 0; i < 10000; ++i)
-        c(i);
-}
-
-void consumer(channel<int> c)
-{
-    for (int i = 0; i < 10000; ++i)
-        cout << c() << endl;
-}
 
 int main(int argc, char **argv) noexcept
 {
 	channel<int> c = thread_model::make_chan<int>();
 
-	thread prod(producer, c);
-	thread con(consumer, c);
+	producer prod(c);
+	consumer con(c);
 
-	prod.join();
-	con.join();
+	thread t1(prod);
+	thread t2(con);
+
+	t1.join();
+	t2.join();
 
 	return 0;
 }
