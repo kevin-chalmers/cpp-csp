@@ -4,7 +4,6 @@
 
 namespace csp
 {
-	template<typename IMPLEMENTATION = thread_implementation>
 	class process
 	{
 	public:

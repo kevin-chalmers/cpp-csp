@@ -4,49 +4,136 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include "thread_implementation.hpp"
+#include "../util.hpp"
 
 namespace csp
 {
-	struct unshared
+	template<typename T, bool POISONABLE = false>
+	class channel_internal
 	{
 	protected:
-		~unshared() = default;
+		channel_internal() = default;
 	public:
-		inline void lock() const noexcept { }
+        channel_internal(const channel_internal<T, POISONABLE>&) = default;
 
-		inline void unlock() const noexcept { }
+        channel_internal(channel_internal<T, POISONABLE>&&) = default;
+
+        channel_internal<T>&operator=(const channel_internal<T, POISONABLE>&) = default;
+
+        channel_internal<T>&operator=(channel_internal<T, POISONABLE>&&) = default;
+
+        virtual ~channel_internal() = default;
+
+		virtual void write(T) = 0;
+
+		virtual T read() = 0;
+
+		virtual T start_read() = 0;
+
+		virtual void end_read() = 0;
+
+		virtual bool enable() noexcept = 0;
+
+		virtual bool disable() noexcept = 0;
+
+		virtual bool pending() noexcept = 0;
+
+        virtual void reader_poison(size_t) noexcept = 0;
+
+        virtual void writer_poison(size_t) noexcept = 0;
 	};
 
-	template<typename T, typename IMPLEMENTATION = thread_implementation::channel<T>>
-	class channel : public IMPLEMENTATION
+	template<typename T, bool POISONABLE = false>
+	class channel
 	{
+	private:
+        std::shared_ptr<channel_internal<T, POISONABLE>> _internal = nullptr;
 	public:
-		channel()
+		explicit channel(std::shared_ptr<channel_internal<T, POISONABLE>> internal)
+        : _internal(internal)
 		{
 		}
 
-		channel(const channel<T, IMPLEMENTATION>&) = default;
+		channel(const channel<T, POISONABLE>&) = default;
 
-		channel(channel<T, IMPLEMENTATION>&&) = default;
+		channel(channel<T, POISONABLE>&&) = default;
 
 		~channel() = default;
 
-		channel<T, IMPLEMENTATION>& operator=(const channel<T, IMPLEMENTATION>&) noexcept = default;
+		channel<T, POISONABLE>& operator=(const channel<T, POISONABLE>&) noexcept = default;
 
-		channel<T, IMPLEMENTATION>& operator=(channel<T, IMPLEMENTATION>&&) noexcept = default;
+		channel<T, POISONABLE>& operator=(channel<T, POISONABLE>&&) noexcept = default;
 
-		void operator()(T value) const
+        inline void write(T value) const
+        {
+            _internal->write(value);
+        }
+
+        template<typename T_ = T, typename = IsNotReference<T_>>
+        inline void write(T&& value) const
+        {
+            _internal->write(value);
+        }
+
+        inline T read() const
+        {
+            return std::move(_internal->read());
+        }
+
+        inline T start_read() const
+        {
+            return std::move(_internal->start_read());
+        }
+
+        inline void end_read() const
+        {
+            _internal->end_read();
+        }
+
+        inline bool enable() noexcept
+        {
+            return _internal->enable();
+        }
+
+        inline bool disable() noexcept
+        {
+            return _internal->disable();
+        }
+
+        inline bool pending() const noexcept
+        {
+            return _internal->pending();
+        }
+
+        inline void reader_poison(size_t strength) noexcept
+        {
+            static_assert(POISONABLE);
+            _internal->reader_poison(strength);
+        }
+
+        inline void writer_poison(size_t strength) noexcept
+        {
+            static_assert(POISONABLE);
+            _internal->writer_poison(strength);
+        }
+
+		inline void operator()(T value) const
 		{
 			write(value);
 		}
 
-		T operator()() const
+		template<typename T_ = T, typename = IsNotReference<T>>
+        inline void operator()(T&& value) const
+        {
+            write(value);
+        }
+
+		inline T operator()() const
 		{
 			return std::move(read());
 		}
 	};
-
+/*
 	template<typename T, 
 			 typename IMPLEMENTATION = thread_implementation,
 			 typename CHANNEL_TYPE = IMPLEMENTATION::channel<T>,
@@ -69,4 +156,5 @@ namespace csp
 			return std::move(to_return);
 		}
 	};
+*/
 }

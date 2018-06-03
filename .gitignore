@@ -50,3 +50,7 @@ extern/
 docs/html/
 
 docs/latex/
+
+\.idea/
+
+cmake-build-debug/

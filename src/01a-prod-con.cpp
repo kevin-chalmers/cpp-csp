@@ -6,6 +6,7 @@
 using namespace std;
 using namespace csp;
 
+/*
 class producer : public process<>
 {
 private:
@@ -39,14 +40,29 @@ public:
 			cout << c.read() << endl;
 	}
 };
+*/
+
+void producer(channel<int> c)
+{
+    for (int i = 0; i < 10000; ++i)
+        c(i);
+}
+
+void consumer(channel<int> c)
+{
+    for (int i = 0; i < 10000; ++i)
+        cout << c() << endl;
+}
 
 int main(int argc, char **argv) noexcept
 {
-	channel<int> c;
-	channel_input<int> input(c);
+	channel<int> c = thread_model::make_chan<int>();
 
-	par<> p{ producer(c), consumer(c) };
-	p.run();
+	thread prod(producer, c);
+	thread con(consumer, c);
+
+	prod.join();
+	con.join();
 
 	return 0;
 }

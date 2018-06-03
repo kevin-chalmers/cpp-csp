@@ -7,11 +7,13 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include "channel.hpp"
 
 namespace csp
 {
-	namespace thread
+	namespace thread_implementation
 	{
+	    /*
 		class thread_manager
 		{
 		private:
@@ -33,104 +35,119 @@ namespace csp
 
 		std::set<std::shared_ptr<std::thread>> thread_manager::_all_threads = std::set<std::shared_ptr<std::thread>>();
 		std::unique_ptr<std::mutex> thread_manager::_all_threads_lock = std::make_unique<std::mutex>();
+	    */
 
-		template<typename T>
-		class channel_type
+		template<typename T, bool POISONABLE = false>
+		class channel_type final : public csp::channel_internal<T, POISONABLE>
 		{
 		private:
-			struct channel_data
-			{
-				std::mutex mut;
-				std::condition_variable cond;
-				std::vector<T> hold = std::vector<T>(0);
-				bool reading = false;
-				bool empty = true;
-				size_t strength = 0;
-			};
-
-			std::shared_ptr<channel_data> _internal = nullptr;
+            std::mutex _mut;
+            std::condition_variable _cond;
+            std::vector<T> _hold = std::vector<T>(0);
+            bool _reading = false;
+            bool _empty = true;
+            size_t _strength = 0;
 		public:
 			channel_type()
-				: _internal(std::make_shared<channel_data>())
 			{
 			}
 
-			void write(T value) const
+			void write(T value)
 			{
-				std::unique_lock<std::mutex> lock(_internal->mut);
-				if (_internal->strength > 0)
-					throw poison_exception(_internal->strength);
-				_internal->hold.push_back(std::move(value));
-				if (_internal->empty)
+				std::unique_lock<std::mutex> lock(_mut);
+				if (_strength > 0)
+					throw poison_exception(_strength);
+				_hold.push_back(std::move(value));
+				if (_empty)
 				{
-					_internal->empty = false;
+					_empty = false;
 				}
 				else
 				{
-					_internal->empty = true;
-					_internal->cond.notify_one();
+					_empty = true;
+					_cond.notify_one();
 				}
-				_internal->cond.wait(lock);
-				if (_internal->strength > 0)
-					throw poison_exception(_internal->strength);
+				_cond.wait(lock);
+				if (_strength > 0)
+					throw poison_exception(_strength);
 			}
 
-			T read() const
+            void write(T&& value)
+            {
+                std::unique_lock<std::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                _hold.push_back(value);
+                if (_empty)
+                {
+                    _empty = false;
+                }
+                else
+                {
+                    _empty = true;
+                    _cond.notify_one();
+                }
+                _cond.wait(lock);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+            }
+
+			T read()
 			{
-				std::unique_lock<std::mutex> lock(_internal->mut);
-				if (_internal->strength > 0)
-					throw poison_exception(_internal->strength);
-				if (_internal->empty)
+				std::unique_lock<std::mutex> lock(_mut);
+				if (_strength > 0)
+					throw poison_exception(_strength);
+				if (_empty)
 				{
-					_internal->empty = false;
-					_internal->cond.wait(lock);
+					_empty = false;
+					_cond.wait(lock);
 				}
 				else
-					_internal->empty = true;
-				auto to_return = std::move(_internal->hold[0]);
-				_internal->hold.pop_back();
-				_internal->cond.notify_one();
-				if (_internal->strength > 0)
-					throw poison_exception(_internal->strength);
+					_empty = true;
+				auto to_return = std::move(_hold[0]);
+				_hold.pop_back();
+				_cond.notify_one();
+				if (_strength > 0)
+					throw poison_exception(_strength);
 				return std::move(to_return);
 			}
 
-			T start_read() const
+			T start_read()
 			{
 				return T();
 			}
 
-			void end_read() const
+			void end_read()
 			{
 
 			}
 
-			bool enable() const noexcept
-			{
-				return false;
-			}
-
-			bool disable() const noexcept
+			bool enable() noexcept
 			{
 				return false;
 			}
 
-			bool pending() const noexcept
+			bool disable() noexcept
 			{
 				return false;
 			}
 
-			void reader_poison(size_t strength) const noexcept
+			bool pending() noexcept
+			{
+				return false;
+			}
+
+			void reader_poison(size_t strength) noexcept
 			{
 
 			}
 
-			void writer_poison(size_t strength) const noexcept
+			void writer_poison(size_t strength) noexcept
 			{
 
 			}
 		};
-
+/*
 		struct mutex_guard
 		{
 		private:
@@ -381,18 +398,12 @@ namespace csp
 				}
 			}
 		};
+	*/
 	}
 
-	struct thread_implementation
-	{
-		template<typename T>
-		using channel = csp::thread::channel_type<T>;
-		template<typename T>
-		using atomic_channel = nullptr_t;
-		using shared = csp::thread::mutex_guard;
-		using atomic_shared = nullptr_t;
-		using barrier = csp::thread::barrier_type;
-		using thread = csp::thread::thread_type;  
-		using parallel = csp::thread::parallel_type;
-	};
+	struct thread_model
+    {
+        template<typename T, bool POISONABLE = false>
+        inline static channel<T, POISONABLE> make_chan() { return channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()); }
+    };
 }
