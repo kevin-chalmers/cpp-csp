@@ -2,8 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include <mutex>
-#include <condition_variable>
 #include "../util.hpp"
 
 namespace csp
@@ -50,7 +48,7 @@ namespace csp
         std::shared_ptr<channel_internal<T, POISONABLE>> _internal = nullptr;
 	public:
 		explicit channel(std::shared_ptr<channel_internal<T, POISONABLE>> internal)
-        : _internal(internal)
+        : _internal(std::move(internal))
 		{
 		}
 

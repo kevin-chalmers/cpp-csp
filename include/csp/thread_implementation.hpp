@@ -7,7 +7,9 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <cassert>
 #include "channel.hpp"
+#include "barrier.hpp"
 
 namespace csp
 {
@@ -168,72 +170,67 @@ namespace csp
 				mut->unlock();
 			}
 		};
-
-		class barrier_type
+*/
+		class barrier_type : public barrier_internal
 		{
 		private:
-			struct barrier_data
-			{
-				size_t enrolled = 0;
-				size_t count_down = 0;
-				std::mutex mut;
-				std::condition_variable cond;
-			};
+            size_t _enrolled = 0;
+            size_t _count_down = 0;
+            std::mutex _mut;
+            std::condition_variable _cond;
 
-			std::shared_ptr<barrier_data> _internal = nullptr;
 		public:
 			barrier_type()
-				: _internal(std::make_shared<barrier_data>())
 			{
 			}
 
 			explicit barrier_type(size_t size)
-				: _internal(std::make_shared<barrier_data>())
 			{
-				_internal->enrolled = size;
-				_internal->count_down = size;
+				_enrolled = size;
+				_count_down = size;
 			}
 
-			void sync() const noexcept
+			void sync() noexcept
 			{
-				std::unique_lock<std::mutex> lock(_internal->mut);
-				--_internal->count_down;
-				if (_internal->count_down > 0)
-					_internal->cond.wait(lock);
+				std::unique_lock<std::mutex> lock(_mut);
+				--_count_down;
+				if (_count_down > 0)
+					_cond.wait(lock);
 				else
 				{
-					_internal->count_down = _internal->enrolled;
-					_internal->cond.notify_all();
+					_count_down = _enrolled;
+					_cond.notify_all();
 				}
 			}
 
-			void enroll() const noexcept
+			void enroll() noexcept
 			{
-				std::lock_guard<std::mutex> lock(_internal->mut);
-				++_internal->enrolled;
-				++_internal->count_down;
+				std::lock_guard<std::mutex> lock(_mut);
+				++_enrolled;
+				++_count_down;
 			}
 
-			void resign() const noexcept
+			void resign() noexcept
 			{
-				std::lock_guard<std::mutex> lock(_internal->mut);
-				--_internal->enrolled;
-				--_internal->count_down;
-				if (_internal->count_down == 0)
+				std::lock_guard<std::mutex> lock(_mut);
+				--_enrolled;
+				--_count_down;
+				if (_count_down == 0)
 				{
-					_internal->count_down = _internal->enrolled;
-					_internal->cond.notify_all();
+					_count_down = _enrolled;
+					_cond.notify_all();
 				}
 			}
 
-			void reset(size_t enrolled) const noexcept
+			void reset(size_t enrolled) noexcept
 			{
-				std::lock_guard<std::mutex> lock(_internal->mut);
-				_internal->enrolled = enrolled;
-				_internal->count_down = enrolled;
+			    assert(_enrolled == _count_down);
+				std::lock_guard<std::mutex> lock(_mut);
+				_enrolled = enrolled;
+				_count_down = enrolled;
 			}
 		};
-
+/*
 		class thread_type
 		{
 		public:
@@ -405,5 +402,7 @@ namespace csp
     {
         template<typename T, bool POISONABLE = false>
         inline static channel<T, POISONABLE> make_chan() { return channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()); }
+
+        inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<thread_implementation::barrier_type>(enrolled)); }
     };
 }

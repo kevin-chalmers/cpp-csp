@@ -43,7 +43,8 @@ public:
 
 int main(int argc, char **argv) noexcept
 {
-	channel<int> c = thread_model::make_chan<int>();
+	auto c = thread_model::make_chan<int>();
+	auto b = thread_model::make_bar();
 
 	producer prod(c);
 	consumer con(c);
