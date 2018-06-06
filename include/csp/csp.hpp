@@ -1,6 +1,7 @@
 #pragma once
 
 #include "poison_exception.hpp"
+#include "concurrency_model.hpp"
 #include "channel.hpp"
 //#include "barrier.hpp"
 #include "process.hpp"
@@ -20,3 +21,10 @@
 //using thread = csp::thread::thread_type;
 //
 //using parallel = csp::thread::parallel_type;
+
+template<typename T, bool POISONABLE>
+csp::channel<T, POISONABLE> csp::concurrency_model_t::make_chan() const noexcept
+{
+    if (_model == concurrency::THREAD_MODEL)
+        return channel<T, POISONABLE>(std::make_shared<csp::thread_implementation::channel_type<T, POISONABLE>>());
+}

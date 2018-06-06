@@ -36,6 +36,7 @@ public:
 
 	void run() noexcept final
 	{
+	    auto d = make_chan<int>();
 		for (int i = 0; i < 100000; ++i)
 			cout << c.read() << endl;
 	}
@@ -48,12 +49,11 @@ int main(int argc, char **argv) noexcept
 
 	producer prod(c);
 	consumer con(c);
+	prod.set_model(concurrency::THREAD_MODEL);
+	con.set_model(concurrency::THREAD_MODEL);
 
-	thread t1(prod);
-	thread t2(con);
-
-	t1.join();
-	t2.join();
+	parallel<thread_model> p{prod, con};
+	p.run();
 
 	return 0;
 }

@@ -5,57 +5,54 @@
 #include <set>
 #include "barrier.hpp"
 #include "process.hpp"
-#include "thread_implementation.hpp"
+#include "concurrency_model.hpp"
 
 namespace csp
 {
-	template<typename IMPLEMENTATION = thread_implementation,
-			 typename THREAD = IMPLEMENTATION::thread>
-	class par_thread : public THREAD
+	class parallel_internal
 	{
 	public:
-		par_thread()
-		{
-		}
+	    virtual ~parallel_internal() = default;
 
-		par_thread(std::function<void()> &proc, barrier<> &bar)
-			: THREAD(proc, bar)
-		{
-		}
-
-		~par_thread() = default;
+		virtual void run() noexcept = 0;
 	};
 
-	template<typename IMPLEMENTATION = thread_implementation,
-			 typename PARALLEL = IMPLEMENTATION::parallel,
-			 typename THREAD = IMPLEMENTATION::thread>
-	class par : public process<IMPLEMENTATION>, public PARALLEL
+	template<typename MODEL>
+	class parallel : public process
 	{
+	    using PAR_TYPE = typename MODEL::par_type;
+	private:
+	    std::shared_ptr<PAR_TYPE> _internal = nullptr;
 	public:
-		par(std::initializer_list<std::function<void()>> &&procs)
-			: PARALLEL(std::forward<std::initializer_list<std::function<void()>>>(procs))
+	    parallel()
+        : _internal(std::make_shared<PAR_TYPE>())
+        {
+        }
+
+		explicit parallel(std::initializer_list<std::function<void()>> &&procs)
+        : _internal(std::make_shared<PAR_TYPE>(procs))
 		{
 		}
 
-		par(std::vector<std::function<void()>> &procs)
-			: PARALLEL(procs)
+		explicit parallel(std::vector<std::function<void()>> &procs)
+        : _internal(std::make_shared<PAR_TYPE>(procs))
 		{
 		}
 
 		template<typename RanIt>
-		par(RanIt begin, RanIt end)
-			: _internal(std::make_shared<par_data>())
+		parallel(RanIt begin, RanIt end)
+        : _internal(std::make_shared<PAR_TYPE>(begin, end))
 		{
 			static_assert(std::iterator_traits<RanIt>::value_type == typeid(std::function<void()>), "par only takes collections of void function objects");
 		}
 
-		~par()
+		~parallel()
 		{
 		}
 
 		void run() noexcept final
 		{
-			PARALLEL::run();
+			_internal->run();
 		}
 	};
 }

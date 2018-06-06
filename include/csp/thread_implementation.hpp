@@ -10,12 +10,12 @@
 #include <cassert>
 #include "channel.hpp"
 #include "barrier.hpp"
+#include "parallel.hpp"
 
 namespace csp
 {
 	namespace thread_implementation
 	{
-	    /*
 		class thread_manager
 		{
 		private:
@@ -37,7 +37,6 @@ namespace csp
 
 		std::set<std::shared_ptr<std::thread>> thread_manager::_all_threads = std::set<std::shared_ptr<std::thread>>();
 		std::unique_ptr<std::mutex> thread_manager::_all_threads_lock = std::make_unique<std::mutex>();
-	    */
 
 		template<typename T, bool POISONABLE = false>
 		class channel_type final : public csp::channel_internal<T, POISONABLE>
@@ -149,28 +148,7 @@ namespace csp
 
 			}
 		};
-/*
-		struct mutex_guard
-		{
-		private:
-			std::shared_ptr<std::mutex> mut = nullptr;
-		public:
-			mutex_guard()
-				: mut(std::make_shared<std::mutex>())
-			{
-			}
 
-			inline void lock() const noexcept
-			{
-				mut->lock();
-			}
-
-			inline void unlock() const noexcept
-			{
-				mut->unlock();
-			}
-		};
-*/
 		class barrier_type : public barrier_internal
 		{
 		private:
@@ -230,22 +208,18 @@ namespace csp
 				_count_down = enrolled;
 			}
 		};
-/*
+
 		class thread_type
 		{
 		public:
 			std::function<void()> _process;
 			std::shared_ptr<std::thread> _thread = nullptr;
-			barrier_type _bar;
-			barrier_type _park = barrier_type(2);
+			barrier _bar;
+			barrier _park = barrier(std::make_shared<barrier_type>(2));
 			bool _running = true;
 		public:
-			thread_type()
-			{
-			}
-
-			thread_type(std::function<void()> &proc, barrier_type &bar)
-				: _process(proc), _bar(bar)
+			thread_type(std::function<void()> &proc, barrier &bar)
+            : _process(proc), _bar(bar)
 			{
 			}
 
@@ -254,7 +228,7 @@ namespace csp
 				thread_manager::remove_from_all_threads(_thread);
 			}
 
-			void reset(std::function<void()> &proc, barrier_type &bar) noexcept
+			void reset(std::function<void()> &proc, barrier &bar) noexcept
 			{
 				_process = proc;
 				_bar = bar;
@@ -290,116 +264,121 @@ namespace csp
 			}
 		};
 
-		class parallel_type
+		class parallel_type : public csp::parallel_internal
 		{
 		private:
-			struct par_data
+			std::mutex _mut;
+			std::vector<std::function<void()>> _processes;
+			std::vector<std::shared_ptr<thread_type>> _threads;
+			barrier _bar = barrier(std::make_shared<barrier_type>(0));
+			bool _processes_changed = true;
+
+			void release_all_threads() noexcept
 			{
-				std::mutex mut;
-				std::vector<std::function<void()>> processes;
-				std::vector<std::shared_ptr<thread_type>> threads;
-				barrier_type bar = barrier_type(0);
-				bool processes_changed = true;
-
-				~par_data()
+				std::lock_guard<std::mutex> lock(_mut);
+				for (auto &t : _threads)
 				{
-					release_all_threads();
+					t->terminate();
+					t->_thread->join();
 				}
-
-				void release_all_threads() noexcept
-				{
-					std::lock_guard<std::mutex> lock(mut);
-					for (auto &t : threads)
-					{
-						t->terminate();
-						t->_thread->join();
-					}
-					processes_changed = true;
-					threads.clear();
-				}
-			};
-
-			std::shared_ptr<par_data> _internal = nullptr;
-
-		public:
-			parallel_type(std::initializer_list<std::function<void()>> &&procs)
-				: _internal(std::make_shared<par_data>())
-			{
-				_internal->processes = std::vector<std::function<void()>>(std::forward<std::initializer_list<std::function<void()>>>(procs));
+				_processes_changed = true;
+				_threads.clear();
 			}
 
-			parallel_type(std::vector<std::function<void()>> &procs)
-				: _internal(std::make_shared<par_data>())
+		public:
+		    parallel_type()
+            {
+            }
+
+			explicit parallel_type(std::initializer_list<std::function<void()>> &&procs)
 			{
-				std::swap(_internal->processes, procs);
+				_processes = std::vector<std::function<void()>>(std::forward<std::initializer_list<std::function<void()>>>(procs));
+			}
+
+			explicit parallel_type(std::initializer_list<std::function<void()>> &procs)
+            {
+                _processes = std::vector<std::function<void()>>(std::forward<std::initializer_list<std::function<void()>>>(procs));
+            }
+
+			explicit parallel_type(std::vector<std::function<void()>> &procs)
+			{
+				std::swap(_processes, procs);
 			}
 
 			template<typename RanIt>
 			parallel_type(RanIt begin, RanIt end)
-				: _internal(std::make_shared<par_data>())
 			{
-				_internal->processes = std::vector<std::function<void()>>(begin, end);
+				static_assert(std::iterator_traits<RanIt>::value_type == typeid(std::function<void()>), "par only takes collections of void function objects");
+				_processes = std::vector<std::function<void()>>(begin, end);
 			}
+
+			~parallel_type()
+            {
+                release_all_threads();
+            }
 
 			void run() noexcept
 			{
 				bool empty_run = true;
 				std::function<void()> my_process;
-				std::lock_guard<std::mutex> lock(_internal->mut);
-				if (_internal->processes.size() > 0)
+				std::lock_guard<std::mutex> lock(_mut);
+				if (_processes.size() > 0)
 				{
 					empty_run = false;
-					my_process = _internal->processes[_internal->processes.size() - 1];
-					if (_internal->processes_changed)
+					my_process = _processes[_processes.size() - 1];
+					if (_processes_changed)
 					{
-						_internal->bar.reset(_internal->processes.size());
-						if (_internal->threads.size() < _internal->processes.size() - 1)
+						_bar.reset(_processes.size());
+						if (_threads.size() < _processes.size() - 1)
 						{
-							for (size_t i = 0; i < _internal->threads.size(); ++i)
+							for (size_t i = 0; i < _threads.size(); ++i)
 							{
-								_internal->threads[i]->reset(_internal->processes[i], _internal->bar);
-								_internal->threads[i]->release();
+								_threads[i]->reset(_processes[i], _bar);
+								_threads[i]->release();
 							}
-							for (size_t i = _internal->threads.size(); i < _internal->processes.size() - 1; ++i)
+							for (size_t i = _threads.size(); i < _processes.size() - 1; ++i)
 							{
-								_internal->threads.push_back(std::make_shared<thread_type>(_internal->processes[i], _internal->bar));
-								_internal->threads[i]->start();
+								_threads.push_back(std::make_shared<thread_type>(_processes[i], _bar));
+								_threads[i]->start();
 							}
 						}
 						else
 						{
-							for (size_t i = _internal->threads.size() - 1; i >= _internal->processes.size() - 1; --i)
+							for (size_t i = _threads.size() - 1; i >= _processes.size() - 1; --i)
 							{
-								_internal->threads[i]->_running = false;
-								_internal->threads[i]->release();
+								_threads[i]->_running = false;
+								_threads[i]->release();
 							}
-							_internal->threads.resize(_internal->processes.size() - 1);
-							for (size_t i = 0; i < _internal->processes.size() - 1; ++i)
+							_threads.resize(_processes.size() - 1);
+							for (size_t i = 0; i < _processes.size() - 1; ++i)
 							{
-								_internal->threads[i]->reset(_internal->processes[i], _internal->bar);
-								_internal->threads[i]->release();
+								_threads[i]->reset(_processes[i], _bar);
+								_threads[i]->release();
 							}
 						}
-						_internal->processes_changed = false;
+						_processes_changed = false;
 					}
 					else
 					{
-						for (auto &t : _internal->threads)
+						for (auto &t : _threads)
 							t->release();
 					}
 				}
 				if (!empty_run)
 				{
 					my_process();
-					_internal->bar.sync();
+					_bar.sync();
 				}
 			}
 		};
-	*/
 	}
 
 	struct thread_model
     {
+        static constexpr concurrency model_type = concurrency::THREAD_MODEL;
+
+        using par_type = thread_implementation::parallel_type;
+
         template<typename T, bool POISONABLE = false>
         inline static channel<T, POISONABLE> make_chan() { return channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()); }
 
