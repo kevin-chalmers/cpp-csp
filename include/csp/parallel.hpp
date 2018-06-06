@@ -9,14 +9,6 @@
 
 namespace csp
 {
-	class parallel_internal
-	{
-	public:
-	    virtual ~parallel_internal() = default;
-
-		virtual void run() noexcept = 0;
-	};
-
 	template<typename MODEL>
 	class parallel : public process
 	{
@@ -29,12 +21,12 @@ namespace csp
         {
         }
 
-		explicit parallel(std::initializer_list<std::function<void()>> &&procs)
+		explicit parallel(std::initializer_list<process> &&procs)
         : _internal(std::make_shared<PAR_TYPE>(procs))
 		{
 		}
 
-		explicit parallel(std::vector<std::function<void()>> &procs)
+		explicit parallel(std::vector<process> &procs)
         : _internal(std::make_shared<PAR_TYPE>(procs))
 		{
 		}
@@ -43,7 +35,7 @@ namespace csp
 		parallel(RanIt begin, RanIt end)
         : _internal(std::make_shared<PAR_TYPE>(begin, end))
 		{
-			static_assert(std::iterator_traits<RanIt>::value_type == typeid(std::function<void()>), "par only takes collections of void function objects");
+			static_assert(std::iterator_traits<RanIt>::value_type == typeid(process), "par only takes collections of process objects");
 		}
 
 		~parallel()

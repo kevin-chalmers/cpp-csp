@@ -212,13 +212,13 @@ namespace csp
 		class thread_type
 		{
 		public:
-			std::function<void()> _process;
+			process *_process;
 			std::shared_ptr<std::thread> _thread = nullptr;
 			barrier _bar;
 			barrier _park = barrier(std::make_shared<barrier_type>(2));
 			bool _running = true;
 		public:
-			thread_type(std::function<void()> &proc, barrier &bar)
+			thread_type(process *proc, barrier &bar)
             : _process(proc), _bar(bar)
 			{
 			}
@@ -228,7 +228,7 @@ namespace csp
 				thread_manager::remove_from_all_threads(_thread);
 			}
 
-			void reset(std::function<void()> &proc, barrier &bar) noexcept
+			void reset(process *proc, barrier &bar) noexcept
 			{
 				_process = proc;
 				_bar = bar;
@@ -250,7 +250,7 @@ namespace csp
 			{
 				while (_running)
 				{
-					_process();
+                    (*_process)();
 					_bar.sync();
 					_park.sync();
 				}
@@ -264,11 +264,11 @@ namespace csp
 			}
 		};
 
-		class parallel_type : public csp::parallel_internal
+		class parallel_type
 		{
 		private:
 			std::mutex _mut;
-			std::vector<std::function<void()>> _processes;
+			std::vector<process> _processes;
 			std::vector<std::shared_ptr<thread_type>> _threads;
 			barrier _bar = barrier(std::make_shared<barrier_type>(0));
 			bool _processes_changed = true;
@@ -290,17 +290,17 @@ namespace csp
             {
             }
 
-			explicit parallel_type(std::initializer_list<std::function<void()>> &&procs)
+			explicit parallel_type(std::initializer_list<process> &&procs)
 			{
-				_processes = std::vector<std::function<void()>>(std::forward<std::initializer_list<std::function<void()>>>(procs));
+				_processes = std::vector<process>(std::forward<std::initializer_list<process>>(procs));
 			}
 
-			explicit parallel_type(std::initializer_list<std::function<void()>> &procs)
+			explicit parallel_type(std::initializer_list<process> &procs)
             {
-                _processes = std::vector<std::function<void()>>(std::forward<std::initializer_list<std::function<void()>>>(procs));
+                _processes = std::vector<process>(std::forward<std::initializer_list<process>>(procs));
             }
 
-			explicit parallel_type(std::vector<std::function<void()>> &procs)
+			explicit parallel_type(std::vector<process> &procs)
 			{
 				std::swap(_processes, procs);
 			}
@@ -308,8 +308,8 @@ namespace csp
 			template<typename RanIt>
 			parallel_type(RanIt begin, RanIt end)
 			{
-				static_assert(std::iterator_traits<RanIt>::value_type == typeid(std::function<void()>), "par only takes collections of void function objects");
-				_processes = std::vector<std::function<void()>>(begin, end);
+				static_assert(std::iterator_traits<RanIt>::value_type == typeid(process), "par only takes collections of process objects");
+				_processes = std::vector<process>(begin, end);
 			}
 
 			~parallel_type()
@@ -320,12 +320,12 @@ namespace csp
 			void run() noexcept
 			{
 				bool empty_run = true;
-				std::function<void()> my_process;
+				process *my_process;
 				std::lock_guard<std::mutex> lock(_mut);
 				if (_processes.size() > 0)
 				{
 					empty_run = false;
-					my_process = _processes[_processes.size() - 1];
+					my_process = &_processes[_processes.size() - 1];
 					if (_processes_changed)
 					{
 						_bar.reset(_processes.size());
@@ -333,7 +333,7 @@ namespace csp
 						{
 							for (size_t i = 0; i < _threads.size(); ++i)
 							{
-								_threads[i]->reset(_processes[i], _bar);
+								_threads[i]->reset(&_processes[i], _bar);
 								_threads[i]->release();
 							}
 							for (size_t i = _threads.size(); i < _processes.size() - 1; ++i)
@@ -352,7 +352,7 @@ namespace csp
 							_threads.resize(_processes.size() - 1);
 							for (size_t i = 0; i < _processes.size() - 1; ++i)
 							{
-								_threads[i]->reset(_processes[i], _bar);
+								_threads[i]->reset(&_processes[i], _bar);
 								_threads[i]->release();
 							}
 						}
@@ -366,7 +366,7 @@ namespace csp
 				}
 				if (!empty_run)
 				{
-					my_process();
+                    (*my_process)();
 					_bar.sync();
 				}
 			}
