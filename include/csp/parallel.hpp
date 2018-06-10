@@ -21,12 +21,12 @@ namespace csp
         {
         }
 
-		explicit parallel(std::initializer_list<process> &&procs)
-        : _internal(std::make_shared<PAR_TYPE>(procs))
+		explicit parallel(std::initializer_list<proc_t> &&procs)
+        : _internal(std::make_shared<PAR_TYPE>(std::move(procs)))
 		{
 		}
 
-		explicit parallel(std::vector<process> &procs)
+		explicit parallel(std::vector<proc_t> &procs)
         : _internal(std::make_shared<PAR_TYPE>(procs))
 		{
 		}
@@ -35,7 +35,7 @@ namespace csp
 		parallel(RanIt begin, RanIt end)
         : _internal(std::make_shared<PAR_TYPE>(begin, end))
 		{
-			static_assert(std::iterator_traits<RanIt>::value_type == typeid(process), "par only takes collections of process objects");
+			static_assert(std::iterator_traits<RanIt>::value_type == typeid(proc_t), "par only takes collections of process objects");
 		}
 
 		~parallel()

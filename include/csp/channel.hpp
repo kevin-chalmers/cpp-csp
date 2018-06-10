@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <mutex>
 #include "../util.hpp"
 
 namespace csp
@@ -120,7 +121,7 @@ namespace csp
 			write(value);
 		}
 
-		template<typename T_ = T, typename = IsNotReference<T>>
+		template<typename T_ = T, typename = IsNotReference<T_>>
         inline void operator()(T&& value) const
         {
             write(value);
@@ -131,28 +132,116 @@ namespace csp
 			return std::move(read());
 		}
 	};
-/*
-	template<typename T, 
-			 typename IMPLEMENTATION = thread_implementation,
-			 typename CHANNEL_TYPE = IMPLEMENTATION::channel<T>,
-		     typename SHARING_POLICY = unshared>
-	class channel_input : public SHARING_POLICY
+
+	struct channel_end_mutex
+	{
+		virtual ~channel_end_mutex() = default;
+
+		inline virtual void lock() = 0;
+
+		inline virtual void unlock() = 0;
+	};
+
+	struct unshared_channel_end_mutex final : public channel_end_mutex
+	{
+		inline void lock() { }
+
+		inline void unlock() { }
+	};
+
+	template<typename T, bool POISONABLE = false>
+	class channel_input_internal
 	{
 	private:
-		CHANNEL_TYPE _chan = nullptr;
+		std::unique_ptr<channel_end_mutex> _mut = nullptr;
+
+		std::shared_ptr<channel<T, POISONABLE>> _chan = nullptr;
 	public:
-		channel_input(CHANNEL_TYPE chan)
-			: _chan(chan)
+		channel_input_internal(std::unique_ptr<channel_end_mutex> &&mut, std::shared_ptr<channel<T, POISONABLE>> chan)
+		: _mut(mut), _chan(chan)
 		{
 		}
 
-		T read() const
+		~channel_input_internal() = default;
+
+		inline T read() const
 		{
-			SHARING_POLICY::lock();
-			auto to_return = _chan.read();
-			SHARING_POLICY::unlock();
-			return std::move(to_return);
+			std::lock_guard<channel_end_mutex> lock(*_mut);
+			return _chan->read();
+		}
+
+		inline T start_read() const
+		{
+			_mut->lock();
+			return _chan->start_read();
+		}
+
+		inline void end_read() const
+		{
+			_mut->unlock();
+		}
+
+		inline bool enable() const
+		{
+			return _chan->enable();
+		}
+
+		inline bool disable() const
+		{
+			return _chan->disable();
+		}
+
+		inline bool pending() const
+		{
+			return _chan->pending();
+		}
+
+		inline void poison(size_t strength) noexcept
+		{
+			std::lock_guard<channel_end_mutex> lock(_mut);
+			_chan->reader_poison(strength);
 		}
 	};
-*/
+
+	template<typename T, bool POISONABLE = false>
+	class channel_input
+	{
+	private:
+		std::shared_ptr<channel_input_internal<T, POISONABLE>> _internal = nullptr;
+	public:
+		channel_input(std::unique_ptr<channel_end_mutex> &&mut, std::shared_ptr<channel<T, POISONABLE>> chan)
+		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(std::move(mut), chan))
+		{
+		}
+
+		virtual ~channel_input() = default;
+
+		channel_input(const channel_input<T, POISONABLE>&) = default;
+
+		channel_input(channel_input<T, POISONABLE>&&) = default;
+
+		channel_input<T, POISONABLE>&operator=(const channel_input<T, POISONABLE>&) = default;
+
+		channel_input<T, POISONABLE>&operator=(channel_input<T, POISONABLE>&&) = default;
+
+		inline T read() const
+		{
+			return _internal->read();
+		}
+
+		inline T start_read() const
+		{
+			return _internal->start_read();
+		}
+
+		inline void end_read() const
+		{
+			_internal->end_read();
+		}
+
+		inline void poison(size_t strength) noexcept
+		{
+			_internal->poison(strength);
+		}
+	};
 }

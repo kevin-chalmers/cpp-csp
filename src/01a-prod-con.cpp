@@ -47,12 +47,12 @@ int main(int argc, char **argv) noexcept
 	auto c = thread_model::make_chan<int>();
 	auto b = thread_model::make_bar();
 
-	producer prod(c);
-	consumer con(c);
+	proc_t prod = make_proc<producer>(c);
+	proc_t con = make_proc<consumer>(c);
 	prod.set_model(concurrency::THREAD_MODEL);
 	con.set_model(concurrency::THREAD_MODEL);
 
-	parallel<thread_model> p{prod, con};
+	parallel<thread_model> p{ prod, con };
 	p.run();
 
 	return 0;
