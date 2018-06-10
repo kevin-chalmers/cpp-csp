@@ -1,6 +1,7 @@
 #pragma once
 
 #include "channel.hpp"
+#include "barrier.hpp"
 
 namespace csp
 {
@@ -25,5 +26,7 @@ namespace csp
 
         template<typename T, bool POISONABLE>
         channel<T, POISONABLE> make_chan() const noexcept;
+
+        barrier make_bar(size_t enrolled = 0) const noexcept;
     };
 }

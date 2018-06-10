@@ -37,6 +37,7 @@ public:
 	void run() noexcept final
 	{
 	    auto d = make_chan<int>();
+	    auto b = make_bar();
 		for (int i = 0; i < 100000; ++i)
 			cout << c.read() << endl;
 	}

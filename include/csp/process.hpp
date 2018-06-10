@@ -17,10 +17,15 @@ namespace csp
         inline void set_model(concurrency model) noexcept { _model = concurrency_model_t(model); }
 
 		template<typename T, bool POISONABLE = false>
-		inline channel<T, POISONABLE> make_chan()
+		inline channel<T, POISONABLE> make_chan() const noexcept
 		{
 			return _model.make_chan<T, POISONABLE>();
 		}
+
+		inline barrier make_bar(size_t enrolled = 0) const noexcept
+        {
+            return _model.make_bar(enrolled);
+        }
 
 		virtual void run() noexcept = 0;
 
