@@ -155,10 +155,10 @@ namespace csp
 	private:
 		std::unique_ptr<channel_end_mutex> _mut = nullptr;
 
-		std::shared_ptr<channel<T, POISONABLE>> _chan = nullptr;
+		channel<T, POISONABLE> _chan = nullptr;
 	public:
-		channel_input_internal(std::unique_ptr<channel_end_mutex> &&mut, std::shared_ptr<channel<T, POISONABLE>> chan)
-		: _mut(mut), _chan(chan)
+		channel_input_internal(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut = std::make_unique<unshared_channel_end_mutex>())
+		: _mut(move(mut)), _chan(chan)
 		{
 		}
 
@@ -167,13 +167,13 @@ namespace csp
 		inline T read() const
 		{
 			std::lock_guard<channel_end_mutex> lock(*_mut);
-			return _chan->read();
+			return _chan.read();
 		}
 
 		inline T start_read() const
 		{
 			_mut->lock();
-			return _chan->start_read();
+			return _chan.start_read();
 		}
 
 		inline void end_read() const
@@ -183,23 +183,23 @@ namespace csp
 
 		inline bool enable() const
 		{
-			return _chan->enable();
+			return _chan.enable();
 		}
 
 		inline bool disable() const
 		{
-			return _chan->disable();
+			return _chan.disable();
 		}
 
 		inline bool pending() const
 		{
-			return _chan->pending();
+			return _chan.pending();
 		}
 
 		inline void poison(size_t strength) noexcept
 		{
 			std::lock_guard<channel_end_mutex> lock(_mut);
-			_chan->reader_poison(strength);
+			_chan.reader_poison(strength);
 		}
 	};
 
@@ -209,8 +209,13 @@ namespace csp
 	private:
 		std::shared_ptr<channel_input_internal<T, POISONABLE>> _internal = nullptr;
 	public:
-		channel_input(std::unique_ptr<channel_end_mutex> &&mut, std::shared_ptr<channel<T, POISONABLE>> chan)
-		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(std::move(mut), chan))
+		explicit channel_input(channel<T, POISONABLE> chan)
+		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(chan))
+		{
+		}
+
+		channel_input(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
+		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(chan, move(mut)))
 		{
 		}
 
@@ -251,8 +256,17 @@ namespace csp
 	private:
 		INPUT_END<T, POISONABLE> _input;
 		OUTPUT_END<T, POISONABLE> _output;
+		channel<T, POISONABLE> _chan;
 	public:
-		chan_type() = default;
+		explicit chan_type(channel<T, POISONABLE> chan)
+		: _chan(chan), _input(chan), _output(chan)
+		{
+		}
+
+		chan_type(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> &&in_mut, std::unique_ptr<channel_end_mutex> &&out_mut)
+		: _chan(chan), _input(move(in_mut), chan), _output(out_mut, chan)
+		{
+		}
 	};
 
 	template<typename T, bool POISONABLE = false>

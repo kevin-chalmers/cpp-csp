@@ -45,7 +45,7 @@ public:
 
 int main(int argc, char **argv) noexcept
 {
-//	one2one_chan<int> x;
+	one2one_chan<int> x(thread_model::make_chan<int>());
 
 	auto c = thread_model::make_chan<int>();
 	auto b = thread_model::make_bar();
