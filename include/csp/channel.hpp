@@ -152,7 +152,7 @@ namespace csp
 	template<typename T, bool POISONABLE = false>
 	class channel_input_internal
 	{
-	private:
+	protected:
 		std::unique_ptr<channel_end_mutex> _mut = nullptr;
 
 		channel<T, POISONABLE> _chan = nullptr;
@@ -204,30 +204,30 @@ namespace csp
 	};
 
 	template<typename T, bool POISONABLE = false>
-	class channel_input
+	class chan_in
 	{
 	private:
 		std::shared_ptr<channel_input_internal<T, POISONABLE>> _internal = nullptr;
 	public:
-		explicit channel_input(channel<T, POISONABLE> chan)
+		explicit chan_in(channel<T, POISONABLE> chan)
 		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(chan))
 		{
 		}
 
-		channel_input(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
+		chan_in(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
 		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(chan, move(mut)))
 		{
 		}
 
-		virtual ~channel_input() = default;
+		virtual ~chan_in() = default;
 
-		channel_input(const channel_input<T, POISONABLE>&) = default;
+		chan_in(const chan_in<T, POISONABLE>&) = default;
 
-		channel_input(channel_input<T, POISONABLE>&&) = default;
+		chan_in(chan_in<T, POISONABLE>&&) = default;
 
-		channel_input<T, POISONABLE>&operator=(const channel_input<T, POISONABLE>&) = default;
+		chan_in<T, POISONABLE>&operator=(const chan_in<T, POISONABLE>&) = default;
 
-		channel_input<T, POISONABLE>&operator=(channel_input<T, POISONABLE>&&) = default;
+		chan_in<T, POISONABLE>&operator=(chan_in<T, POISONABLE>&&) = default;
 
 		inline T read() const
 		{
@@ -249,9 +249,98 @@ namespace csp
 			_internal->poison(strength);
 		}
 
-		inline T operator()() const noexcept
+		inline T operator()() const
 		{
 			return _internal->read();
+		}
+	};
+
+	template<typename T, bool POISONABLE = false>
+	class channel_output_internal
+	{
+	protected:
+		std::unique_ptr<channel_end_mutex> _mut = nullptr;
+
+		channel<T, POISONABLE> _chan = nullptr;
+	public:
+		channel_output_internal(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut = std::make_unique<unshared_channel_end_mutex>())
+		: _mut(move(mut)), _chan(chan)
+		{
+		}
+
+		~channel_output_internal() = default;
+
+		inline void write(T value) const
+		{
+			std::lock_guard<channel_end_mutex> lock(*_mut);
+			_chan.write(value);
+		}
+
+		template<typename T_ = T, typename = IsNotReference<T_>>
+		inline void write(T&& value) const
+		{
+			std::lock_guard<channel_end_mutex> lock(*_mut);
+			_chan.write(std::move(value));
+		}
+
+		inline void poison(size_t strength) noexcept
+		{
+			std::lock_guard<channel_end_mutex> lock(_mut);
+			_chan.writer_poison(strength);
+		}
+	};
+
+	template<typename T, bool POISONABLE = false>
+	class chan_out
+	{
+	private:
+		std::shared_ptr<channel_output_internal<T, POISONABLE>> _internal = nullptr;
+	public:
+		explicit chan_out(channel<T, POISONABLE> chan)
+		: _internal(std::make_shared<channel_output_internal<T, POISONABLE>>(chan))
+		{
+		}
+
+		chan_out(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
+		: _internal(std::make_shared<channel_output_internal<T, POISONABLE>>(chan, move(mut)))
+		{
+		}
+
+		virtual ~chan_out() = default;
+
+		chan_out(const chan_out<T, POISONABLE>&) = default;
+
+		chan_out(chan_out<T, POISONABLE>&&) = default;
+
+		chan_out<T, POISONABLE>&operator=(const chan_out<T, POISONABLE>&) = default;
+
+		chan_out<T, POISONABLE>&operator=(chan_out<T, POISONABLE>&&) = default;
+
+		inline void write(T value) const
+		{
+			_internal->write(value);
+		}
+
+		template<typename T_ = T, typename = IsNotReference<T_>>
+		inline void write(T&& value) const
+		{
+			_internal->write(move(value));
+		}
+
+		inline void poison(size_t strength) noexcept
+		{
+			_internal->poison(strength);
+		}
+
+		inline void operator()(T value) const
+		{
+			_internal->write(value);
+		}
+
+		template<typename T_ = T, typename = IsNotReference<T_>>
+		inline void operator()(T &&value) const
+		{
+			_internal->write(std::move(value));
 		}
 	};
 
@@ -289,7 +378,7 @@ namespace csp
 
 		inline operator INPUT_END<T, POISONABLE>() const noexcept { return _input; }
 
-//		inline operator OUTPUT_END<T, POISONABLE>() const noexcept { return _output; }
+		inline operator OUTPUT_END<T, POISONABLE>() const noexcept { return _output; }
 
 		inline T operator()() const noexcept { return _chan.read(); }
 
@@ -300,5 +389,5 @@ namespace csp
 	};
 
 	template<typename T, bool POISONABLE = false>
-	using one2one_chan = chan_type<T, POISONABLE, channel_input, channel_input>;
+	using one2one_chan = chan_type<T, POISONABLE, chan_in, chan_out>;
 }

@@ -379,7 +379,10 @@ namespace csp
         using bar_type = thread_implementation::barrier_type;
 
         template<typename T, bool POISONABLE = false>
-        inline static channel<T, POISONABLE> make_chan() { return channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()); }
+        inline static one2one_chan<T, POISONABLE> make_one2one()
+        {
+            return one2one_chan<T, POISONABLE>(channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()));
+        }
 
         inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<thread_implementation::barrier_type>(enrolled)); }
     };

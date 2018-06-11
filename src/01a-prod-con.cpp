@@ -10,10 +10,10 @@ using namespace csp;
 class producer final : public process
 {
 private:
-	one2one_chan<int> c;
+	chan_out<int> c;
 public:
-	explicit producer(one2one_chan<int> c)
-		: c(std::move(c))
+	explicit producer(chan_out<int> c)
+	: c(move(c))
 	{
 	}
 
@@ -27,10 +27,10 @@ public:
 class consumer final : public process
 {
 private:
-	channel_input<int> c;
+	chan_in<int> c;
 public:
-	explicit consumer(channel_input<int> c)
-		: c(std::move(c))
+	explicit consumer(chan_in<int> c)
+	: c(move(c))
 	{
 	}
 
@@ -45,7 +45,7 @@ public:
 
 int main(int argc, char **argv) noexcept
 {
-	one2one_chan<int> c(thread_model::make_chan<int>());
+	auto c = thread_model::make_one2one<int>();
 
 	proc_t prod = make_proc<producer>(c);
 	proc_t con = make_proc<consumer>(c);
