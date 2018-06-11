@@ -248,6 +248,11 @@ namespace csp
 		{
 			_internal->poison(strength);
 		}
+
+		inline T operator()() const noexcept
+		{
+			return _internal->read();
+		}
 	};
 
 	template<typename T, bool POISONABLE, template<typename, bool> typename INPUT_END, template<typename, bool> typename OUTPUT_END>
@@ -267,6 +272,31 @@ namespace csp
 		: _chan(chan), _input(move(in_mut), chan), _output(out_mut, chan)
 		{
 		}
+
+		chan_type(const chan_type<T, POISONABLE, INPUT_END, OUTPUT_END>&) = default;
+
+		chan_type(chan_type<T, POISONABLE, INPUT_END, OUTPUT_END>&&) = default;
+
+		~chan_type() = default;
+
+		chan_type<T, POISONABLE, INPUT_END, OUTPUT_END>&operator=(const chan_type<T, POISONABLE, INPUT_END, OUTPUT_END>&) = default;
+
+		chan_type<T, POISONABLE, INPUT_END, OUTPUT_END>&operator=(chan_type<T, POISONABLE, INPUT_END, OUTPUT_END>&) = default;
+
+		inline INPUT_END<T, POISONABLE> in() const noexcept { return _input; }
+
+		inline OUTPUT_END<T, POISONABLE> out() const noexcept { return _output; }
+
+		inline operator INPUT_END<T, POISONABLE>() const noexcept { return _input; }
+
+//		inline operator OUTPUT_END<T, POISONABLE>() const noexcept { return _output; }
+
+		inline T operator()() const noexcept { return _chan.read(); }
+
+		inline void operator()(T value) const noexcept { _chan.write(value); }
+
+		template<typename T_ = T, typename = IsNotReference<T_>>
+		inline void operator()(T &&value) const noexcept { _chan.write(move(value)); }
 	};
 
 	template<typename T, bool POISONABLE = false>
