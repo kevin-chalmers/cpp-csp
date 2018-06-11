@@ -24,6 +24,8 @@ namespace csp
 
         virtual ~concurrency_model_t() = default;
 
+        //proc_t make_par()
+
         template<typename T, bool POISONABLE>
         channel<T, POISONABLE> make_chan() const noexcept;
 

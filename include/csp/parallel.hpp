@@ -10,39 +10,40 @@
 namespace csp
 {
 	template<typename MODEL>
-	class parallel : public process
+	class parallel final : public process
 	{
 	    using PAR_TYPE = typename MODEL::par_type;
 	private:
 	    std::shared_ptr<PAR_TYPE> _internal = nullptr;
 	public:
-	    parallel()
-        : _internal(std::make_shared<PAR_TYPE>())
-        {
-        }
-
 		explicit parallel(std::initializer_list<proc_t> &&procs)
-        : _internal(std::make_shared<PAR_TYPE>(std::move(procs)))
 		{
+		    for (auto &p : procs)
+		        p.set_model(MODEL::model_type);
+		    _internal = std::make_shared<PAR_TYPE>(move(procs));
 		}
 
 		explicit parallel(std::vector<proc_t> &procs)
-        : _internal(std::make_shared<PAR_TYPE>(procs))
 		{
+		    for (auto &p : procs)
+		        p.set_model(MODEL::model_type);
+            _internal = std::make_shared<PAR_TYPE>(procs);
 		}
 
 		template<typename RanIt>
 		parallel(RanIt begin, RanIt end)
-        : _internal(std::make_shared<PAR_TYPE>(begin, end))
 		{
 			static_assert(std::iterator_traits<RanIt>::value_type == typeid(proc_t), "par only takes collections of process objects");
+		    for (auto p = begin; p != end; ++p)
+		        p->set_model(MODEL::model_type);
+            _internal = std::make_shared<PAR_TYPE>(begin, end);
 		}
 
 		~parallel()
 		{
 		}
 
-		void run() noexcept final
+		void run() noexcept
 		{
 			_internal->run();
 		}

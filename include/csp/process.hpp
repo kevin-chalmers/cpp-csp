@@ -16,6 +16,11 @@ namespace csp
 
         inline void set_model(concurrency model) noexcept { _model = concurrency_model_t(model); }
 
+        //proc_t make_par(const std::vector<proc_t> procs) const noexcept
+        //{
+
+        //}
+
 		template<typename T, bool POISONABLE = false>
 		inline channel<T, POISONABLE> make_chan() const noexcept
 		{
@@ -82,7 +87,7 @@ namespace csp
 
         ~proc_t() = default;
 
-        inline void set_model(concurrency model) noexcept { _proc->set_model(model); }
+        inline void set_model(concurrency model) const noexcept { _proc->set_model(model); }
 
         inline void run() const noexcept
         {

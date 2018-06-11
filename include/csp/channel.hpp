@@ -244,4 +244,17 @@ namespace csp
 			_internal->poison(strength);
 		}
 	};
+
+	template<typename T, bool POISONABLE, template<typename, bool> typename INPUT_END, template<typename, bool> typename OUTPUT_END>
+	class chan_type
+	{
+	private:
+		INPUT_END<T, POISONABLE> _input;
+		OUTPUT_END<T, POISONABLE> _output;
+	public:
+		chan_type() = default;
+	};
+
+	template<typename T, bool POISONABLE = false>
+	using one2one_chan = chan_type<T, POISONABLE, channel_input, channel_input>;
 }

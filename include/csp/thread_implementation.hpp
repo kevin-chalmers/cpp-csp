@@ -374,6 +374,9 @@ namespace csp
         static constexpr concurrency model_type = concurrency::THREAD_MODEL;
 
         using par_type = thread_implementation::parallel_type;
+        template<typename T, bool POISONABLE>
+        using chan_type = thread_implementation::channel_type<T, POISONABLE>;
+        using bar_type = thread_implementation::barrier_type;
 
         template<typename T, bool POISONABLE = false>
         inline static channel<T, POISONABLE> make_chan() { return channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()); }
