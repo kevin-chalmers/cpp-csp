@@ -4,6 +4,7 @@
 #include <vector>
 #include <mutex>
 #include "../util.hpp"
+#include "alternative.hpp"
 
 namespace csp
 {
@@ -31,11 +32,17 @@ namespace csp
 
 		virtual void end_read() = 0;
 
-		virtual bool enable() noexcept = 0;
+		virtual bool enable_reader(alt_internal const* alt) noexcept = 0;
 
-		virtual bool disable() noexcept = 0;
+		virtual bool disable_reader() noexcept = 0;
 
-		virtual bool pending() noexcept = 0;
+		virtual bool enable_writer(alt_internal const* alt) noexcept = 0;
+
+		virtual bool disable_writer() noexcept = 0;
+
+		virtual bool reader_pending() noexcept = 0;
+
+		virtual bool writer_pending() noexcept = 0;
 
         virtual void reader_poison(size_t) noexcept = 0;
 
@@ -89,19 +96,34 @@ namespace csp
             _internal->end_read();
         }
 
-        inline bool enable() noexcept
+        inline bool reader_enable(alt_internal const* alt) const noexcept
         {
-            return _internal->enable();
+            return _internal->reader_enable(alt);
         }
 
-        inline bool disable() noexcept
+        inline bool reader_disable() const noexcept
         {
-            return _internal->disable();
+            return _internal->reader_disable();
         }
 
-        inline bool pending() const noexcept
+        inline bool writer_enable(alt_internal const* alt) const noexcept
         {
-            return _internal->pending();
+            return _internal->writer_enable(alt);
+        }
+
+        inline bool writer_disable() const noexcept
+        {
+            return _internal->writer_disable();
+        }
+
+        inline bool reader_pending() const noexcept
+        {
+            return _internal->reader_pending();
+        }
+
+        inline bool writer_pending() const noexcept
+        {
+            return _internal->writer_pending();
         }
 
         inline void reader_poison(size_t strength) noexcept
@@ -124,7 +146,7 @@ namespace csp
 		template<typename T_ = T, typename = IsNotReference<T_>>
         inline void operator()(T&& value) const
         {
-            write(value);
+            write(move(value));
         }
 
 		inline T operator()() const

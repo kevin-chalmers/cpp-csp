@@ -4,7 +4,6 @@
 #include <memory>
 #include <chrono>
 #include <cassert>
-#include "guard.hpp"
 
 namespace csp
 {
@@ -17,11 +16,11 @@ namespace csp
     protected:
         guard_internal() = default;
 
-        void schedule(alternative const*) const noexcept;
+        void schedule(alt_internal *const) const noexcept;
 
-        void set_timeout(alternative const*, const std::chrono::system_clock::time_point&) const noexcept;
+        void set_timeout(alt_internal *const, const std::chrono::system_clock::time_point&) const noexcept;
 
-        void set_barrier_trigger(alternative const*) const noexcept;
+        void set_barrier_trigger(alt_internal *const) const noexcept;
 
     public:
         guard_internal(const guard_internal&) = default;
@@ -34,7 +33,7 @@ namespace csp
 
         guard_internal&operator=(guard_internal&&) = default;
 
-        virtual bool enable(alternative const*) noexcept = 0;
+        virtual bool enable(alt_internal const*) noexcept = 0;
 
         virtual bool disable() noexcept = 0;
     };
@@ -57,9 +56,9 @@ namespace csp
 
         guard&operator=(guard&&) = default;
 
-        bool enable(alternative const* alt) const noexcept { return _guard_internal->enable(alt); }
+        bool enable(alt_internal const*) const noexcept;
 
-        bool disable() const noexcept { return _guard_internal->disable(); }
+        bool disable() const noexcept;
     };
 
     class multiway_sync
@@ -70,6 +69,7 @@ namespace csp
 
     class alt_internal
     {
+        friend class guard_internal;
     protected:
         enum class STATE
         {
@@ -95,6 +95,8 @@ namespace csp
 
         bool _barrier_trigger = false;
 
+        bool _barrier_ready = false;
+
         size_t _enable_index = 0;
 
         bool _timeout = false;
@@ -105,21 +107,13 @@ namespace csp
 
         alt_internal() = default;
 
-        virtual void enable_guards() noexcept = 0;
-
-        virtual void enable_guards(const std::vector<bool> &pre_conditions) noexcept = 0;
-
-        virtual void disable_guards() noexcept = 0;
-
-        virtual void disable_guards(const std::vector<bool> &pre_conditions) noexcept = 0;
-
         virtual size_t do_select() noexcept = 0;
 
         virtual size_t do_select(const std::vector<bool> &pre_conditions) noexcept = 0;
 
     public:
-        explicit alt_internal(std::vector<guard> guards)
-        : _guards(move(guards))
+        explicit alt_internal(const std::vector<guard> &guards)
+        : _guards(guards)
         {
             for (auto &g : _guards)
             {
@@ -132,7 +126,7 @@ namespace csp
         }
 
         explicit alt_internal(std::vector<guard> &&guards)
-        : _guards(guards)
+        : _guards(move(guards))
         {
             for (auto &g : _guards)
             {
@@ -239,12 +233,6 @@ namespace csp
     private:
         std::shared_ptr<alt_internal> _internal = nullptr;
 
-        void set_barrier_trigger() const noexcept { _internal->set_barrier_trigger(); }
-
-        void set_timeout(const std::chrono::system_clock::time_point &time) const noexcept { _internal->set_timeout(time); }
-
-        void schedule() const noexcept { _internal->schedule(); }
-
     public:
         explicit alternative(std::shared_ptr<alt_internal> internal)
         : _internal(internal)
@@ -285,4 +273,24 @@ namespace csp
 
         inline size_t operator()(std::initializer_list<bool> &&pre_cond) const noexcept { return _internal->select(move(pre_cond)); }
     };
+
+    bool guard::enable(alt_internal const* alt) const noexcept { return _guard_internal->enable(alt); }
+
+    bool guard::disable() const noexcept { return _guard_internal->disable(); }
+
+    void guard_internal::schedule(alt_internal *const alt) const noexcept
+    {
+        alt->schedule();
+    }
+
+    void guard_internal::set_timeout(alt_internal *const alt, const std::chrono::system_clock::time_point &time) const noexcept
+    {
+        alt->set_timeout(time);
+    }
+
+    void guard_internal::set_barrier_trigger(alt_internal *const alt) const noexcept
+    {
+        alt->set_barrier_trigger();
+    }
+
 }

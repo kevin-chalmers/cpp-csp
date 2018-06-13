@@ -46,6 +46,7 @@ public:
 int main(int argc, char **argv) noexcept
 {
 	auto c = thread_model::make_one2one<int>();
+	alternative a(thread_model::alt_type());
 
 	proc_t prod = make_proc<producer>(c);
 	proc_t con = make_proc<consumer>(c);
