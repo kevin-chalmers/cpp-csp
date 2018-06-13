@@ -58,6 +58,7 @@ int main(int argc, char **argv) noexcept
 	auto c1 = thread_model::make_one2one<int>();
 	auto c2 = thread_model::make_one2one<int>();
 
+
 	proc_t prod1 = make_proc<producer>(c1);
 	proc_t prod2 = make_proc<producer>(c2);
 	proc_t con = make_proc<consumer>(c1, c2);

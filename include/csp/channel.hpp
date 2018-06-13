@@ -234,14 +234,12 @@ namespace csp
 	{
 	protected:
 		std::shared_ptr<channel_input_internal<T, POISONABLE>> _internal = nullptr;
+
+        chan_in() = default;
+
 	public:
 		explicit chan_in(channel<T, POISONABLE> chan)
 		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(chan))
-		{
-		}
-
-		chan_in(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
-		: _internal(std::make_shared<channel_input_internal<T, POISONABLE>>(chan, move(mut)))
 		{
 		}
 
@@ -286,22 +284,16 @@ namespace csp
     {
     public:
         explicit guarded_chan_in(channel<T, POISONABLE> chan)
-        : chan_in<T, POISONABLE>(chan)
         {
+            this->_internal = std::make_shared<channel_input_internal<T, POISONABLE>>(chan);
             _guard_internal = this->_internal;
         }
-
-        guarded_chan_in(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
-        : chan_in<T, POISONABLE>(chan, mut)
-        {
-            _guard_internal = this->_internal;
-        }
-
-        guarded_chan_in() = default;
 
         guarded_chan_in(const guarded_chan_in<T, POISONABLE>&) = default;
 
         guarded_chan_in(guarded_chan_in<T, POISONABLE>&&) = default;
+
+        ~guarded_chan_in() = default;
 
         guarded_chan_in<T, POISONABLE>&operator=(const guarded_chan_in<T, POISONABLE>&) = default;
 
@@ -316,6 +308,26 @@ namespace csp
         {
             return this->_internal->disable();
         }
+    };
+
+	template<typename T, bool POISONABLE = false>
+	class shared_chan_in final : public chan_in<T, POISONABLE>
+    {
+    public:
+        shared_chan_in(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
+        {
+            this->_internal = std::make_shared<channel_input_internal<T, POISONABLE>>(chan, move(mut));
+        }
+
+        shared_chan_in(const shared_chan_in<T, POISONABLE>&) = default;
+
+        shared_chan_in(shared_chan_in<T, POISONABLE>&&) = default;
+
+        ~shared_chan_in() = default;
+
+        shared_chan_in<T, POISONABLE>&operator=(const shared_chan_in<T, POISONABLE>&) = default;
+
+        shared_chan_in<T, POISONABLE>&operator=(shared_chan_in<T, POISONABLE>&&) = default;
     };
 
 	template<typename T, bool POISONABLE = false>
@@ -361,11 +373,6 @@ namespace csp
 	public:
 		explicit chan_out(channel<T, POISONABLE> chan)
 		: _internal(std::make_shared<channel_output_internal<T, POISONABLE>>(chan))
-		{
-		}
-
-		chan_out(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
-		: _internal(std::make_shared<channel_output_internal<T, POISONABLE>>(chan, move(mut)))
 		{
 		}
 
@@ -415,13 +422,8 @@ namespace csp
 		OUTPUT_END<T, POISONABLE> _output;
 		channel<T, POISONABLE> _chan;
 	public:
-		explicit chan_type(channel<T, POISONABLE> chan)
-		: _chan(chan), _input(chan), _output(chan)
-		{
-		}
-
-		chan_type(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> &&in_mut, std::unique_ptr<channel_end_mutex> &&out_mut)
-		: _chan(chan), _input(move(in_mut), chan), _output(out_mut, chan)
+		chan_type(channel<T, POISONABLE> chan, INPUT_END<T, POISONABLE> input, OUTPUT_END<T, POISONABLE> output)
+		: _chan(chan), _input(input), _output(output)
 		{
 		}
 
@@ -453,4 +455,13 @@ namespace csp
 
 	template<typename T, bool POISONABLE = false>
 	using one2one_chan = chan_type<T, POISONABLE, guarded_chan_in, chan_out>;
+
+	template<typename T, bool POISONABLE = false>
+    using one2any_chan = chan_type<T, POISONABLE, shared_chan_in, chan_out>;
+
+    template<typename T, bool POISONABLE = false>
+    using any2one_chan = chan_type<T, POISONABLE, guarded_chan_in, chan_out>;
+
+    template<typename T, bool POISONABLE = false>
+    using any2any_chan = chan_type<T, POISONABLE, chan_in, chan_out>;
 }

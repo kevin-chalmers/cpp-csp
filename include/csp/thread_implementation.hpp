@@ -763,9 +763,10 @@ namespace csp
         using alt_type = thread_implementation::alt_type;
 
         template<typename T, bool POISONABLE = false>
-        inline static one2one_chan<T, POISONABLE> make_one2one()
+        inline static one2one_chan<T, POISONABLE> make_one2one() noexcept
         {
-            return one2one_chan<T, POISONABLE>(channel<T, POISONABLE>(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>()));
+            channel<T, POISONABLE> c(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>());
+            return one2one_chan<T, POISONABLE>(c, guarded_chan_in(c), chan_out(c));
         }
 
         inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<thread_implementation::barrier_type>(enrolled)); }
