@@ -6,21 +6,9 @@
 #include "barrier.hpp"
 #include "process.hpp"
 #include "parallel.hpp"
+#include "alternative.hpp"
 
 #include "thread_implementation.hpp"
-
-//template<typename T>
-//using atomic_channel = nullptr_t;
-//
-//using shared = csp::thread::mutex_guard;
-//
-//using atomic_shared = nullptr_t;
-//
-//using barrier = csp::thread::barrier_type;
-//
-//using thread = csp::thread::thread_type;
-//
-//using parallel = csp::thread::parallel_type;
 
 template<typename T, bool POISONABLE>
 csp::channel<T, POISONABLE> csp::concurrency_model_t::make_chan() const noexcept
