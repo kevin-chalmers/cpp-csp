@@ -48,6 +48,7 @@ namespace csp
             std::vector<T> _hold = std::vector<T>(0);
             bool _reading = false;
             bool _empty = true;
+            alt_internal *_alt = nullptr;
             size_t _strength = 0;
 		public:
 			channel_type()
@@ -63,6 +64,8 @@ namespace csp
 				if (_empty)
 				{
 					_empty = false;
+					if (_alt != nullptr)
+					    this->schedule(_alt);
 				}
 				else
 				{
@@ -83,6 +86,8 @@ namespace csp
                 if (_empty)
                 {
                     _empty = false;
+                    if (_alt != nullptr)
+                        this->schedule(_alt);
                 }
                 else
                 {
@@ -116,47 +121,79 @@ namespace csp
 
 			T start_read()
 			{
-				return T();
+				std::unique_lock<std::mutex> lock(_mut);
+				if (_strength > 0)
+				    throw poison_exception(_strength);
+				if (_reading)
+				    throw std::logic_error("Channel already in extended read");
+				if (_empty)
+                {
+                    _empty = false;
+                    _cond.wait(lock);
+                }
+                else
+                    _empty = true;
+				_reading = true;
+				if (_strength > 0)
+				    throw poison_exception(_strength);
+				return std::move(_hold[0]);
 			}
 
 			void end_read()
 			{
-
+                std::unique_lock<std::mutex> lock(_mut);
+                if (_reading)
+                    throw std::logic_error("Channel not in extended read");
+                _hold.pop_back();
+                _empty = true;
+                _reading = false;
+                _cond.notify_one();
 			}
 
-            bool enable_reader(alt_internal const* alt) noexcept
+            bool enable_reader(alt_internal *alt) noexcept
             {
-                return true;
+                std::unique_lock<std::mutex> lock(_mut);
+                if (_strength > 0)
+                    return true;
+                if (_empty)
+                {
+                    _alt = alt;
+                    return false;
+                }
+                else
+                    return true;
             }
 
             bool disable_reader() noexcept
             {
-                return true;
+                std::unique_lock<std::mutex> lock(_mut);
+                _alt = nullptr;
+                return !_empty || (_strength > 0);
             }
 
-            bool enable_writer(alt_internal const* alt) noexcept
+            bool enable_writer(alt_internal *alt) noexcept
             {
-                return true;
+                throw std::logic_error("This channel type has an unguarded writer end");
             }
 
             bool disable_writer() noexcept
             {
-                return true;
+                throw std::logic_error("This channel type has an unguarded writer end");
             }
 
 			bool reader_pending() noexcept
 			{
-				return false;
+				return !_empty || (_strength > 0);
 			}
 
 			bool writer_pending() noexcept
             {
-                return false;
+                throw std::logic_error("This channel type has an unguarded writer end");
             }
 
 			void reader_poison(size_t strength) noexcept
 			{
-
+                throw std::logic_error("This channel type has an unguarded writer end");
 			}
 
 			void writer_poison(size_t strength) noexcept
@@ -538,13 +575,11 @@ namespace csp
             {
                 if (_selected != _next)
                 {
-                    size_t start_index = (!_none_selected ? _next - 1 : _selected - 1);
-                    if (_selected < _next)
+                    long long start_index = (_none_selected ? static_cast<long long>(_next) - 1 : static_cast<long long>(_selected) - 1);
+                    if (start_index < static_cast<long long>(_next))
                     {
-                        auto i = start_index + 1;
-                        do
+                        for (auto i = start_index; i >= 0; --i)
                         {
-                            --i;
                             if (_guards[i].disable())
                             {
                                 _none_selected = false;
@@ -555,10 +590,10 @@ namespace csp
                                     _barrier_trigger = false;
                                 }
                             }
-                        } while (i != 0);
-                        start_index = _guards.size() - 1;
+                        }
+                        start_index = static_cast<long long>(_guards.size()) - 1;
                     }
-                    for (auto i = start_index; i >= _next; --i)
+                    for (auto i = start_index; i >= static_cast<long long>(_next); --i)
                     {
                         if (_guards[i].disable())
                         {
@@ -585,8 +620,8 @@ namespace csp
             {
                 if (_selected != _next)
                 {
-                    size_t start_index = (!_none_selected ? _next - 1 : _selected - 1);
-                    if (_selected < _next)
+                    long long start_index = (_none_selected ? static_cast<long long>(_next) - 1 : static_cast<long long>(_selected) - 1);
+                    if (start_index < static_cast<long long>(_next))
                     {
                         for (auto i = start_index; i >= 0; --i)
                         {
@@ -601,9 +636,9 @@ namespace csp
                                 }
                             }
                         }
-                        start_index = _guards.size() - 1;
+                        start_index = static_cast<long long>(_guards.size()) - 1;
                     }
-                    for (auto i = start_index; i >= _next; --i)
+                    for (auto i = start_index; i >= static_cast<long long>(_next); --i)
                     {
                         if (pre_cond[i] && _guards[i].disable())
                         {

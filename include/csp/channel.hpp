@@ -9,7 +9,7 @@
 namespace csp
 {
 	template<typename T, bool POISONABLE = false>
-	class channel_internal
+	class channel_internal : public guard_internal
 	{
 	protected:
 		channel_internal() = default;
@@ -32,13 +32,17 @@ namespace csp
 
 		virtual void end_read() = 0;
 
-		virtual bool enable_reader(alt_internal const* alt) noexcept = 0;
+		virtual bool enable_reader(alt_internal *alt) noexcept = 0;
 
 		virtual bool disable_reader() noexcept = 0;
 
-		virtual bool enable_writer(alt_internal const* alt) noexcept = 0;
+		virtual bool enable_writer(alt_internal *alt) noexcept = 0;
 
 		virtual bool disable_writer() noexcept = 0;
+
+        bool enable(alt_internal *alt) noexcept { return this->enable_reader(alt); }
+
+        virtual bool disable() noexcept { return this->disable_reader(); }
 
 		virtual bool reader_pending() noexcept = 0;
 
@@ -96,7 +100,7 @@ namespace csp
             _internal->end_read();
         }
 
-        inline bool enable_reader(alt_internal const* alt) const noexcept
+        inline bool enable_reader(alt_internal *alt) const noexcept
         {
             return _internal->enable_reader(alt);
         }
@@ -203,7 +207,7 @@ namespace csp
 			_mut->unlock();
 		}
 
-		inline bool enable(alt_internal const* alt) noexcept
+		inline bool enable(alt_internal *alt) noexcept
 		{
 			return _chan.enable_reader(alt);
 		}
@@ -303,7 +307,7 @@ namespace csp
 
         guarded_chan_in<T, POISONABLE>&operator=(guarded_chan_in<T, POISONABLE>&&) = default;
 
-        inline bool enable(alt_internal const* alt) noexcept
+        inline bool enable(alt_internal *alt) noexcept
         {
             return this->_internal->enable(alt);
         }

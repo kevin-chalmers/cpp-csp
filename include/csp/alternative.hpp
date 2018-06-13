@@ -16,11 +16,11 @@ namespace csp
     protected:
         guard_internal() = default;
 
-        void schedule(alt_internal *const) const noexcept;
+        void schedule(alt_internal*) const noexcept;
 
-        void set_timeout(alt_internal *const, const std::chrono::system_clock::time_point&) const noexcept;
+        void set_timeout(alt_internal*, const std::chrono::system_clock::time_point&) const noexcept;
 
-        void set_barrier_trigger(alt_internal *const) const noexcept;
+        void set_barrier_trigger(alt_internal*) const noexcept;
 
     public:
         guard_internal(const guard_internal&) = default;
@@ -33,7 +33,7 @@ namespace csp
 
         guard_internal&operator=(guard_internal&&) = default;
 
-        virtual bool enable(alt_internal const*) noexcept = 0;
+        virtual bool enable(alt_internal*) noexcept = 0;
 
         virtual bool disable() noexcept = 0;
     };
@@ -56,7 +56,7 @@ namespace csp
 
         guard&operator=(guard&&) = default;
 
-        bool enable(alt_internal const*) const noexcept;
+        bool enable(alt_internal*) const noexcept;
 
         bool disable() const noexcept;
     };
@@ -274,21 +274,21 @@ namespace csp
         inline size_t operator()(std::initializer_list<bool> &&pre_cond) const noexcept { return _internal->select(move(pre_cond)); }
     };
 
-    bool guard::enable(alt_internal const* alt) const noexcept { return _guard_internal->enable(alt); }
+    bool guard::enable(alt_internal *alt) const noexcept { return _guard_internal->enable(alt); }
 
     bool guard::disable() const noexcept { return _guard_internal->disable(); }
 
-    void guard_internal::schedule(alt_internal *const alt) const noexcept
+    void guard_internal::schedule(alt_internal *alt) const noexcept
     {
         alt->schedule();
     }
 
-    void guard_internal::set_timeout(alt_internal *const alt, const std::chrono::system_clock::time_point &time) const noexcept
+    void guard_internal::set_timeout(alt_internal *alt, const std::chrono::system_clock::time_point &time) const noexcept
     {
         alt->set_timeout(time);
     }
 
-    void guard_internal::set_barrier_trigger(alt_internal *const alt) const noexcept
+    void guard_internal::set_barrier_trigger(alt_internal *alt) const noexcept
     {
         alt->set_barrier_trigger();
     }
