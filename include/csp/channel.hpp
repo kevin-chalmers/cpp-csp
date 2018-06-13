@@ -96,24 +96,24 @@ namespace csp
             _internal->end_read();
         }
 
-        inline bool reader_enable(alt_internal const* alt) const noexcept
+        inline bool enable_reader(alt_internal const* alt) const noexcept
         {
-            return _internal->reader_enable(alt);
+            return _internal->enable_reader(alt);
         }
 
-        inline bool reader_disable() const noexcept
+        inline bool disable_reader() const noexcept
         {
-            return _internal->reader_disable();
+            return _internal->disable_reader();
         }
 
-        inline bool writer_enable(alt_internal const* alt) const noexcept
+        inline bool enable_writer(alt_internal const* alt) const noexcept
         {
-            return _internal->writer_enable(alt);
+            return _internal->enable_writer(alt);
         }
 
-        inline bool writer_disable() const noexcept
+        inline bool disable_writer() const noexcept
         {
-            return _internal->writer_disable();
+            return _internal->disable_writer();
         }
 
         inline bool reader_pending() const noexcept
@@ -172,7 +172,7 @@ namespace csp
 	};
 
 	template<typename T, bool POISONABLE = false>
-	class channel_input_internal
+	class channel_input_internal final : public guard_internal
 	{
 	protected:
 		std::unique_ptr<channel_end_mutex> _mut = nullptr;
@@ -203,19 +203,19 @@ namespace csp
 			_mut->unlock();
 		}
 
-		inline bool enable() const
+		inline bool enable(alt_internal const* alt) noexcept
 		{
-			return _chan.enable();
+			return _chan.enable_reader(alt);
 		}
 
-		inline bool disable() const
+		inline bool disable() noexcept
 		{
-			return _chan.disable();
+			return _chan.disable_reader();
 		}
 
 		inline bool pending() const
 		{
-			return _chan.pending();
+			return _chan.reader_pending();
 		}
 
 		inline void poison(size_t strength) noexcept
@@ -228,7 +228,7 @@ namespace csp
 	template<typename T, bool POISONABLE = false>
 	class chan_in
 	{
-	private:
+	protected:
 		std::shared_ptr<channel_input_internal<T, POISONABLE>> _internal = nullptr;
 	public:
 		explicit chan_in(channel<T, POISONABLE> chan)
@@ -276,6 +276,43 @@ namespace csp
 			return _internal->read();
 		}
 	};
+
+	template<typename T, bool POISONABLE = false>
+	class guarded_chan_in final : public chan_in<T, POISONABLE>, public guard
+    {
+    public:
+        explicit guarded_chan_in(channel<T, POISONABLE> chan)
+        : chan_in<T, POISONABLE>(chan)
+        {
+            _guard_internal = this->_internal;
+        }
+
+        guarded_chan_in(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
+        : chan_in<T, POISONABLE>(chan, mut)
+        {
+            _guard_internal = this->_internal;
+        }
+
+        guarded_chan_in() = default;
+
+        guarded_chan_in(const guarded_chan_in<T, POISONABLE>&) = default;
+
+        guarded_chan_in(guarded_chan_in<T, POISONABLE>&&) = default;
+
+        guarded_chan_in<T, POISONABLE>&operator=(const guarded_chan_in<T, POISONABLE>&) = default;
+
+        guarded_chan_in<T, POISONABLE>&operator=(guarded_chan_in<T, POISONABLE>&&) = default;
+
+        inline bool enable(alt_internal const* alt) noexcept
+        {
+            return this->_internal->enable(alt);
+        }
+
+        inline bool disable() noexcept
+        {
+            return this->_internal->disable();
+        }
+    };
 
 	template<typename T, bool POISONABLE = false>
 	class channel_output_internal
@@ -411,5 +448,5 @@ namespace csp
 	};
 
 	template<typename T, bool POISONABLE = false>
-	using one2one_chan = chan_type<T, POISONABLE, chan_in, chan_out>;
+	using one2one_chan = chan_type<T, POISONABLE, guarded_chan_in, chan_out>;
 }
