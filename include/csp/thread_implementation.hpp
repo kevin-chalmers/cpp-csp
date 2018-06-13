@@ -538,11 +538,13 @@ namespace csp
             {
                 if (_selected != _next)
                 {
-                    size_t start_index = (_none_selected ? _next - 1 : _selected - 1);
+                    size_t start_index = (!_none_selected ? _next - 1 : _selected - 1);
                     if (_selected < _next)
                     {
-                        for (auto i = start_index; i >= 0; --i)
+                        auto i = start_index + 1;
+                        do
                         {
+                            --i;
                             if (_guards[i].disable())
                             {
                                 _none_selected = false;
@@ -553,7 +555,7 @@ namespace csp
                                     _barrier_trigger = false;
                                 }
                             }
-                        }
+                        } while (i != 0);
                         start_index = _guards.size() - 1;
                     }
                     for (auto i = start_index; i >= _next; --i)
@@ -583,7 +585,7 @@ namespace csp
             {
                 if (_selected != _next)
                 {
-                    size_t start_index = (_none_selected ? _next - 1 : _selected - 1);
+                    size_t start_index = (!_none_selected ? _next - 1 : _selected - 1);
                     if (_selected < _next)
                     {
                         for (auto i = start_index; i >= 0; --i)
