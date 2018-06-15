@@ -13,12 +13,13 @@ private:
 	chan_out<int> c;
 public:
 	explicit producer(chan_out<int> c)
-	: c(move(c))
+	: c(std::move(c))
 	{
 	}
 
 	void run() noexcept final
 	{
+	    auto d = make_one2one<int>();
 		for (int i = 0; i < 100000; ++i)
 			c(i);
 	}
@@ -55,9 +56,9 @@ public:
 
 int main(int argc, char **argv) noexcept
 {
-	auto c1 = thread_model::make_one2one<int>();
-	auto c2 = thread_model::make_one2one<int>();
-
+    concurrency conc = concurrency::THREAD_MODEL;
+	auto c1 = primitive_builder::make_one2one<int>(conc);
+	auto c2 = primitive_builder::make_one2one<int>(conc);
 
 	proc_t prod1 = make_proc<producer>(c1);
 	proc_t prod2 = make_proc<producer>(c2);

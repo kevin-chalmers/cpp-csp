@@ -202,6 +202,18 @@ namespace csp
 			}
 		};
 
+		class mutex_channel_end_mutex : public channel_end_mutex
+        {
+        private:
+            std::mutex _mut;
+        public:
+            mutex_channel_end_mutex() = default;
+
+            inline void lock() { _mut.lock(); }
+
+            inline void unlock() { _mut.unlock(); }
+        };
+
 		class barrier_type : public barrier_internal
 		{
 		private:
@@ -349,9 +361,9 @@ namespace csp
 
             }
 
-			explicit parallel_type(std::vector<proc_t> &procs)
+			explicit parallel_type(const std::vector<proc_t> &procs)
 			{
-				std::swap(_processes, procs);
+				_processes = procs;
 			}
 
 			template<typename RanIt>
@@ -759,14 +771,36 @@ namespace csp
         using par_type = thread_implementation::parallel_type;
         template<typename T, bool POISONABLE>
         using chan_type = thread_implementation::channel_type<T, POISONABLE>;
+        using chan_end_mutex = thread_implementation::mutex_channel_end_mutex;
         using bar_type = thread_implementation::barrier_type;
         using alt_type = thread_implementation::alt_type;
 
         template<typename T, bool POISONABLE = false>
         inline static one2one_chan<T, POISONABLE> make_one2one() noexcept
         {
-            channel<T, POISONABLE> c(std::make_shared<thread_implementation::channel_type<T, POISONABLE>>());
+            channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
             return one2one_chan<T, POISONABLE>(c, guarded_chan_in(c), chan_out(c));
+        }
+
+        template<typename T, bool POISONABLE = false>
+        inline static one2any_chan<T, POISONABLE> make_one2any() noexcept
+        {
+            channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
+            return one2any_chan<T, POISONABLE>(c, shared_chan_in(c, std::make_unique<chan_end_mutex>()), chan_out(c));
+        }
+
+        template<typename T, bool POISONABLE = false>
+        inline static any2one_chan<T, POISONABLE> make_any2one() noexcept
+        {
+            channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
+            return any2one_chan<T, POISONABLE>(c, guarded_chan_in(c), shared_chan_out(c, std::make_unique<channel_end_mutex>()));
+        }
+
+        template<typename T, bool POISONABLE = false>
+        inline static any2any_chan<T, POISONABLE> make_any2any() noexcept
+        {
+            channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
+            return any2any_chan<T, POISONABLE>(c, shared_chan_in(c, std::make_unique<chan_end_mutex>()), shared_chan_out(c, std::make_unique<channel_end_mutex>()));
         }
 
         inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<thread_implementation::barrier_type>(enrolled)); }

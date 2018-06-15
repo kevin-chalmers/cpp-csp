@@ -414,6 +414,26 @@ namespace csp
 		}
 	};
 
+    template<typename T, bool POISONABLE = false>
+    class shared_chan_out final : public chan_out<T, POISONABLE>
+    {
+    public:
+        shared_chan_out(channel<T, POISONABLE> chan, std::unique_ptr<channel_end_mutex> mut)
+        {
+            this->_internal = std::make_shared<channel_input_internal<T, POISONABLE>>(chan, move(mut));
+        }
+
+        shared_chan_out(const shared_chan_out<T, POISONABLE>&) = default;
+
+        shared_chan_out(shared_chan_out<T, POISONABLE>&&) = default;
+
+        ~shared_chan_out() = default;
+
+        shared_chan_out<T, POISONABLE>&operator=(const shared_chan_out<T, POISONABLE>&) = default;
+
+        shared_chan_out<T, POISONABLE>&operator=(shared_chan_out<T, POISONABLE>&&) = default;
+    };
+
 	template<typename T, bool POISONABLE, template<typename, bool> typename INPUT_END, template<typename, bool> typename OUTPUT_END>
 	class chan_type
 	{
@@ -460,8 +480,8 @@ namespace csp
     using one2any_chan = chan_type<T, POISONABLE, shared_chan_in, chan_out>;
 
     template<typename T, bool POISONABLE = false>
-    using any2one_chan = chan_type<T, POISONABLE, guarded_chan_in, chan_out>;
+    using any2one_chan = chan_type<T, POISONABLE, guarded_chan_in, shared_chan_out>;
 
     template<typename T, bool POISONABLE = false>
-    using any2any_chan = chan_type<T, POISONABLE, chan_in, chan_out>;
+    using any2any_chan = chan_type<T, POISONABLE, shared_chan_in, shared_chan_out>;
 }

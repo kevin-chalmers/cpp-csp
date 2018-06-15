@@ -5,7 +5,7 @@
 #include <set>
 #include "barrier.hpp"
 #include "process.hpp"
-#include "concurrency_model.hpp"
+#include "concurrency.hpp"
 
 namespace csp
 {
@@ -23,7 +23,7 @@ namespace csp
 		    _internal = std::make_shared<PAR_TYPE>(move(procs));
 		}
 
-		explicit parallel(std::vector<proc_t> &procs)
+		explicit parallel(const std::vector<proc_t> &procs)
 		{
 		    for (auto &p : procs)
 		        p.set_model(MODEL::model_type);
