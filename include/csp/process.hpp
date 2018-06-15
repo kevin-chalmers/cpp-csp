@@ -89,6 +89,7 @@ namespace csp
 	private:
         concurrency _model = concurrency::THREAD_MODEL;
     protected:
+
 	    inline proc_t make_par(const std::vector<proc_t> &procs) const noexcept { return primitive_builder::make_par(_model, procs); }
 
 	    inline proc_t make_par(std::vector<proc_t> &&procs) const noexcept { return primitive_builder::make_par(_model, move(procs)); }
@@ -237,7 +238,38 @@ namespace csp
             par(procs);
         }
 
+        template<typename T>
+        void par_write(std::initializer_list<chan_out<T>> &&chans, T value) const noexcept
+        {
+            // Create vector of processes to run
+            std::vector<proc_t> procs(chans.size());
+            size_t i = 0;
+            for (auto &c : chans)
+            {
+                procs[i] = make_proc<process_function>([=, &c]() { c(value); });
+                ++i;
+            }
+            // Run parallel
+            par(procs);
+        }
+
+        template<typename T>
+        void par_write(std::vector<chan_out<T>> &chans, T value) const noexcept
+        {
+            // Create vector of processes to run
+            std::vector<proc_t> procs(chans.size());
+            size_t i = 0;
+            for (auto &c : chans)
+            {
+                procs[i] = make_proc<process_function>([=, &c]() { c(value); });
+                ++i;
+            }
+            // Run parallel
+            par(procs);
+        }
+
     public:
+        virtual ~process() = default;
 
         inline void set_model(concurrency model) noexcept { _model = model; }
 

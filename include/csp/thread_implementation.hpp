@@ -362,7 +362,6 @@ namespace csp
             explicit parallel_type(std::initializer_list<proc_t> &&procs)
             : _processes(procs)
             {
-
             }
 
 			explicit parallel_type(const std::vector<proc_t> &procs)
