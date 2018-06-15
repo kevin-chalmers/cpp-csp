@@ -38,6 +38,8 @@ public:
 
 	void run() noexcept final
 	{
+	    std::vector<chan_in<int>> v{c1, c2};
+	    par_read({c1, c2});
 	    auto alt = make_alt({c1, c2});
 		for (int i = 0; i < 200000; ++i)
         {

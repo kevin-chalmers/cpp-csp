@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <memory>
+#include <vector>
 #include "concurrency.hpp"
 
 namespace csp
@@ -14,7 +15,7 @@ namespace csp
         mutable std::unique_ptr<process> _proc = nullptr;
 
     public:
-        proc_t() = delete;
+        proc_t() = default;
 
         explicit proc_t(std::unique_ptr<process> &&proc)
         : _proc(std::move(proc))
@@ -45,6 +46,12 @@ namespace csp
         inline void operator()() const noexcept { run(); }
     };
 
+    template<typename PROCESS, typename... ARGS>
+    proc_t make_proc(ARGS&&... args)
+    {
+        return proc_t(std::make_unique<PROCESS>(args...));
+    }
+
     class primitive_builder
     {
     private:
@@ -74,6 +81,8 @@ namespace csp
 
         static alternative make_alt(concurrency conc, std::vector<guard> &&guards) noexcept;
     };
+
+    class process_function;
 
 	class process
 	{
@@ -140,6 +149,94 @@ namespace csp
             return primitive_builder::make_alt(_model, std::vector<guard>(move(guards)));
         }
 
+        template<typename RanIt, typename Fun>
+        void par_for(RanIt begin, RanIt end, Fun &&f) const noexcept
+        {
+            std::vector<proc_t> procs;
+            for (RanIt data = begin; data != end; ++data)
+                procs.push_back(make_proc<process_function>(std::bind(f, *data)));
+            par(procs);
+        }
+
+        void par_for_n(size_t n, std::function<void()> &&f) const noexcept
+        {
+            std::vector<proc_t> procs;
+            for (size_t i = 0; i < n; ++i)
+                procs.push_back(make_proc<process_function>(f));
+            par(procs);
+        }
+
+        template<typename PROCESS, typename... ARGS>
+        void par_for_n(size_t n, ARGS&&... args) const noexcept
+        {
+            std::vector<proc_t> procs;
+            for (size_t i = 0; i < n; ++i)
+                procs.push_back(make_proc<PROCESS>(args...));
+            par(procs);
+        }
+
+        template<typename T>
+        std::vector<T> par_read(std::initializer_list<chan_in<T>> &&chans) const noexcept
+        {
+            std::vector<T> values(chans.size());
+            std::vector<proc_t> procs(chans.size());
+            size_t i = 0;
+            for (auto &c : chans)
+            {
+                procs[i] = make_proc<process_function>([=, &c, &values](){ values[i] = c(); });
+                ++i;
+            }
+            par(procs);
+            return values;
+        }
+
+        template<typename T>
+        std::vector<T> par_read(std::vector<chan_in<T>> &chans) const noexcept
+        {
+            std::vector<T> values(chans.size());
+            std::vector<proc_t> procs(chans.size());
+            size_t i = 0;
+            for (auto &c : chans)
+            {
+                procs[i] = make_proc<process_function>([=, &c, &values](){ values[i] = c(); });
+                ++i;
+            }
+            par(procs);
+            return values;
+        }
+
+        template<typename T>
+        void par_write(std::initializer_list<chan_out<T>> &&chans, const std::vector<T> &values) const noexcept
+        {
+            assert(chans.size() == values.size());
+            // Create vector of processes to run
+            std::vector<proc_t> procs(chans.size());
+            size_t i = 0;
+            for (auto &c : chans)
+            {
+                procs[i] = make_proc<process_function>([=, &c, &values]() { c(values[i]); });
+                ++i;
+            }
+            // Run parallel
+            par(procs);
+        }
+
+        template<typename T>
+        void par_write(std::vector<chan_out<T>> &chans, const std::vector<T> &values) const noexcept
+        {
+            assert(chans.size() == values.size());
+            // Create vector of processes to run
+            std::vector<proc_t> procs(chans.size());
+            size_t i = 0;
+            for (auto &c : chans)
+            {
+                procs[i] = make_proc<process_function>([=, &c, &values]() { c(values[i]); });
+                ++i;
+            }
+            // Run parallel
+            par(procs);
+        }
+
     public:
 
         inline void set_model(concurrency model) noexcept { _model = model; }
@@ -179,10 +276,4 @@ namespace csp
     }
 
     inline void proc_t::set_model(concurrency model) const noexcept { _proc->set_model(model); }
-
-    template<typename PROCESS, typename... ARGS>
-    proc_t make_proc(ARGS&&... args)
-    {
-        return proc_t(std::make_unique<PROCESS>(args...));
-    }
 }
