@@ -56,7 +56,7 @@ public:
 
 int main(int argc, char **argv) noexcept
 {
-    concurrency conc = concurrency::ATOMIC_MODEL;
+    concurrency conc = concurrency::FIBER_MODEL;
 	auto c1 = primitive_builder::make_one2one<int>(conc);
 	auto c2 = primitive_builder::make_one2one<int>(conc);
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv) noexcept
 	proc_t prod2 = make_proc<producer>(c2);
 	proc_t con = make_proc<consumer>(c1, c2);
 
-	parallel<atomic_model> p{ prod1, prod2, con };
+	parallel<fiber_model> p{ prod1, prod2, con };
 	p.run();
 
 	return 0;

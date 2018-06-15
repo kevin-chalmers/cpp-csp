@@ -3,11 +3,8 @@
 #include <memory>
 #include <vector>
 #include <set>
-#include <functional>
-#include <thread>
 #include <mutex>
-#include <condition_variable>
-#include <cassert>
+#include <boost/fiber/all.hpp>
 #include "channel.hpp"
 #include "barrier.hpp"
 #include "parallel.hpp"
@@ -15,72 +12,49 @@
 
 namespace csp
 {
-	namespace thread_implementation
-	{
-		class thread_manager
-		{
-		private:
-			static std::set<std::shared_ptr<std::thread>> _all_threads;
-			static std::unique_ptr<std::mutex> _all_threads_lock;
-		public:
-			static void add_to_all_threads(std::shared_ptr<std::thread> thread) noexcept
-			{
-				std::lock_guard<std::mutex> lock(*_all_threads_lock);
-				_all_threads.emplace(thread);
-			}
+    namespace fiber_implementation
+    {
+        class fiber_manager
+        {
+        private:
+            thread_local static std::set<std::shared_ptr<boost::fibers::fiber>> _thread_fibers;
+            thread_local static std::unique_ptr<boost::fibers::mutex> _thread_fibers_mutex;
+        public:
+            static void add_to_thread_fibers(std::shared_ptr<boost::fibers::fiber> fiber)
+            {
+                std::lock_guard<boost::fibers::mutex> lock(*_thread_fibers_mutex);
+                _thread_fibers.emplace(fiber);
+            }
 
-			static void remove_from_all_threads(std::shared_ptr<std::thread> thread) noexcept
-			{
-				std::lock_guard<std::mutex> lock(*_all_threads_lock);
-				_all_threads.erase(thread);
-			}
-		};
+            static void remove_from_thread_fibers(std::shared_ptr<boost::fibers::fiber> fiber)
+            {
+                std::lock_guard<boost::fibers::mutex> lock(*_thread_fibers_mutex);
+                _thread_fibers.erase(fiber);
+            }
+        };
 
-		std::set<std::shared_ptr<std::thread>> thread_manager::_all_threads = std::set<std::shared_ptr<std::thread>>();
-		std::unique_ptr<std::mutex> thread_manager::_all_threads_lock = std::make_unique<std::mutex>();
+        thread_local std::set<std::shared_ptr<boost::fibers::fiber>> fiber_manager::_thread_fibers = std::set<std::shared_ptr<boost::fibers::fiber>>();
+        thread_local std::unique_ptr<boost::fibers::mutex> fiber_manager::_thread_fibers_mutex = std::make_unique<boost::fibers::mutex>();
 
-		template<typename T, bool POISONABLE = false>
-		class channel_type final : public csp::channel_internal<T, POISONABLE>
-		{
-		private:
-            std::mutex _mut;
-            std::condition_variable _cond;
-            std::vector<T> _hold = std::vector<T>(0);
+        template<typename T, bool POISONABLE = false>
+        class channel_type final : public csp::channel_internal<T, POISONABLE>
+        {
+        private:
+            boost::fibers::mutex _mut;
+            boost::fibers::condition_variable _cond;
+            std::vector<T> _hold;
             bool _reading = false;
             bool _empty = true;
             alt_internal *_alt = nullptr;
-            size_t _strength = 0;
-		public:
-			channel_type()
-			{
-			}
-
-			void write(T value)
-			{
-				std::unique_lock<std::mutex> lock(_mut);
-				if (_strength > 0)
-					throw poison_exception(_strength);
-				_hold.push_back(std::move(value));
-				if (_empty)
-				{
-					_empty = false;
-					if (_alt != nullptr)
-					    this->schedule(_alt);
-				}
-				else
-				{
-					_empty = true;
-					_cond.notify_one();
-				}
-				_cond.wait(lock);
-				if (_strength > 0)
-					throw poison_exception(_strength);
-			}
-
-			template<typename _T = T, IsNotReference<_T>>
-            void write(T&& value)
+            unsigned int _strength = 0;
+        public:
+            channel_type()
             {
-                std::unique_lock<std::mutex> lock(_mut);
+            }
+
+            void write(T value)
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
                 if (_strength > 0)
                     throw poison_exception(_strength);
                 _hold.push_back(value);
@@ -100,60 +74,83 @@ namespace csp
                     throw poison_exception(_strength);
             }
 
-			T read()
-			{
-				std::unique_lock<std::mutex> lock(_mut);
-				if (_strength > 0)
-					throw poison_exception(_strength);
-				if (_empty)
-				{
-					_empty = false;
-					_cond.wait(lock);
-				}
-				else
-					_empty = true;
-				auto to_return = std::move(_hold[0]);
-				_hold.pop_back();
-				_cond.notify_one();
-				if (_strength > 0)
-					throw poison_exception(_strength);
-				return std::move(to_return);
-			}
+            template<typename _T = T, IsNotReference<_T>>
+            void write(T&& value)
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                _hold.push_back(std::move(value));
+                if (_empty)
+                {
+                    _empty = false;
+                    if (_alt != nullptr)
+                        this->schedule(_alt);
+                }
+                else
+                {
+                    _empty = true;
+                    _cond.notify_one();
+                }
+                _cond.wait(lock);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+            }
 
-			T start_read()
-			{
-				std::unique_lock<std::mutex> lock(_mut);
-				if (_strength > 0)
-				    throw poison_exception(_strength);
-				if (_reading)
-				    throw std::logic_error("Channel already in extended read");
-				if (_empty)
+            T read()
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                if (_empty)
                 {
                     _empty = false;
                     _cond.wait(lock);
                 }
                 else
                     _empty = true;
-				_reading = true;
-				if (_strength > 0)
-				    throw poison_exception(_strength);
-				return std::move(_hold[0]);
-			}
+                auto to_return = std::move(_hold[0]);
+                _hold.pop_back();
+                _cond.notify_one();
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                return std::move(to_return);
+            }
 
-			void end_read()
-			{
-                std::unique_lock<std::mutex> lock(_mut);
+            T start_read()
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_strength > 0)
+                    throw poison_exception(_strength);
                 if (_reading)
+                    throw std::logic_error("Channel already in extended read");
+                if (_empty)
+                {
+                    _empty = false;
+                    _cond.wait(lock);
+                }
+                else
+                    _empty =true;
+                _reading = true;
+                if (_strength > 0)
+                    throw poison_exception(_strength);
+                return std::move(_hold[0]);
+            }
+
+            void end_read()
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (!_reading)
                     throw std::logic_error("Channel not in extended read");
                 _hold.pop_back();
                 _empty = true;
                 _reading = false;
                 _cond.notify_one();
-			}
+            }
 
             bool enable_reader(alt_internal *alt) noexcept
             {
-                std::unique_lock<std::mutex> lock(_mut);
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
                 if (_strength > 0)
                     return true;
                 if (_empty)
@@ -167,7 +164,7 @@ namespace csp
 
             bool disable_reader() noexcept
             {
-                std::unique_lock<std::mutex> lock(_mut);
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
                 _alt = nullptr;
                 return !_empty || (_strength > 0);
             }
@@ -182,180 +179,185 @@ namespace csp
                 throw std::logic_error("This channel type has an unguarded writer end");
             }
 
-			bool reader_pending() noexcept
-			{
-				return !_empty || (_strength > 0);
-			}
+            bool reader_pending() noexcept
+            {
+                return !_empty || (_strength > 0);
+            }
 
-			bool writer_pending() noexcept
+            bool writer_pending() noexcept
             {
                 throw std::logic_error("This channel type has an unguarded writer end");
             }
 
-			void reader_poison(size_t strength) noexcept
-			{
-                throw std::logic_error("This channel type has an unguarded writer end");
-			}
+            void reader_poison(size_t strength) noexcept
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _strength = strength;
+                _cond.notify_all();
+            }
 
-			void writer_poison(size_t strength) noexcept
-			{
+            void writer_poison(size_t strength) noexcept
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                _strength = strength;
+                _cond.notify_all();
+                if (_alt != nullptr)
+                    this->schedule(_alt);
+            }
+        };
 
-			}
-		};
-
-		class mutex_channel_end_mutex final : public channel_end_mutex
+        class fiber_channel_end_mutex final : public channel_end_mutex
         {
         private:
-            std::mutex _mut;
+            boost::fibers::mutex _mut;
         public:
-            mutex_channel_end_mutex() = default;
+            fiber_channel_end_mutex() = default;
 
             inline void lock() { _mut.lock(); }
 
             inline void unlock() { _mut.unlock(); }
         };
 
-		class barrier_type final : public barrier_internal
-		{
-		private:
+        class barrier_type final : public barrier_internal
+        {
+        private:
             size_t _enrolled = 0;
             size_t _count_down = 0;
-            std::mutex _mut;
-            std::condition_variable _cond;
+            boost::fibers::mutex _mut;
+            boost::fibers::condition_variable _cond;
+        public:
+            barrier_type()
+            {
+            }
 
-		public:
-			barrier_type()
-			{
-			}
-
-			explicit barrier_type(size_t enrolled)
+            explicit barrier_type(size_t enrolled)
             : _enrolled(enrolled), _count_down(enrolled)
-			{
-			}
+            {
 
-			void sync() noexcept
-			{
-				std::unique_lock<std::mutex> lock(_mut);
-				--_count_down;
-				if (_count_down > 0)
-					_cond.wait(lock);
-				else
-				{
-					_count_down = _enrolled;
-					_cond.notify_all();
-				}
-			}
+            }
 
-			void enroll() noexcept
-			{
-				std::lock_guard<std::mutex> lock(_mut);
-				++_enrolled;
-				++_count_down;
-			}
+            void sync() noexcept
+            {
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                --_count_down;
+                if (_count_down > 0)
+                    _cond.wait(lock);
+                else
+                {
+                    _count_down = _enrolled;
+                    _cond.notify_all();
+                }
+            }
 
-			void resign() noexcept
-			{
-				std::lock_guard<std::mutex> lock(_mut);
-				--_enrolled;
-				--_count_down;
-				if (_count_down == 0)
-				{
-					_count_down = _enrolled;
-					_cond.notify_all();
-				}
-			}
+            void enroll() noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                ++_enrolled;
+                ++_count_down;
+            }
 
-			void reset(size_t enrolled) noexcept
-			{
-			    assert(_enrolled == _count_down);
-				std::lock_guard<std::mutex> lock(_mut);
-				_enrolled = enrolled;
-				_count_down = enrolled;
-			}
-		};
+            void resign() noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                --_enrolled;
+                --_count_down;
+                if (_count_down == 0)
+                {
+                    _count_down = _enrolled;
+                    _cond.notify_all();
+                }
+            }
 
-		class parallel_type;
+            void reset(size_t enrolled) noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                _enrolled = enrolled;
+                _count_down = enrolled;
+            }
+        };
 
-		class thread_type
-		{
-		    friend class parallel_type;
+        class parallel_type;
 
-		public:
-			proc_t *_process;
-			std::shared_ptr<std::thread> _thread = nullptr;
-			barrier _bar;
-			barrier _park = barrier(std::make_shared<barrier_type>(2));
-			bool _running = true;
-		public:
-			thread_type(proc_t *proc, barrier &bar)
+        class thread_type
+        {
+            friend class parallel_type;
+
+        private:
+            proc_t *_process = nullptr;
+            std::shared_ptr<boost::fibers::fiber> _fiber = nullptr;
+            barrier _bar;
+            barrier _park = barrier(std::make_shared<barrier_type>(2));
+            bool _running = true;
+        public:
+            thread_type(proc_t *proc, barrier &bar)
             : _process(proc), _bar(bar)
-			{
-			}
+            {
 
-			~thread_type()
-			{
-				thread_manager::remove_from_all_threads(_thread);
-			}
+            }
 
-			void reset(proc_t *proc, barrier &bar) noexcept
-			{
-				_process = proc;
-				_bar = bar;
-				_running = true;
-			}
+            ~thread_type()
+            {
+                fiber_manager::remove_from_thread_fibers(_fiber);
+            }
 
-			void terminate() noexcept
-			{
-				_running = false;
-				_park.sync();
-			}
+            void reset(proc_t *proc, barrier &bar) noexcept
+            {
+                _process = proc;
+                _bar = bar;
+                _running = true;
+            }
 
-			void release() noexcept
-			{
-				_park.sync();
-			}
+            void terminate() noexcept
+            {
+                _running = false;
+                _park();
+            }
 
-			void run() noexcept
-			{
-				while (_running)
-				{
+            void release() noexcept
+            {
+                _park();
+            }
+
+            void run() noexcept
+            {
+                while (_running)
+                {
                     _process->run();
-					_bar.sync();
-					_park.sync();
-				}
-			}
+                    _bar();
+                    _park();
+                }
+                fiber_manager::remove_from_thread_fibers(_fiber);
+            }
 
-			void start() noexcept
-			{
-				_thread = std::make_shared<std::thread>(&thread_type::run, this);
-				thread_manager::add_to_all_threads(_thread);
-				_running = true;
-			}
-		};
+            void start() noexcept
+            {
+                _fiber = std::make_shared<boost::fibers::fiber>(&thread_type::run, this);
+                fiber_manager::add_to_thread_fibers(_fiber);
+                _running = true;
+            }
+        };
 
-		class parallel_type
-		{
-		private:
-			std::mutex _mut;
-			std::vector<proc_t> _processes;
-			std::vector<std::shared_ptr<thread_type>> _threads;
-			barrier _bar = barrier(std::make_shared<barrier_type>(0));
-			bool _processes_changed = true;
-
-			void release_all_threads() noexcept
-			{
-				std::lock_guard<std::mutex> lock(_mut);
-				for (auto &t : _threads)
-				{
-					t->terminate();
-					t->_thread->join();
-				}
-				_processes_changed = true;
-				_threads.clear();
-			}
-
-		public:
-		    parallel_type()
+        class parallel_type
+        {
+            boost::fibers::mutex _mut;
+            std::vector<proc_t> _processes;
+            std::vector<std::shared_ptr<thread_type>> _fibers;
+            barrier _bar = barrier(std::make_shared<barrier_type>(0));
+            bool _process_changed = true;
+        private:
+            void release_all_fibers() noexcept
+            {
+                std::lock_guard<boost::fibers::mutex> lock(_mut);
+                for (auto &f : _fibers)
+                {
+                    f->terminate();
+                    f->_fiber->join();
+                }
+                _process_changed = true;
+                _fibers.clear();
+            }
+        public:
+            parallel_type()
             {
             }
 
@@ -365,90 +367,83 @@ namespace csp
 
             }
 
-			explicit parallel_type(const std::vector<proc_t> &procs)
-			{
-				_processes = procs;
-			}
-
-			template<typename RanIt>
-			parallel_type(RanIt begin, RanIt end)
-			{
-				static_assert(std::iterator_traits<RanIt>::value_type == typeid(proc_t), "par only takes collections of process objects");
-				_processes = std::vector<proc_t>(begin, end);
-			}
-
-			~parallel_type()
+            explicit parallel_type(const std::vector<proc_t> &procs)
             {
-                release_all_threads();
+                _processes = procs;
             }
 
-			void run() noexcept
-			{
-				bool empty_run = true;
-				proc_t *my_process;
-				std::lock_guard<std::mutex> lock(_mut);
-				if (_processes.size() > 0)
-				{
-					empty_run = false;
-					my_process = &_processes[_processes.size() - 1];
-					if (_processes_changed)
-					{
-						_bar.reset(_processes.size());
-						if (_threads.size() < _processes.size() - 1)
-						{
-							for (size_t i = 0; i < _threads.size(); ++i)
-							{
-								_threads[i]->reset(&_processes[i], _bar);
-								_threads[i]->release();
-							}
-							for (size_t i = _threads.size(); i < _processes.size() - 1; ++i)
-							{
-								_threads.push_back(std::make_shared<thread_type>(&_processes[i], _bar));
-								_threads[i]->start();
-							}
-						}
-						else
-						{
-							for (size_t i = _threads.size() - 1; i >= _processes.size() - 1; --i)
-							{
-								_threads[i]->_running = false;
-								_threads[i]->release();
-							}
-							_threads.resize(_processes.size() - 1);
-							for (size_t i = 0; i < _processes.size() - 1; ++i)
-							{
-								_threads[i]->reset(&_processes[i], _bar);
-								_threads[i]->release();
-							}
-						}
-						_processes_changed = false;
-					}
-					else
-					{
-						for (auto &t : _threads)
-							t->release();
-					}
-				}
-				if (!empty_run)
-				{
-                    my_process->run();
-					_bar.sync();
-				}
-			}
-		};
+            template<typename RanIt>
+            parallel_type(RanIt begin, RanIt end)
+            {
+                static_assert(std::iterator_traits<RanIt>::value_type == typeid(proc_t), "par only takes collections of process objects");
+                _processes = std::vector<proc_t>(begin, end);
+            }
 
-		class mutex_alt_bar_coord
+            ~parallel_type()
+            {
+                release_all_fibers();
+            }
+
+            void run() noexcept
+            {
+                bool empty_run = true;
+                proc_t *my_process;
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
+                if (_processes.size() > 0)
+                {
+                    empty_run = false;
+                    my_process = &_processes[_processes.size() - 1];
+                    if (_process_changed)
+                    {
+                        _bar.reset(static_cast<unsigned int>(_processes.size()));
+                        if (_fibers.size() < _processes.size() - 1)
+                        {
+                            for (size_t i = 0; i < _fibers.size(); ++i)
+                            {
+                                _fibers[i]->reset(&_processes[i], _bar);
+                                _fibers[i]->release();
+                            }
+                            for (size_t i = static_cast<unsigned int>(_fibers.size()); i < _processes.size() - 1; ++i)
+                            {
+                                _fibers.push_back(std::shared_ptr<thread_type>(new thread_type(&_processes[i], _bar)));
+                                _fibers[i]->start();
+                            }
+                        }
+                        else
+                        {
+                            _fibers.resize(_processes.size() - 1);
+                            for (size_t i = 0; i < _processes.size() - 1; ++i)
+                            {
+                                _fibers[i]->reset(&_processes[i], _bar);
+                                _fibers[i]->release();
+                            }
+                        }
+                        _process_changed = false;
+                    }
+                    else
+                    {
+                        for (size_t i = 0; i < _processes.size() - 1; ++i)
+                            _fibers[i]->release();
+                    }
+                }
+                if (!empty_run)
+                {
+                    my_process->run();
+                    _bar();
+                }
+            }
+        };
+
+        class fiber_alt_bar_coord
         {
         private:
-            static size_t _active;
-
-            static std::unique_ptr<std::mutex> _active_lock;
-
-            static std::unique_ptr<std::condition_variable> _cond;
+            thread_local static size_t _active;
+            thread_local static std::unique_ptr<boost::fibers::mutex> _active_lock;
+            thread_local static std::unique_ptr<boost::fibers::condition_variable> _cond;
         public:
             static void start_enable()
             {
-                std::unique_lock<std::mutex> lock(*_active_lock);
+                std::unique_lock<boost::fibers::mutex> lock(*_active_lock);
                 while (_active > 0)
                     _cond->wait(lock);
                 if (_active != 0)
@@ -458,7 +453,7 @@ namespace csp
 
             static void finish_enable()
             {
-                std::unique_lock<std::mutex> lock(*_active_lock);
+                std::unique_lock<boost::fibers::mutex> lock(*_active_lock);
                 if (_active != 1)
                     throw std::runtime_error("alting barrier enable sequence finished with active count not equal to one: " + std::to_string(_active));
                 _active = 0;
@@ -467,7 +462,7 @@ namespace csp
 
             static void start_disable(size_t n)
             {
-                std::unique_lock<std::mutex> lock(*_active_lock);
+                std::unique_lock<boost::fibers::mutex> lock(*_active_lock);
                 if (_active != 1)
                     throw std::runtime_error("Completed alting barrier found in alt sequence with active count not equal to one: " + std::to_string(_active));
                 _active = n;
@@ -475,7 +470,7 @@ namespace csp
 
             static void finish_disable()
             {
-                std::unique_lock<std::mutex> lock(*_active_lock);
+                std::unique_lock<boost::fibers::mutex> lock(*_active_lock);
                 if (_active < 1)
                     throw std::runtime_error("alting barrier disable sequence finished with active count less than one: " + std::to_string(_active));
                 --_active;
@@ -484,21 +479,20 @@ namespace csp
             }
         };
 
-		size_t mutex_alt_bar_coord::_active = 0;
-		std::unique_ptr<std::mutex> mutex_alt_bar_coord::_active_lock = std::make_unique<std::mutex>();
-		std::unique_ptr<std::condition_variable> mutex_alt_bar_coord::_cond = std::make_unique<std::condition_variable>();
+        thread_local size_t fiber_alt_bar_coord::_active = 0;
+        thread_local std::unique_ptr<boost::fibers::mutex> fiber_alt_bar_coord::_active_lock = std::make_unique<boost::fibers::mutex>();
+        thread_local std::unique_ptr<boost::fibers::condition_variable> fiber_alt_bar_coord::_cond = std::make_unique<boost::fibers::condition_variable>();
 
-		class alt_type final : public alt_internal
-		{
-		private:
-		    std::mutex _mut;
+        class alt_type final : public alt_internal
+        {
+        private:
+            boost::fibers::mutex _mut;
+            boost::fibers::condition_variable _cond;
 
-		    std::condition_variable _cond;
-
-		    void enable_guards() noexcept
+            void enable_guards() noexcept
             {
                 if (_barrier_present)
-                    mutex_alt_bar_coord::finish_enable();
+                    fiber_alt_bar_coord::finish_enable();
                 _barrier_selected = 0;
                 for (_enable_index = _next; _enable_index < _guards.size(); ++_enable_index)
                 {
@@ -513,7 +507,7 @@ namespace csp
                             _barrier_trigger = false;
                         }
                         else if (_barrier_present)
-                            mutex_alt_bar_coord::finish_enable();
+                            fiber_alt_bar_coord::finish_enable();
                         _none_selected = false;
                         return;
                     }
@@ -531,20 +525,20 @@ namespace csp
                             _barrier_trigger = false;
                         }
                         else if (_barrier_present)
-                            mutex_alt_bar_coord::finish_enable();
+                            fiber_alt_bar_coord::finish_enable();
                         _none_selected = false;
                         return;
                     }
                 }
                 _none_selected = true;
                 if (_barrier_present)
-                    mutex_alt_bar_coord::finish_enable();
+                    fiber_alt_bar_coord::finish_enable();
             }
 
             void enable_guards(const std::vector<bool> &pre_cond) noexcept
             {
                 if (_barrier_present)
-                    mutex_alt_bar_coord::finish_enable();
+                    fiber_alt_bar_coord::finish_enable();
                 _barrier_selected = 0;
                 for (_enable_index = _next; _enable_index < _guards.size(); ++_enable_index)
                 {
@@ -559,7 +553,7 @@ namespace csp
                             _barrier_trigger = false;
                         }
                         else if (_barrier_present)
-                            mutex_alt_bar_coord::finish_enable();
+                            fiber_alt_bar_coord::finish_enable();
                         _none_selected = false;
                         return;
                     }
@@ -577,14 +571,14 @@ namespace csp
                             _barrier_trigger = false;
                         }
                         else if (_barrier_present)
-                            mutex_alt_bar_coord::finish_enable();
+                            fiber_alt_bar_coord::finish_enable();
                         _none_selected = false;
                         return;
                     }
                 }
                 _none_selected = true;
                 if (_barrier_present)
-                    mutex_alt_bar_coord::finish_enable();
+                    fiber_alt_bar_coord::finish_enable();
             }
 
             void disable_guards() noexcept
@@ -628,7 +622,7 @@ namespace csp
                 if (_barrier_ready)
                 {
                     _selected = _barrier_selected;
-                    mutex_alt_bar_coord::finish_disable();
+                    fiber_alt_bar_coord::finish_disable();
                 }
             }
 
@@ -673,17 +667,16 @@ namespace csp
                 if (_barrier_ready)
                 {
                     _selected = _barrier_selected;
-                    mutex_alt_bar_coord::finish_disable();
+                    fiber_alt_bar_coord::finish_disable();
                 }
             }
-
         protected:
             size_t do_select() noexcept
             {
                 _state = STATE::ENABLING;
                 enable_guards();
                 {
-                    std::unique_lock<std::mutex> lock(_mut);
+                    std::unique_lock<boost::fibers::mutex> lock(_mut);
                     if (_state == STATE::ENABLING)
                     {
                         _state = STATE::WAITING;
@@ -707,7 +700,7 @@ namespace csp
                 _state = STATE::ENABLING;
                 enable_guards(pre_conds);
                 {
-                    std::unique_lock<std::mutex> lock(_mut);
+                    std::unique_lock<boost::fibers::mutex> lock(_mut);
                     if (_state == STATE::ENABLING)
                     {
                         _state = STATE::WAITING;
@@ -726,10 +719,10 @@ namespace csp
                 return _selected;
             }
 
-		public:
-		    alt_type() = default;
+        public:
+            alt_type() = default;
 
-		    alt_type(const std::vector<guard> &guards)
+            alt_type(const std::vector<guard> &guards)
             : alt_internal(guards)
             {
             }
@@ -739,19 +732,19 @@ namespace csp
             {
             }
 
-		    alt_type(const alt_type&) = delete;
+            alt_type(const alt_type&) = delete;
 
-		    alt_type(alt_type&&) = default;
+            alt_type(alt_type&&) = default;
 
-		    ~alt_type() = default;
+            ~alt_type() = default;
 
-		    alt_type&operator=(const alt_type&) = delete;
+            alt_type&operator=(const alt_type&) = delete;
 
-		    alt_type&operator=(alt_type&&) = default;
+            alt_type&operator=(alt_type&&) = default;
 
-		    void schedule() noexcept
+            void schedule() noexcept
             {
-                std::unique_lock<std::mutex> lock(_mut);
+                std::unique_lock<boost::fibers::mutex> lock(_mut);
 
                 switch (_state)
                 {
@@ -766,19 +759,19 @@ namespace csp
                         break;
                 }
             }
-		};
-	};
+        };
+    }
 
-	struct thread_model
+    struct fiber_model
     {
-        static constexpr concurrency model_type = concurrency::THREAD_MODEL;
+        static constexpr concurrency model_type = concurrency::FIBER_MODEL;
 
-        using par_type = thread_implementation::parallel_type;
+        using par_type = fiber_implementation::parallel_type;
         template<typename T, bool POISONABLE>
-        using chan_type = thread_implementation::channel_type<T, POISONABLE>;
-        using chan_end_mutex = thread_implementation::mutex_channel_end_mutex;
-        using bar_type = thread_implementation::barrier_type;
-        using alt_type = thread_implementation::alt_type;
+        using chan_type = fiber_implementation::channel_type<T, POISONABLE>;
+        using chan_end_mutex = fiber_implementation::fiber_channel_end_mutex;
+        using bar_type = fiber_implementation::barrier_type;
+        using alt_type = fiber_implementation::alt_type;
 
         template<typename T, bool POISONABLE = false>
         inline static one2one_chan<T, POISONABLE> make_one2one() noexcept

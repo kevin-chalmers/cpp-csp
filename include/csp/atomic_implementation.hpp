@@ -301,14 +301,14 @@ namespace csp
         inline static any2one_chan<T, POISONABLE> make_any2one() noexcept
         {
             channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
-            return any2one_chan<T, POISONABLE>(c, guarded_chan_in(c), shared_chan_out(c, std::make_unique<channel_end_mutex>()));
+            return any2one_chan<T, POISONABLE>(c, guarded_chan_in(c), shared_chan_out(c, std::make_unique<chan_end_mutex>()));
         }
 
         template<typename T, bool POISONABLE = false>
         inline static any2any_chan<T, POISONABLE> make_any2any() noexcept
         {
             channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
-            return any2any_chan<T, POISONABLE>(c, shared_chan_in(c, std::make_unique<chan_end_mutex>()), shared_chan_out(c, std::make_unique<channel_end_mutex>()));
+            return any2any_chan<T, POISONABLE>(c, shared_chan_in(c, std::make_unique<chan_end_mutex>()), shared_chan_out(c, std::make_unique<chan_end_mutex>()));
         }
 
         inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<bar_type>(enrolled)); }

@@ -9,7 +9,8 @@
 #include "alternative.hpp"
 
 #include "thread_implementation.hpp"
-#include "atomic_implementation.h"
+#include "atomic_implementation.hpp"
+#include "fiber_implementation.hpp"
 
 csp::proc_t csp::primitive_builder::make_par(concurrency model, const std::vector <proc_t> &procs) noexcept
 {
@@ -17,6 +18,8 @@ csp::proc_t csp::primitive_builder::make_par(concurrency model, const std::vecto
         return csp::make_proc<csp::parallel<csp::thread_model>>(std::cref(procs));
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::make_proc<csp::parallel<csp::atomic_model>>(std::cref(procs));
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::make_proc<csp::parallel<csp::fiber_model>>(std::cref(procs));
 }
 
 csp::proc_t csp::primitive_builder::make_par(concurrency model, std::vector<proc_t> &&procs) noexcept
@@ -25,6 +28,8 @@ csp::proc_t csp::primitive_builder::make_par(concurrency model, std::vector<proc
         return csp::make_proc<csp::parallel<csp::thread_model>>(std::move(procs));
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::make_proc<csp::parallel<csp::atomic_model>>(std::move(procs));
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::make_proc<csp::parallel<csp::fiber_model>>(std::move(procs));
 }
 
 template<typename T, bool POISONABLE = false>
@@ -34,6 +39,8 @@ csp::one2one_chan<T, POISONABLE> csp::primitive_builder::make_one2one(concurrenc
         return csp::thread_model::make_one2one<T, POISONABLE>();
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::atomic_model::make_one2one<T, POISONABLE>();
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::fiber_model::make_one2one<T, POISONABLE>();
 }
 
 template<typename T, bool POISONABLE = false>
@@ -43,6 +50,8 @@ csp::one2any_chan<T, POISONABLE> csp::primitive_builder::make_one2any(concurrenc
         return csp::thread_model::make_one2any<T, POISONABLE>();
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::atomic_model::make_one2any<T, POISONABLE>();
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::fiber_model::make_one2any<T, POISONABLE>();
 }
 
 template<typename T, bool POISONABLE = false>
@@ -51,6 +60,8 @@ csp::any2one_chan<T, POISONABLE> csp::primitive_builder::make_any2one(concurrenc
     if (model == csp::concurrency::THREAD_MODEL)
         return csp::thread_model::make_any2one<T, POISONABLE>();
     else if (model == csp::concurrency::ATOMIC_MODEL)
+        return csp::atomic_model::make_any2one<T, POISONABLE>();
+    else if (model == csp::concurrency::FIBER_MODEL)
         return csp::atomic_model::make_any2one<T, POISONABLE>();
 }
 
@@ -61,6 +72,8 @@ csp::any2any_chan<T, POISONABLE> csp::primitive_builder::make_any2any(concurrenc
         return csp::thread_model::make_any2any<T, POISONABLE>();
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::atomic_model::make_any2any<T, POISONABLE>();
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::fiber_model::make_any2any<T, POISONABLE>();
 }
 
 csp::barrier csp::primitive_builder::make_bar(concurrency model, size_t enrolled) noexcept
@@ -69,6 +82,8 @@ csp::barrier csp::primitive_builder::make_bar(concurrency model, size_t enrolled
         return csp::thread_model::make_bar(enrolled);
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::atomic_model::make_bar(enrolled);
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::fiber_model::make_bar(enrolled);
 }
 
 csp::alternative csp::primitive_builder::make_alt(concurrency model, const std::vector <guard> &guards) noexcept
@@ -77,6 +92,8 @@ csp::alternative csp::primitive_builder::make_alt(concurrency model, const std::
         return csp::alternative(std::make_shared<csp::thread_model::alt_type>(std::cref(guards)));
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::alternative(std::make_shared<csp::atomic_model::alt_type>(std::cref(guards)));
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::alternative(std::make_shared<csp::fiber_model::alt_type>(std::cref(guards)));
 }
 
 csp::alternative csp::primitive_builder::make_alt(concurrency model, std::vector <guard> &&guards) noexcept
@@ -85,6 +102,8 @@ csp::alternative csp::primitive_builder::make_alt(concurrency model, std::vector
         return csp::alternative(std::make_shared<csp::thread_model::alt_type>(std::move(guards)));
     else if (model == csp::concurrency::ATOMIC_MODEL)
         return csp::alternative(std::make_shared<csp::atomic_model::alt_type>(std::move(guards)));
+    else if (model == csp::concurrency::FIBER_MODEL)
+        return csp::alternative(std::make_shared<csp::fiber_model::alt_type>(std::move(guards)));
 }
 
 namespace csp
@@ -92,10 +111,12 @@ namespace csp
     struct thread_fiber_model
     {
         static constexpr csp::concurrency model_type = csp::concurrency::FIBER_MODEL;
+        using par_type = thread_model::par_type;
     };
 
     struct atomic_fiber_model
     {
         static constexpr csp::concurrency model_type = csp::concurrency::FIBER_MODEL;
+        using par_type = thread_model::par_type;
     };
 }
