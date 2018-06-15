@@ -77,6 +77,7 @@ namespace csp
 					throw poison_exception(_strength);
 			}
 
+			template<typename _T = T, IsNotReference<_T>>
             void write(T&& value)
             {
                 std::unique_lock<std::mutex> lock(_mut);
@@ -227,10 +228,9 @@ namespace csp
 			{
 			}
 
-			explicit barrier_type(size_t size)
+			explicit barrier_type(size_t enrolled)
+            : _enrolled(enrolled), _count_down(enrolled)
 			{
-				_enrolled = size;
-				_count_down = size;
 			}
 
 			void sync() noexcept
@@ -803,6 +803,6 @@ namespace csp
             return any2any_chan<T, POISONABLE>(c, shared_chan_in(c, std::make_unique<chan_end_mutex>()), shared_chan_out(c, std::make_unique<channel_end_mutex>()));
         }
 
-        inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<thread_implementation::barrier_type>(enrolled)); }
+        inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<bar_type>(enrolled)); }
     };
 }
