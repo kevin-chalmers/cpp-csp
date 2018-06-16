@@ -274,7 +274,7 @@ namespace csp
 
     struct atomic_model
     {
-        static constexpr concurrency model_type = concurrency::THREAD_MODEL;
+        static constexpr concurrency model_type = concurrency::ATOMIC_MODEL;
 
         using par_type = thread_implementation::parallel_type;
         template<typename T, bool POISONABLE = false>
