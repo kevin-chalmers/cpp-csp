@@ -106,6 +106,12 @@ namespace csp
             tmp();
         }
 
+        inline void par(std::initializer_list<proc_t> &&procs) const noexcept
+        {
+            auto tmp = primitive_builder::make_par(_model, std::vector<proc_t>(move(procs)));
+            tmp();
+        }
+
         template<typename T, bool POISONABLE = false>
         inline one2one_chan<T, POISONABLE> make_one2one() const noexcept
         {

@@ -108,13 +108,13 @@ csp::alternative csp::primitive_builder::make_alt(concurrency model, std::vector
 
 namespace csp
 {
-    struct thread_fiber_model
+    struct thread_fiber_model : public thread_model
     {
         static constexpr csp::concurrency model_type = csp::concurrency::FIBER_MODEL;
         using par_type = thread_model::par_type;
     };
 
-    struct atomic_fiber_model
+    struct atomic_fiber_model : public atomic_model
     {
         static constexpr csp::concurrency model_type = csp::concurrency::FIBER_MODEL;
         using par_type = thread_model::par_type;
