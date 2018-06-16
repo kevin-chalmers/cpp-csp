@@ -1,7 +1,10 @@
 #include <iostream>
+#include <fstream>
+#include <chrono>
 #include <csp/csp.hpp>
 
 using namespace std;
+using namespace std::chrono;
 using namespace csp;
 
 class identity final : public process
@@ -17,8 +20,9 @@ public:
 
     void run() noexcept
     {
-        while (true)
+        for (int i = 0; i < (1 << 24) - 1; ++i)
             b(a());
+        a();
     }
 };
 
@@ -54,7 +58,7 @@ public:
 
     void run() noexcept
     {
-        while (true)
+        for (int i = 0; i < (1 << 24); ++i)
         {
             int tmp = c();
             a(++tmp);
@@ -76,7 +80,30 @@ public:
 
     void run() noexcept
     {
-        while (true)
+        for (int i = 0; i < (1 << 24); ++i)
+        {
+            int tmp = b();
+            c(tmp);
+            d(tmp);
+        }
+    }
+};
+
+class par_delta final : public process
+{
+private:
+    chan_in<int> b;
+    chan_out<int> c;
+    chan_out<int> d;
+public:
+    par_delta(chan_in<int> b, chan_out<int> c, chan_out<int> d)
+    : b(move(b)), c(move(c)), d(move(d))
+    {
+    }
+
+    void run() noexcept
+    {
+        for (int i = 0; i < (1 << 24); ++i)
         {
             int tmp = b();
             par_write({c, d}, tmp);
@@ -88,34 +115,128 @@ class consumer final : public process
 {
 private:
     chan_in<int> d;
+    string type;
 public:
-    explicit consumer(chan_in<int> d)
-    : d(move(d))
+    explicit consumer(chan_in<int> d, string type)
+    : d(move(d)), type(type)
     {
     }
 
     void run() noexcept
     {
-        while (true)
-            cout << d() << endl;
+        ofstream res(string("commstime.") + type + string(".csv"));
+        for (int i = 0; i < (1 << 24); i += (1 << 16))
+        {
+            auto start = system_clock::now();
+            for (int j = 0; j < (1 << 16); ++j)
+            {
+                d();
+            }
+            auto total = (system_clock::now() - start).count();
+            cout << i << endl;
+            res << (static_cast<double>(total) / (1 << 16)) << ",";
+        }
     }
 };
 
 int main(int argc, char **argv) noexcept
 {
-    concurrency conc = concurrency::THREAD_MODEL;
-    auto a = primitive_builder::make_one2one<int>(conc);
-    auto b = primitive_builder::make_one2one<int>(conc);
-    auto c = primitive_builder::make_one2one<int>(conc);
-    auto d = primitive_builder::make_one2one<int>(conc);
-
-    parallel<thread_model>
     {
-        make_proc<prefix>(a, b),
-        make_proc<delta>(b, c, d),
-        make_proc<successor>(c, a),
-        make_proc<consumer>(d)
-    }();
+        using conc = thread_model;
+        auto a = primitive_builder::make_one2one<int>(conc::model_type);
+        auto b = primitive_builder::make_one2one<int>(conc::model_type);
+        auto c = primitive_builder::make_one2one<int>(conc::model_type);
+        auto d = primitive_builder::make_one2one<int>(conc::model_type);
+
+        parallel<conc>
+        {
+            make_proc<prefix>(a, b),
+            make_proc<delta>(b, c, d),
+            make_proc<successor>(c, a),
+            make_proc<consumer>(d, string("thread"))
+        }();
+    }
+
+    {
+        using conc = thread_model;
+        auto a = primitive_builder::make_one2one<int>(conc::model_type);
+        auto b = primitive_builder::make_one2one<int>(conc::model_type);
+        auto c = primitive_builder::make_one2one<int>(conc::model_type);
+        auto d = primitive_builder::make_one2one<int>(conc::model_type);
+
+        parallel<conc>
+        {
+            make_proc<prefix>(a, b),
+            make_proc<par_delta>(b, c, d),
+            make_proc<successor>(c, a),
+            make_proc<consumer>(d, string("par.thread"))
+        }();
+    }
+
+    {
+        using conc = atomic_model;
+        auto a = primitive_builder::make_one2one<int>(conc::model_type);
+        auto b = primitive_builder::make_one2one<int>(conc::model_type);
+        auto c = primitive_builder::make_one2one<int>(conc::model_type);
+        auto d = primitive_builder::make_one2one<int>(conc::model_type);
+
+        parallel<conc>
+        {
+            make_proc<prefix>(a, b),
+            make_proc<delta>(b, c, d),
+            make_proc<successor>(c, a),
+            make_proc<consumer>(d, string("atomic"))
+        }();
+    }
+
+    {
+        using conc = atomic_model;
+        auto a = primitive_builder::make_one2one<int>(conc::model_type);
+        auto b = primitive_builder::make_one2one<int>(conc::model_type);
+        auto c = primitive_builder::make_one2one<int>(conc::model_type);
+        auto d = primitive_builder::make_one2one<int>(conc::model_type);
+
+        parallel<conc>
+        {
+            make_proc<prefix>(a, b),
+            make_proc<par_delta>(b, c, d),
+            make_proc<successor>(c, a),
+            make_proc<consumer>(d, string("par.atomic"))
+        }();
+    }
+
+    {
+        using conc = fiber_model;
+        auto a = primitive_builder::make_one2one<int>(conc::model_type);
+        auto b = primitive_builder::make_one2one<int>(conc::model_type);
+        auto c = primitive_builder::make_one2one<int>(conc::model_type);
+        auto d = primitive_builder::make_one2one<int>(conc::model_type);
+
+        parallel<conc>
+        {
+            make_proc<prefix>(a, b),
+            make_proc<delta>(b, c, d),
+            make_proc<successor>(c, a),
+            make_proc<consumer>(d, string("fiber"))
+        }();
+    }
+
+    {
+        using conc = fiber_model;
+        auto a = primitive_builder::make_one2one<int>(conc::model_type);
+        auto b = primitive_builder::make_one2one<int>(conc::model_type);
+        auto c = primitive_builder::make_one2one<int>(conc::model_type);
+        auto d = primitive_builder::make_one2one<int>(conc::model_type);
+
+        parallel<conc>
+        {
+            make_proc<prefix>(a, b),
+            make_proc<par_delta>(b, c, d),
+            make_proc<successor>(c, a),
+            make_proc<consumer>(d, string("par.fiber"))
+        }();
+    }
+
     return 0;
 }
 
