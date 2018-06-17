@@ -55,7 +55,7 @@ private:
     size_t num;
 public:
     timer(barrier global_bar, size_t threads, size_t num)
-    : global_bar(global_bar)
+    : global_bar(global_bar), threads(threads), num(num)
     {
     }
 
