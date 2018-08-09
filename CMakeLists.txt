@@ -18,7 +18,7 @@ link_libraries(${Boost_LIBRARIES})
 
 include_directories(include)
 
-add_subdirectory(src)
+add_subdirectory(examples)
 
 option(BUILD_DOC "Build Documentation" ON)
 
