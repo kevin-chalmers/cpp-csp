@@ -54,7 +54,7 @@ int main(int argc, char **argv) noexcept
     using model = thread_model;
 	auto c = model::make_one2one<string>();
 
-	parallel<thread_model>
+	parallel<model>
     {
         make_proc<producer>(c),
         make_proc<consumer>(c)
