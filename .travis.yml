@@ -4,7 +4,7 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt install libboost
+  - sudo apt install libboost-all-dev
 
 language: cpp
 
