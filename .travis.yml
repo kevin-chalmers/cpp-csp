@@ -1,5 +1,11 @@
 sudo: required
 
+before_install:
+  - sudo apt-get update -qq
+
+install:
+  - sudo apt install libboost
+
 language: cpp
 
 compiler:
