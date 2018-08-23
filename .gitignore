@@ -56,3 +56,5 @@ docs/latex/
 cmake-build-debug/
 
 cmake-build-release/
+
+\.vscode/
