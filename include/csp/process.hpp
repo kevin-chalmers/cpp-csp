@@ -29,7 +29,7 @@ namespace csp
 
         proc_t(proc_t&&) = default;
 
-        proc_t&operator=(const proc_t &other)
+        proc_t& operator=(const proc_t &other)
         {
             other._proc.swap(_proc);
             return *this;

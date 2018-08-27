@@ -45,10 +45,11 @@ public:
         vector<proc_t> children;
         for (auto i = 0; i < CHILDREN; ++i)
             children.push_back(make_proc<child>(bar));
+        auto par = make_par(children);
         // Perform 100 main syncs
         for (auto i = 0; i < 100; ++i)
         {
-            make_par(children)();
+            par();
             cout << "Child " << _idx << " syncing..." << endl;
             _main_bar();
         }
@@ -71,6 +72,6 @@ int main(int argc, char **argv) noexcept
     for (auto i = 0; i < PARENTS; ++i)
         procs.push_back(make_proc<parent>(i, bar));
     // Run in parallel
-    // TODO - run in parallel
+    parallel<model>(procs).run();
     return 0;
 }
