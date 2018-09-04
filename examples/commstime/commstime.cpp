@@ -1,7 +1,9 @@
 #include <iostream>
+#include <chrono>
 #include <csp/csp.hpp>
 
 using namespace std;
+using namespace std::chrono;
 using namespace csp;
 
 class prefix : public process
@@ -68,12 +70,12 @@ public:
     }
 };
 
-class printer : public process
+class consumer : public process
 {
     chan_in<int> _in;
 
 public:
-    printer(chan_in<int> in)
+    consumer(chan_in<int> in)
     : _in(in)
     {
     }
@@ -81,7 +83,14 @@ public:
     void run() noexcept final
     {
         while (true)
-            cout << _in() << endl;
+        {
+            auto start = system_clock::now();
+            for (auto i = 0; i < 1 << 16; ++i)
+                _in();
+            auto total = (system_clock::now() - start).count();
+            cout << static_cast<double>(total) / (1 << 16) << "ns per cycle" << endl;
+            cout << static_cast<double>(total) / (1 << 16) / 4 << "ns per channel communication" << endl;
+        }
     }
 };
 
@@ -99,7 +108,7 @@ int main(int argc, char **argv) noexcept
         make_proc<prefix>(0, c, a),
         make_proc<delta>(a, b, d),
         make_proc<succ>(b, c),
-        make_proc<printer>(d)
+        make_proc<consumer>(d)
     }();
     return 0;
 }
