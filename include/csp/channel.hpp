@@ -18,9 +18,9 @@ namespace csp
 
         channel_internal(channel_internal<T, POISONABLE>&&) = default;
 
-        channel_internal<T>&operator=(const channel_internal<T, POISONABLE>&) = default;
+        channel_internal<T, POISONABLE>& operator=(const channel_internal<T, POISONABLE>&) = default;
 
-        channel_internal<T>&operator=(channel_internal<T, POISONABLE>&&) = default;
+        channel_internal<T, POISONABLE>& operator=(channel_internal<T, POISONABLE>&&) = default;
 
         virtual ~channel_internal() = default;
 
