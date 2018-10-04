@@ -44,7 +44,7 @@ namespace csp
         };
     public:
         stop()
-        : _internal(std::make_shared<skip_internal>())
+        : _internal(std::make_shared<stop_internal>())
         {
         }
 
@@ -64,4 +64,11 @@ namespace csp
             c();
         }
     };
+
+    guard operator&&(bool condition, guard& g)
+    {
+        if (condition)
+            return g;
+        else return stop();
+    }
 }
