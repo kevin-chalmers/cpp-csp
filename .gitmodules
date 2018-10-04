@@ -1,3 +1,0 @@
-[submodule "extern/asio"]
-	path = extern/asio
-	url = https://github.com/boostorg/asio.git
