@@ -7,10 +7,56 @@
 namespace csp
 {
     template<class CLOCK, class DURATION = typename CLOCK::duration, class TIME_POINT = typename CLOCK::time_point>
+    class timer_internal : public guard_internal
+    {
+    private:
+        TIME_POINT _time;
+
+    public:
+        timer_internal()
+        {
+        }
+
+        timer_internal(const timer_internal&) = default;
+
+        timer_internal(timer_internal&&) = default;
+
+        ~timer_internal() = default;
+
+        timer_internal& operator=(const timer_internal&) = default;
+
+        timer_internal& operator=(timer_internal&) = default;
+
+        inline TIME_POINT get_alarm() const noexcept { return _time; }
+
+        inline void set_alarm(TIME_POINT &time_point) noexcept
+        {
+            _time = time_point;
+        }
+
+        bool enable(alt_internal* a) noexcept final
+        {
+            if (_timer - CLOCK::now() <= CLOCK::duration::zero())
+                return true;
+            set_timeout(a, _time);
+            return false;
+        }
+
+        inline bool disable() noexcept final
+        {
+            return _time - CLOCK::now() <= CLOCK::duration::zero();
+        }
+    };
+
+    template<class CLOCK, class DURATION = typename CLOCK::duration, class TIME_POINT = typename CLOCK::time_point>
     class timer : public guard
     {
+    private:
+        std::shared_ptr<timer_internal> _internal;
+
     public:
         timer()
+        _internal(std::make_shared<timer_internal>())
         {
 
         }
@@ -37,38 +83,17 @@ namespace csp
 
         inline TIME_POINT get_alarm() const noexcept
         {
-
+            return _internal->get_alarm();
         }
 
         inline void set_alarm(const TIME_POINT &timepoint) const noexcept
         {
-
+            _internal->set_alarm(timepoint);
         }
 
         inline void set_alarm(const DURATION &duration) const noexcept
         {
-
-        }
-
-        inline void after(const TIME_POINT &timepoint) const noexcept
-        {
-            // TODO: Need to work out sleeping for different models.
-            // TODO: We can have a class with all the methods necessary if the model of concurrency stays the same (i.e. we don't have thread-fiber) since the methods will call the correct builder.
-        }
-
-        inline void operator()(const TIME_POINT &timepoint) const noexcept
-        {
-            after(timepoint);
-        }
-
-        inline void sleep(const DURATION &duration) const noexcept
-        {
-            // TODO: As after, need to define what sleep means in multi-model system.
-        }
-
-        inline void operator()(const DURATION &duration) const noexcept
-        {
-            sleep(DURATION);
+            _internal->set_alarm(CLOCK::now() + duration);
         }
 
         timer<CLOCK>& operator+(const DURATION &duration) noexcept

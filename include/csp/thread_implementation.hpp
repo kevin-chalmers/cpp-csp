@@ -770,6 +770,8 @@ namespace csp
 
 	struct thread_model
     {
+		// TODO - Add sleep and after methods.  Consier clock type.
+
         static constexpr concurrency model_type = concurrency::THREAD_MODEL;
 
         using par_type = thread_implementation::parallel_type;

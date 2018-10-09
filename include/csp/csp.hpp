@@ -7,6 +7,7 @@
 #include "process.hpp"
 #include "parallel.hpp"
 #include "alternative.hpp"
+#include "timer.hpp"
 
 #include "thread_implementation.hpp"
 #include "atomic_implementation.hpp"
