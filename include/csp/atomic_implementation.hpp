@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <atomic>
+#include <chrono>
 #include <cassert>
 #include "channel.hpp"
 #include "thread_implementation.hpp"
@@ -312,5 +313,17 @@ namespace csp
         }
 
         inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<bar_type>(enrolled)); }
+
+        template<class Rep, class Period>
+        inline static void sleep(const std::chrono::duration<Rep, Period> &duration) noexcept
+        {
+            std::this_thread::sleep_for(duration);
+        }
+
+        template<class Clock, class Duration>
+        inline static void sleep(const std::chrono::time_point<Clock, Duration> &timepoint) noexcept
+        {
+            std::this_thread::sleep_until(timepoint);
+        }
     };
 }

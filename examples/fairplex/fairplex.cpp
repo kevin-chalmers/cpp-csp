@@ -51,7 +51,13 @@ public:
         {
             _out(_N);
             timeout += _interval;
-            // TODO - get after to work.
+            sleep(timeout);
         }
     }
 };
+
+int main(int argc, char **argv)
+{
+    using model = thread_model;
+    // TODO: Add channel list creation methods.
+}
