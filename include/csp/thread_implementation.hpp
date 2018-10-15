@@ -770,8 +770,6 @@ namespace csp
 
 	struct thread_model
     {
-		// TODO - Add sleep and after methods.  Consier clock type.
-
         static constexpr concurrency model_type = concurrency::THREAD_MODEL;
 
         using par_type = thread_implementation::parallel_type;
@@ -786,6 +784,14 @@ namespace csp
         {
             channel<T, POISONABLE> c(std::make_shared<chan_type<T, POISONABLE>>());
             return one2one_chan<T, POISONABLE>(c, guarded_chan_in(c), chan_out(c));
+        }
+
+        template<typename T, bool POISONABLE=false>
+        inline static std::vector<one2one_chan<T, POISONABLE>> make_one2one(const size_t &N) noexcept
+        {
+            std::vector<one2one_chan<T, POISONABLE>> chans;
+            for (auto i = 0; i < N; ++i)
+                chans.push_back(make_one2one<T, POISONABLE>());
         }
 
         template<typename T, bool POISONABLE = false>
@@ -810,6 +816,11 @@ namespace csp
         }
 
         inline static barrier make_bar(size_t enrolled = 0) { return barrier(std::make_shared<bar_type>(enrolled)); }
+
+        inline static alternative make_alt(const std::vector<guard> &guards) noexcept
+		{
+			return alternative(std::make_shared<alt_type>(guards));
+		}
 
 		template<class Rep, class Period>
 		inline static void sleep(const std::chrono::duration<Rep, Period> &duration) noexcept

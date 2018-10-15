@@ -36,7 +36,7 @@ namespace csp
 
         bool enable(alt_internal* a) noexcept final
         {
-            if (_timer - CLOCK::now() <= CLOCK::duration::zero())
+            if (_time - CLOCK::now() <= CLOCK::duration::zero())
                 return true;
             set_timeout(a, _time);
             return false;
@@ -52,11 +52,11 @@ namespace csp
     class timer : public guard
     {
     private:
-        std::shared_ptr<timer_internal> _internal;
+        std::shared_ptr<timer_internal<CLOCK>> _internal;
 
     public:
         timer()
-        _internal(std::make_shared<timer_internal>())
+        : _internal(std::make_shared<timer_internal<CLOCK>>())
         {
 
         }
@@ -76,7 +76,7 @@ namespace csp
             return CLOCK::now();
         }
 
-        inline TIME_POINT operator()() const noexcept()() const noexcept
+        inline TIME_POINT operator()() const noexcept
         {
             return read();
         }

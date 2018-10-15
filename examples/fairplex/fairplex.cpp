@@ -56,8 +56,40 @@ public:
     }
 };
 
+class printer : public process
+{
+    chan_in<int> _in;
+public:
+    printer(chan_in<int> in)
+    : _in(in)
+    {
+    }
+
+    void run() noexcept final
+    {
+        while (true)
+        {
+            cout << _in() << endl;
+        }
+    }
+};
+
 int main(int argc, char **argv)
 {
     using model = thread_model;
-    // TODO: Add channel list creation methods.
+    auto a = model::make_one2one<int>(5);
+    auto b = model::make_one2one<int>();
+
+    parallel<model>
+    {
+        make_proc<regular>(a[0], 0, 5),
+        make_proc<regular>(a[1], 1, 5),
+        make_proc<regular>(a[2], 2, 5),
+        make_proc<regular>(a[3], 3, 5),
+        make_proc<regular>(a[4], 4, 5),
+        make_proc<fairplex>(a, b),
+        make_proc<printer>(b)
+    };
+
+    return 0;
 }
