@@ -14,6 +14,11 @@ TEST(Channel, Create)
     any2any_chan<int> d;
 }
 
+TEST(Parallel, Create)
+{
+    parallel p;
+}
+
 int main(int argc, char **argv)
 {
     InitGoogleTest(&argc, argv);

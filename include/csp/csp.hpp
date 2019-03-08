@@ -6,5 +6,6 @@
 #define CPP_CSP_CSP_H
 
 #include "channel.hpp"
+#include "parallel.hpp"
 
 #endif //CPP_CSP_CSP_H
