@@ -1,12 +1,17 @@
 #include <vector>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <csp/csp.hpp>
 
 using namespace testing;
+using namespace csp;
 
-TEST(SampleTest, Equal)
+TEST(Channel, Create)
 {
-    EXPECT_EQ(42, 42);
+    one2one_chan<int> a;
+    one2any_chan<int> b;
+    any2one_chan<int> c;
+    any2any_chan<int> d;
 }
 
 int main(int argc, char **argv)
