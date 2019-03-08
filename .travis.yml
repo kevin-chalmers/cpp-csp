@@ -1,0 +1,31 @@
+language: cpp
+compiler:
+  - clang
+  - gcc
+
+env: CMAKE_CMD_OPTION="-DENABLE_TESTING=1"
+
+matrix:
+  include:
+    - os: linux
+      sudo: false
+      compiler: gcc
+      env: CMAKE_CMD_OPTION="-DENABLE_COVERAGE=1"
+
+    - os: osx
+      compiler: xcode6.4
+
+    - os: osx
+      compiler: xcode8
+addons:
+  apt:
+    packages:
+      - cmake
+      - lcov
+
+script:
+  - mkdir build
+  - cd build
+  - cmake .. $CMAKE_CMD_OPTION
+  - make -j 2
+  - make test
