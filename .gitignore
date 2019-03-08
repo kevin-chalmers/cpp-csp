@@ -13,3 +13,5 @@ release/
 build/
 
 cmake-build-release/
+
+bin/
