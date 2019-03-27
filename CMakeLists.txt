@@ -3,13 +3,10 @@ project(cpp_csp)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake ${CMAKE_MODULE_PATH})
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../lib")
-
 option(ENABLE_DOC "Generates the documentation target" OFF)
 option(ENABLE_COVERAGE "Generates the coverage build" OFF)
 option(ENABLE_TESTING "Turns on testing" OFF)
+option(ENABLE_BENCHMARKING "Turns on benchmarking" OFF)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,6 +22,17 @@ if (ENABLE_TESTING OR ENABLE_COVERAGE)
     add_subdirectory(extern/googletest)
     include_directories(extern/googletest/googletest/include extern/googletest/googlemock/include)
     add_subdirectory(test)
+endif()
+
+if (ENABLE_BENCHMARKING)
+    set(BENCHMARK_ENABLE_TESTING OFF)
+    set(BENCHMARK_ENABLE_INSTALL OFF)
+    set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
+    set(BENCHMARK_ENABLE_ASSEMBLY_TESTS OFF)
+    set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+    add_subdirectory(extern/benchmark)
+    include_directories(extern/benchmark/include)
+    add_subdirectory(benchmarks)
 endif()
 
 add_subdirectory(demos)
