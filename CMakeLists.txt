@@ -35,7 +35,7 @@ if (ENABLE_BENCHMARKING)
     add_subdirectory(benchmarks)
 endif()
 
-option(BUILD_DOC "Build Documentation" ON)
+option(BUILD_DOC "Build Documentation" OFF)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
