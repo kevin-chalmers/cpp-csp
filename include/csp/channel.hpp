@@ -12,9 +12,9 @@ namespace csp
     template<typename T>
     class channel_internal
     {
-    public:
+    protected:
         channel_internal() = default;
-
+    public:
         channel_internal(const channel_internal<T>&) = default;
 
         channel_internal(channel_internal<T>&&) noexcept = default;
