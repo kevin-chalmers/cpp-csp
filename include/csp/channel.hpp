@@ -12,6 +12,14 @@ namespace csp
     template<typename T>
     class channel_internal
     {
+    public:
+        channel_internal() = default;
+
+        channel_internal(const channel_internal&) = default;
+
+        channel_internal(channel_internal&&) noexcept = default;
+
+        ~channel_internal() = default;
     };
 
     template<typename T>
