@@ -1,3 +1,3 @@
-add_executable(UnitTests channel-tests.cpp process-tests.cpp test.cpp)
+add_executable(UnitTests channel-tests.cc process-tests.cc test.cc)
 target_link_libraries(UnitTests gtest_main)
 add_test(NAME AllUnitTests COMMAND UnitTests)
