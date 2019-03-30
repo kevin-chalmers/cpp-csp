@@ -15,11 +15,15 @@ namespace csp
     public:
         channel_internal() = default;
 
-        channel_internal(const channel_internal&) = default;
+        channel_internal(const channel_internal<T>&) = default;
 
-        channel_internal(channel_internal&&) noexcept = default;
+        channel_internal(channel_internal<T>&&) noexcept = default;
 
         ~channel_internal() = default;
+
+        channel_internal<T>& operator=(const channel_internal<T>&) = default;
+
+        channel_internal<T>& operator=(channel_internal<T>&&) noexcept = default;
     };
 
     template<typename T>
