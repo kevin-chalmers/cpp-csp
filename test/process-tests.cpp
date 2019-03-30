@@ -9,6 +9,9 @@
 using namespace testing;
 using namespace csp;
 
+/*!
+ \brief Tests that a parallel can be created with no exceptions.
+ */
 TEST(Parallel, Create)
 {
     parallel p;

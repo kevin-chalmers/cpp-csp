@@ -8,7 +8,9 @@
 using namespace testing;
 using namespace csp;
 
-
+/*!
+ \brief Tests that channels can be created with no exceptions.
+ */
 TEST(Channel, Create)
 {
     one2one_chan<int> a;
@@ -17,6 +19,9 @@ TEST(Channel, Create)
     any2any_chan<int> d;
 }
 
+/*!
+ \brief Tests that channel ends can be retrieved with no exceptions.
+ */
 TEST(Channel, Get_End)
 {
     one2one_chan<int> a;
@@ -33,6 +38,9 @@ TEST(Channel, Get_End)
     auto d_out = d.out();
 }
 
+/*!
+ \brief Testss that the returned input and output ends are the correct type.
+ */
 TEST(Channel, Get_End_Type)
 {
     one2one_chan<int> a;
