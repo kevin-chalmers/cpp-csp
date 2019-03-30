@@ -15,13 +15,6 @@ namespace csp
     };
 
     template<typename T>
-    class channel
-    {
-    private:
-        std::shared_ptr<channel_internal<T>> _internal = nullptr;
-    };
-
-    template<typename T>
     class chan_in
     {
     };
@@ -52,7 +45,7 @@ namespace csp
     private:
         INPUT_END<T> _input;
         OUTPUT_END<T> _output;
-        channel<T> _chan;
+        std::shared_ptr<channel_internal<T>> _internal = nullptr;
     public:
         inline INPUT_END<T> in() const { return _input; }
         inline OUTPUT_END<T> out() const { return _output; }
