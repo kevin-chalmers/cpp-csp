@@ -19,7 +19,7 @@ namespace csp
 
         channel_internal(channel_internal<T>&&) noexcept = default;
 
-        ~channel_internal() = default;
+        virtual ~channel_internal() = default;
 
         channel_internal<T>& operator=(const channel_internal<T>&) = default;
 
