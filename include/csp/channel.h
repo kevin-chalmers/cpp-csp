@@ -79,7 +79,7 @@ class ChanIn {
 
   ChanIn<T>& operator=(const ChanIn<T>&) = default;
 
-  ChanIn<T>& operator=(ChanIn<T>&&) = default;
+  ChanIn<T>& operator=(ChanIn<T>&&) noexcept = default;
 };
 
 template<typename T>
@@ -108,6 +108,10 @@ class ChanOut {
   ChanOut(ChanOut<T>&&) noexcept = default;
 
   virtual ~ChanOut() = default;
+
+  ChanOut<T>& operator=(const ChanOut<T>&) = default;
+
+  ChanOut<T>& operator=(ChanOut<T>&&) noexcept = default;
 };
 
 template<typename T>
