@@ -92,6 +92,8 @@ class SharedChanIn : public ChanIn<T> {
 
 template<typename T>
 class ChanOut {
+ protected:
+  std::shared_ptr<ChannelInternal<T>> internal_ = nullptr;
 };
 
 template<typename T>
