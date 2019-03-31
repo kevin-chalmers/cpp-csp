@@ -48,6 +48,12 @@ class ChannelInternal {
     {
       write(std::move(value));
     }
+
+    virtual T read() = 0;
+    
+    virtual T start_read() = 0;
+
+    virtual void end_read() = 0;
 };
 
 template<typename T>
