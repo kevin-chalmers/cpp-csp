@@ -16,8 +16,15 @@
 #define INCLUDE_CSP_CHANNEL_H_
 
 #include <memory>
+#include <type_traits>
 
 namespace csp {
+
+/*!
+\brief Used to determine is a type is a reference or not in a template.
+ */
+template<typename T>
+using IsNotReference = std::enable_if_t<!std::is_reference_v<T>>;
 
 template<typename T>
 class ChannelInternal {
@@ -33,6 +40,14 @@ class ChannelInternal {
     ChannelInternal<T>& operator=(const ChannelInternal<T>&) = default;
 
     ChannelInternal<T>& operator=(ChannelInternal<T>&&) noexcept = default;
+
+    virtual void write(T) = 0;
+
+    template<typename T_ = T, typename = IsNotReference<T_>>
+    void write(T&& value)
+    {
+      write(std::move(value));
+    }
 };
 
 template<typename T>

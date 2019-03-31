@@ -8,7 +8,7 @@ option(ENABLE_COVERAGE "Generates the coverage build" OFF)
 option(ENABLE_TESTING "Turns on testing" OFF)
 option(ENABLE_BENCHMARKING "Turns on benchmarking" OFF)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 include_directories(include)
