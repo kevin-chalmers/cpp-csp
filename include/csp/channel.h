@@ -94,6 +94,20 @@ template<typename T>
 class ChanOut {
  protected:
   std::shared_ptr<ChannelInternal<T>> internal_ = nullptr;
+
+  ChanOut() = default;
+
+ public:
+  explicit ChanOut(std::shared_ptr<ChannelInternal<T>> internal)
+  : internal_(internal)
+  {
+  }
+
+  ChanOut(ChanOut<T>&) = default;
+
+  ChanOut(ChanOut<T>&&) noexcept = default;
+
+  virtual ~ChanOut() = default;
 };
 
 template<typename T>
