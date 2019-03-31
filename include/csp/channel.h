@@ -62,6 +62,20 @@ template<typename T>
 class ChanIn {
  protected:
   std::shared_ptr<ChannelInternal<T>> internal_ = nullptr;
+
+  ChanIn() = default;
+
+ public:
+  explicit ChanIn(std::shared_ptr<ChannelInternal<T>> internal)
+  : internal_(internal)
+  {
+  }
+
+  ChanIn(const ChanIn<T>&) = default;
+
+  ChanIn(ChanIn<T>&&) noexcept = default;
+
+  virtual ~ChanIn() = default;
 };
 
 template<typename T>
