@@ -16,6 +16,7 @@
 #define INCLUDE_CSP_CHANNEL_H_
 
 #include <memory>
+#include <utility>
 #include <type_traits>
 
 namespace csp {
@@ -29,35 +30,38 @@ using IsNotReference = std::enable_if_t<!std::is_reference_v<T>>;
 template<typename T>
 class ChannelInternal {
  protected:
-    ChannelInternal() = default;
+  ChannelInternal() = default;
+
  public:
-    ChannelInternal(const ChannelInternal<T>&) = default;
+  ChannelInternal(const ChannelInternal<T>&) = default;
 
-    ChannelInternal(ChannelInternal<T>&&) noexcept = default;
+  ChannelInternal(ChannelInternal<T>&&) noexcept = default;
 
-    virtual ~ChannelInternal() = default;
+  virtual ~ChannelInternal() = default;
 
-    ChannelInternal<T>& operator=(const ChannelInternal<T>&) = default;
+  ChannelInternal<T>& operator=(const ChannelInternal<T>&) = default;
 
-    ChannelInternal<T>& operator=(ChannelInternal<T>&&) noexcept = default;
+  ChannelInternal<T>& operator=(ChannelInternal<T>&&) noexcept = default;
 
-    virtual void write(T) = 0;
+  virtual void write(T) = 0;
 
-    template<typename T_ = T, typename = IsNotReference<T_>>
-    void write(T&& value)
-    {
-      write(std::move(value));
-    }
+  template<typename T_ = T, typename = IsNotReference<T_>>
+  void write(T&& value)
+  {
+    write(std::move(value));
+  }
 
-    virtual T read() = 0;
-    
-    virtual T start_read() = 0;
+  virtual T read() = 0;
 
-    virtual void end_read() = 0;
+  virtual T start_read() = 0;
+
+  virtual void end_read() = 0;
 };
 
 template<typename T>
 class ChanIn {
+ protected:
+  std::shared_ptr<ChannelInternal<T>> internal_ = nullptr;
 };
 
 template<typename T>
