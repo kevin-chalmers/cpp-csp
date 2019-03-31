@@ -84,10 +84,20 @@ class ChanIn {
 
 template<typename T>
 class GuardedChanIn : public ChanIn<T> {
+ public:
+  explicit GuardedChanIn(std::shared_ptr<ChannelInternal<T>> internal)
+  : ChanIn<T>(internal)
+  {
+  }
 };
 
 template<typename T>
 class SharedChanIn : public ChanIn<T> {
+ public:
+  explicit SharedChanIn(std::shared_ptr<ChannelInternal<T>> internal)
+  : ChanIn<T>(internal)
+  {
+  }
 };
 
 template<typename T>
@@ -103,7 +113,7 @@ class ChanOut {
   {
   }
 
-  ChanOut(ChanOut<T>&) = default;
+  ChanOut(const ChanOut<T>&) = default;
 
   ChanOut(ChanOut<T>&&) noexcept = default;
 
@@ -116,6 +126,11 @@ class ChanOut {
 
 template<typename T>
 class SharedChanOut : public ChanOut<T> {
+ public:
+  explicit SharedChanOut(std::shared_ptr<ChannelInternal<T>> internal)
+  : ChanOut<T>(internal)
+  {
+  }
 };
 
 template<typename T,
@@ -123,12 +138,17 @@ template<typename T,
          template<typename> class OUTPUT_END>
 class ChanType {
  private:
-    INPUT_END<T> input_;
-    OUTPUT_END<T> output_;
-    std::shared_ptr<ChannelInternal<T>> internal_ = nullptr;
+  INPUT_END<T> input_;
+  OUTPUT_END<T> output_;
+  std::shared_ptr<ChannelInternal<T>> internal_ = nullptr;
  public:
-    inline INPUT_END<T> in() const { return input_; }
-    inline OUTPUT_END<T> out() const { return output_; }
+  ChanType()
+  : input_(internal_), output_(internal_)
+  {
+  }
+
+  inline INPUT_END<T> in() const { return input_; }
+  inline OUTPUT_END<T> out() const { return output_; }
 };
 
 template<typename T>
